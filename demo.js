@@ -53,6 +53,8 @@
       document.body.appendChild(a);
     };
     if (document.body) tag(); else document.addEventListener("DOMContentLoaded", tag);
-    var st = document.createElement("style"); st.textContent = "@media print{#bb-demo-tag{display:none!important}}"; document.head.appendChild(st);
+    var st = document.createElement("style"); st.textContent = "@media print{#bb-demo-tag{display:none!important}}html.bbd #bb-demo-tag{display:none!important}"; document.head.appendChild(st);
   }
+  // 5. Desktop mode for leads (captain / director) on a wide screen, same as the real site.
+  var dk = document.createElement("script"); dk.src = "desktop.js"; dk.defer = true; document.head.appendChild(dk);
 })();
