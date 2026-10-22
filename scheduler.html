@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Scheduler — Banquet Bot</title>
+<script src="demo.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b141b;--card:#14212b;--card2:#1a2a36;--line:#8bd1ff26;--line2:#8bd1ff40;--ink:#e7f1f8;--mute:#8aa3b5;--blue:#8bd1ff;--blue-d:#8bd1ff22;
+  --green:#5fe3a0;--green-d:#5fe3a022;--amber:#f2c879;--amber-d:#f2c87922;--red:#ff8a8a;--red-d:#ff8a8a22;--mint:#5fe3c0}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Manrope,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 100% 0,#1f4a6a55,transparent 55%),radial-gradient(ellipse at 0 100%,#5fe3c014,transparent 55%),var(--bg)}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 90px}
+h1{font:600 30px/1 'Barlow Condensed',sans-serif;letter-spacing:.06em;margin:6px 0 2px;text-transform:uppercase}
+h2{font:600 20px/1.1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;margin:22px 0 8px;color:var(--blue)}
+.sub{color:var(--mute);font-size:13px}
+.demo{display:inline-block;font:700 10px/1 Manrope;letter-spacing:.12em;color:var(--amber);background:var(--amber-d);border:1px solid #f2c87955;padding:4px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;padding:10px 0;background:linear-gradient(var(--bg) 75%,transparent);overflow-x:auto}
+.tab{flex:0 0 auto;border:1px solid var(--line2);background:var(--card);color:var(--mute);border-radius:22px;padding:8px 14px;font:600 13px Manrope;cursor:pointer}
+.tab.on{background:var(--blue);color:#06121b;border-color:var(--blue)}
+.view{display:none}.view.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line2);background:var(--card2);color:var(--ink);border-radius:20px;padding:6px 11px;font:600 12.5px Manrope;cursor:pointer;user-select:none}
+.chip.on{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+.chip small{color:var(--mute);font-weight:500;margin-left:4px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font:700 13px Manrope;cursor:pointer;background:var(--blue);color:#06121b}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--line2)}
+.av{display:grid;grid-template-columns:78px 1fr;gap:8px 10px;align-items:center}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--mute);padding:9px 0;font:600 12px Manrope;cursor:pointer;border-left:1px solid var(--line)}
+.seg button:first-child{border-left:0}
+.seg button.on[data-v=all]{background:var(--green-d);color:var(--green)}
+.seg button.on[data-v=am],.seg button.on[data-v=pm]{background:var(--blue-d);color:var(--blue)}
+.seg button.on[data-v=off]{background:var(--red-d);color:var(--red)}
+.seg button.on[data-v=t]{background:#f2c8791f;color:var(--amber)}
+.twin{grid-column:2;display:flex;align-items:center;gap:6px;margin:-2px 0 4px;font-size:12px;color:var(--mute)}
+.twin input{background:var(--card2);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:5px 6px;font:600 13px Manrope;color-scheme:dark}
+.dl{font:600 15px 'Barlow Condensed';letter-spacing:.05em}.dl small{display:block;color:var(--mute);font:500 11px Manrope}
+.step{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+.step button{border:0;background:var(--card2);color:var(--blue);width:36px;height:34px;font:700 18px Manrope;cursor:pointer}
+.step b{min-width:34px;text-align:center}
+textarea{width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:10px;color:var(--ink);font:13px Manrope;padding:9px;min-height:54px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--green);color:#04170e;font:700 13px Manrope;padding:10px 16px;border-radius:24px;opacity:0;transition:.3s;pointer-events:none;z-index:20}
+.toast.on{opacity:1}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ratio{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:12.5px}
+.ratio input{width:120px;accent-color:var(--blue)}
+.day{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.dname{font:600 20px/1 'Barlow Condensed';letter-spacing:.05em}
+.clients{color:var(--mute);font-size:12px;margin-top:3px}
+.need{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pill{font:700 11px Manrope;padding:4px 8px;border-radius:20px;white-space:nowrap}
+.pill.ok{background:var(--green-d);color:var(--green)}.pill.short{background:var(--red-d);color:var(--red)}.pill.over{background:var(--amber-d);color:var(--amber)}
+.shiftb{padding:10px 14px;border-bottom:1px solid var(--line)}
+.shiftb:last-child{border-bottom:0}
+.sh{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:6px}
+.sh b{font:600 14px 'Barlow Condensed';letter-spacing:.08em;color:var(--blue)}
+.why{color:var(--mute);font-size:12px}
+.meals{color:var(--mute);font-size:12px;margin:2px 0 8px}
+.slot{display:inline-flex;align-items:center;gap:6px;background:var(--blue-d);border:1px solid #8bd1ff55;color:var(--ink);border-radius:20px;padding:5px 6px 5px 11px;font:600 12.5px Manrope}
+.slot i{font-style:normal;color:var(--mute);font-weight:500;font-size:11.5px}
+.slot button{border:0;background:#0006;color:var(--mute);width:20px;height:20px;border-radius:50%;cursor:pointer;font:700 12px Manrope;line-height:1}
+.add{border:1px dashed var(--line2);background:transparent;color:var(--blue);border-radius:20px;padding:5px 11px;font:600 12.5px Manrope;cursor:pointer}
+.pick{display:none;margin-top:8px}.pick.on{display:flex}
+.slot .tm{width:auto!important;height:auto!important;border:0;background:#8bd1ff1f!important;color:var(--blue)!important;border-radius:12px!important;padding:3px 9px!important;margin:0 2px;font:700 12px Manrope!important;line-height:1.2!important;white-space:nowrap;cursor:pointer}
+.slot i{padding-left:6px;border-left:1px solid #ffffff22;white-space:nowrap}
+.slot .tm.ed{color:var(--amber)}
+.tedit{display:none;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}.tedit.on{display:flex}
+.tedit input[type=time]{background:var(--card2);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:4px 6px;font:600 12.5px Manrope;color-scheme:dark}
+.pick .grp{width:100%;font-size:11px;color:var(--mute);margin:4px 0 2px}
+.chip.na{opacity:.55;border-style:dashed}
+.pick input.nm{background:var(--card2);color:var(--ink);border:1px solid var(--line2);border-radius:16px;padding:5px 10px;font:600 12px Manrope;width:140px}
+.xs{border:1px solid #ff8a8a55;background:#ff8a8a14;color:#ff9b9b;border-radius:10px;padding:2px 8px;font:700 11px Manrope;cursor:pointer;margin-left:4px}
+.shtime{background:var(--card2);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:2px 4px;font:600 12px Manrope;color-scheme:dark}
+.xev{font-size:12px;color:var(--mint);margin-top:4px}
+.evform{display:none;flex-wrap:wrap;gap:6px;align-items:center;margin:0 14px 12px;padding:10px;border:1px dashed var(--line2);border-radius:10px;font-size:12px;color:var(--mute)}.evform.on{display:flex}
+.evform input,.evform select{background:var(--card2);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:5px 7px;font:600 12.5px Manrope;color-scheme:dark}
+.addshift{margin:8px 0 12px 14px;border:1px dashed var(--line2);background:none;color:var(--mute);border-radius:10px;padding:6px 10px;font:600 12px Manrope;cursor:pointer}
+.shlabel{background:transparent;border:0;border-bottom:1px dashed var(--line2);color:var(--ink);font:700 13px Manrope;width:150px}
+.fin{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.fin th{background:#000;color:#fff;font:700 11.5px Manrope;padding:6px 4px;border:1px solid #333}
+.fin th small{display:block;color:#bcd3ea;font-weight:600}
+.fin td{border:1px solid var(--line2);padding:5px 6px;text-align:center;min-width:74px;white-space:nowrap}
+.fin td.nm{text-align:left;font-weight:700;min-width:110px}
+.fin td[contenteditable]{cursor:text}.fin td[contenteditable]:focus{outline:2px solid var(--blue);background:#8bd1ff14}
+.fin td.edited{color:var(--amber)}
+.fin tr.band td{font:800 12px Georgia,serif;text-align:left;color:#0b1520}
+.finwrap{overflow-x:auto}
+.actual{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px;color:var(--mute)}
+.actual b{color:var(--mint);font-weight:600}
+.empty{color:var(--mute);padding:12px 14px;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+td.n{text-align:center;font-weight:700}
+.match{color:var(--green)}.near{color:var(--amber)}.far{color:var(--red)}
+.rub td:first-child{font-weight:700;color:var(--blue);white-space:nowrap}
+.load{display:grid;grid-template-columns:90px 1fr 92px;gap:6px 10px;align-items:center;font-size:12.5px}
+.bar{height:10px;background:var(--card2);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue);border-radius:6px}
+.bar i.max{background:var(--amber)}
+.note{font-size:12.5px;color:var(--mute)}
+.chart{width:100%;height:auto;display:block}
+ul.flat{margin:6px 0;padding-left:18px}ul.flat li{margin:4px 0}
+@media (max-width:560px){.dhead{flex-direction:column}.need{justify-content:flex-start}.av{grid-template-columns:64px 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="gate" hidden><div class="sub" style="margin-top:30vh;text-align:center">This page is still being tested.<br><a href="index.html" style="color:#8bd1ff">← Home</a></div></div>
+<div class="wrap" id="wrap">
+  <a href="index.html" style="color:var(--blue);text-decoration:none;font:600 13px Manrope">← Home</a>
+  <div class="card" id="testNote" style="border-color:#f2c87955;background:#f2c8790f;font-size:12.5px;color:var(--amber)">Pick the days you can work this week and tap Send. The captain and director see what you send.</div>
+  <div class="sub">BANQUET BOT · DEMO HOTEL</div>
+  <h1>Scheduler <span class="demo" id="stage">BETA</span></h1>
+  <div class="sub">Servers send availability → Banquet Bot drafts the week from the events and the director's staffing habits → the director and captain adjust and post.</div>
+
+  <div class="tabs">
+    <button class="tab on" data-v="avail">1 · Server availability</button>
+    <button class="tab" data-v="build">2 · Build the week</button>
+  </div>
+
+  <!-- 1. SERVER VIEW -->
+  <section class="view on" id="v-avail">
+    <div class="card row" style="justify-content:space-between">
+      <div class="row" style="gap:10px"><span style="font-size:20px">🔓</span><div><b id="whoTop"></b><div class="sub">Signed in with your PIN</div></div></div>
+      <button class="btn ghost" id="switch" title="Demo only: preview another server">Demo: switch server</button>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div><b id="whoName"></b> <span class="sub" id="weekLbl"></span></div>
+        <div class="row" style="gap:6px"><span class="sub">Shifts I want</span>
+          <span class="step"><button id="wMinus">−</button><b id="want">4</b><button id="wPlus">+</button></span></div>
+      </div>
+      <div class="av" id="avGrid"></div>
+      <div style="margin-top:12px"><textarea id="avNote" placeholder="Anything the director should know? (e.g. class Tuesday until 1pm)"></textarea></div>
+      <div class="row" style="margin-top:10px;justify-content:space-between">
+        <span class="sub" id="dueNote"></span>
+        <button class="btn" id="send">Send availability</button>
+      </div>
+    </div>
+    
+  </section>
+
+  <!-- 2. LEAD VIEW -->
+  <section class="view" id="v-build">
+    <div class="card">
+      <div class="tools">
+        <button class="btn" id="auto">✦ Construct schedule</button>
+        <button class="btn ghost" id="clear">Clear</button>
+        <label class="row" id="actualWrap" style="display:none!important;gap:6px;font-size:12.5px;color:var(--mute)"><input type="checkbox" id="showActual" checked style="accent-color:var(--mint)"> Compare to the posted schedule</label>
+      </div>
+      <div class="note" style="margin-top:8px" id="inCount"></div>
+    </div>
+    <div id="days"></div>
+    <h2>Hours check</h2>
+    <div class="card"><div class="load" id="load"></div>
+      <div class="note" style="margin-top:8px">Hours = 2 hours before each event starts (setup) to 1 hour after it ends, unless you changed someone's time. Shifts shown as scheduled / asked for; amber = at or over what they asked for.</div></div>
+    <h2>Final schedule</h2>
+    <div class="card">
+      <div class="note" style="margin-bottom:6px">Servers fill in from the week above. Tap any cell to type or fix it (OFF, BAR, 2PM-9PM…). The director, captain, bartenders and housemen are typed here.</div>
+      <div class="finwrap"><table class="fin" id="fin"></table></div>
+      <div class="tools" style="margin-top:10px">
+        <button class="btn" id="mkxls">⬇ Create schedule (Excel)</button>
+        <button class="btn ghost" id="finReset">Reset typed changes</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-rubric" hidden><span id="nDays"></span><div id="who-load"></div><svg id="chart"></svg><div id="fit"></div></section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// Testing access by Banquet Bot sign-in: Sam (beta, builds the week) plus Luis and Omar (send availability).
+const WHO = (() => { try { return JSON.parse(localStorage.getItem("bb-hsm-who") || "null"); } catch (e) { return null; } })();
+const TESTERS = {Sam: "", Andre: "", Luis: "", Nina: "", Omar: "", Tess: "", Reggie: "", Bea: "", Marco: "", Ivy: "", Theo: "", Ramon: "", Cole: "", Jade: ""};
+if (!WHO || !(WHO.name in TESTERS)) { document.getElementById("gate").hidden = false; document.getElementById("wrap").remove(); throw new Error("not a tester"); }
+const LEADV = WHO.role === "captain" || WHO.role === "director";   // Sam + Andre build the week; servers only send availability
+document.getElementById("stage").textContent = TESTERS[WHO.name];
+if (!TESTERS[WHO.name]) document.getElementById("stage").style.display = "none";
+if (LEADV) {
+  // Sam has no availability tab at all (no way to overwrite a server's answer): he goes straight to Build the week.
+  document.getElementById("testNote").textContent = "Demo: servers send their days from their own phones, and what they send shows here (✓ Sent). Switch to Server on the home page to send one yourself.";
+  ["#wrap .tabs", "#v-avail"].forEach(q => document.querySelectorAll(q).forEach(el => el.style.setProperty("display", "none", "important")));
+  document.getElementById("v-avail").classList.remove("on"); document.getElementById("v-build").classList.add("on");
+}
+else { ["#wrap .tabs", "#v-build", "#switch", "#v-avail > .note"].forEach(q => document.querySelectorAll(q).forEach(el => el.style.setProperty("display", "none", "important"))); }
+const DATA = {"week": {"2026-11-16": {"meals": [{"s": 420, "e": 480, "tag": "Breakfast Buffet", "n": 110, "room": "Cypress AB"}, {"s": 720, "e": 780, "tag": "Lunch Buffet", "n": 110, "room": "Cypress AB"}, {"s": 1050, "e": 1170, "tag": "Reception", "n": 150, "room": "Terrace"}, {"s": 480, "e": 540, "tag": "Continental Breakfast", "n": 14, "room": "Juniper A"}, {"s": 720, "e": 780, "tag": "Plated Lunch", "n": 14, "room": "Juniper A"}, {"s": 450, "e": 510, "tag": "Grab & Go Breakfast", "n": 40, "room": "Aspen"}, {"s": 720, "e": 780, "tag": "Boxed Lunch", "n": 40, "room": "Aspen"}], "clients": ["Northwind Analytics", "Brightline Health", "Solace Software"], "actual": [], "bars": [{"s": 1050, "e": 1170, "room": "Terrace", "label": "Northwind Analytics", "n": 1}]}, "2026-11-17": {"meals": [{"s": 420, "e": 480, "tag": "Breakfast Buffet", "n": 105, "room": "Cypress AB"}, {"s": 720, "e": 780, "tag": "Plated Lunch", "n": 105, "room": "Cypress AB"}, {"s": 720, "e": 780, "tag": "Conference Dining Lunch", "n": 24, "room": "Birch A"}, {"s": 690, "e": 810, "tag": "Plated Lunch", "n": 175, "room": "Cypress CD"}], "clients": ["Northwind Analytics", "Kestrel Robotics", "City Bar Association"], "actual": [], "bars": []}, "2026-11-18": {"meals": [{"s": 1080, "e": 1140, "tag": "Cocktail Reception", "n": 300, "room": "Pre-Function"}, {"s": 1140, "e": 1320, "tag": "Plated Dinner", "n": 300, "room": "Cypress"}, {"s": 720, "e": 780, "tag": "Lunch Buffet", "n": 24, "room": "Birch A"}, {"s": 450, "e": 510, "tag": "Continental Breakfast", "n": 18, "room": "Willow A"}, {"s": 720, "e": 750, "tag": "Boxed Lunch To Go", "n": 18, "room": "Willow A"}], "clients": ["Riverbend Children's Fund", "Kestrel Robotics", "Pinecrest Dental"], "actual": [], "bars": [{"s": 1080, "e": 1140, "room": "Pre-Function", "label": "Riverbend Children's Fund", "n": 2}, {"s": 1140, "e": 1380, "room": "Cypress", "label": "Riverbend Children's Fund", "n": 1}]}, "2026-11-19": {"meals": [{"s": 720, "e": 780, "tag": "Conference Dining Lunch", "n": 24, "room": "Birch A"}, {"s": 450, "e": 510, "tag": "Breakfast Buffet", "n": 60, "room": "Juniper"}, {"s": 720, "e": 780, "tag": "BBQ Lunch Buffet", "n": 60, "room": "Juniper"}, {"s": 1080, "e": 1260, "tag": "Plated Dinner", "n": 16, "room": "Willow B"}], "clients": ["Kestrel Robotics", "Atlas Freight", "Harbor Credit Union"], "actual": [], "bars": [{"s": 1080, "e": 1260, "room": "Willow B", "label": "Harbor Credit Union", "n": 1}]}, "2026-11-20": {"meals": [{"s": 450, "e": 510, "tag": "Grab & Go Breakfast", "n": 40, "room": "Aspen"}, {"s": 720, "e": 780, "tag": "Lunch Buffet", "n": 40, "room": "Aspen"}, {"s": 1110, "e": 1290, "tag": "Family-Style Dinner", "n": 40, "room": "Birch"}], "clients": ["Solace Software", "Harper & Lane Wedding"], "actual": [], "bars": [{"s": 1110, "e": 1290, "room": "Birch", "label": "Harper & Lane Wedding", "n": 1}]}, "2026-11-21": {"meals": [{"s": 1050, "e": 1110, "tag": "Cocktail Hour", "n": 180, "room": "Pre-Function"}, {"s": 1110, "e": 1380, "tag": "Dinner Buffet", "n": 180, "room": "Cypress CD"}], "clients": ["Harper & Lane Wedding"], "actual": [], "bars": [{"s": 1050, "e": 1380, "room": "Pre-Function", "label": "Harper & Lane Wedding", "n": 2}]}, "2026-11-22": {"meals": [{"s": 600, "e": 720, "tag": "Brunch Buffet", "n": 60, "room": "Juniper"}], "clients": ["Harper & Lane Wedding"], "actual": [], "bars": []}}, "pts": []};
+const ROSTER = ["Luis", "Nina", "Omar", "Tess", "Reggie", "Bea", "Marco", "Ivy"];
+// Any event with a bar gets a bartender shift filled from these three (Sam 2026-10-22).
+const BARTENDERS = ["Cole", "Jade", "Reggie"];
+const DAYS = Object.keys(DATA.week);
+const DOW = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+const dLabel = d => { const x = new Date(d + "T12:00"); return DOW[x.getDay()] + " " + (x.getMonth() + 1) + "/" + x.getDate(); };
+// Sample availability (made up for the demo): all / am / pm / off for Sat..Fri, plus shifts wanted.
+// Shared storage: one Firestore doc per week (same project + collection as Housemen; localhost uses the test collection).
+// A server's real answer shows the moment they send it; anyone who hasn't sent is left off the draft.
+const WEEK = "sched-r2-" + Object.keys(DATA.week)[0];   // r2: fresh start for the Luis + Omar test (2026-10-20)
+let AV = {}, SENT = {}, DIRTY = {};
+// No more sample days (Sam 2026-10-20): until a server sends, they're Off every day and asked for 0 shifts.
+ROSTER.concat(BARTENDERS).forEach(n => { if (!AV[n]) AV[n] = {days: ["off","off","off","off","off","off","off"], want: 0, note: ""}; });
+const save = () => { DIRTY[me] = true; };
+// A day's availability: "all" | "am" | "pm" | "off" | "t:HH:MM-HH:MM" (the server typed their own hours)
+const hhmm = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+const unhhmm = v => { const [h, m] = v.split(":").map(Number); return h * 60 + m; };
+const win = v => { const m = /^t:(\d\d:\d\d)-(\d\d:\d\d)$/.exec(v || ""); if (!m) return null; let s = unhhmm(m[1]), e = unhhmm(m[2]); if (e <= s) e += 1440; return {s, e}; };
+const when = ts => new Date(ts).toLocaleString("en-US", {timeZone: "America/Chicago", weekday: "short", hour: "numeric", minute: "2-digit"});
+// Called by the Firestore listener (module script below) with the week's doc.
+window.schedRemote = data => {
+  const av = (data && data.av) || {};
+  Object.keys(av).forEach(n => {
+    if (!AV[n] || DIRTY[n]) return;
+    AV[n] = {days: av[n].days.slice(0, 7), want: av[n].want, note: av[n].note || ""};
+    SENT[n] = av[n];
+  });
+  renderAvail();
+  // New answers redraft the week, unless Sam has already hand-edited the draft.
+  if (document.getElementById("v-build").classList.contains("on")) { if (!MANUAL) autoFill(); renderBuild(); }
+};
+let me = ROSTER.includes(WHO.name) ? WHO.name : ROSTER[0];
+// A real server starts from a blank week (every day Off) until they pick days or their sent answer loads.
+if (!LEADV && AV[me] && !SENT[me]) AV[me] = {days: ["off","off","off","off","off","off","off"], want: AV[me].want || 4, note: ""};
+const $ = s => document.querySelector(s);
+const toast = t => { const el = $("#toast"); el.textContent = t; el.classList.add("on"); setTimeout(() => el.classList.remove("on"), 2200); };
+
+// ---------- tabs
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === "v-" + b.dataset.v));
+  if (b.dataset.v === "build") renderBuild();
+  scrollTo({top: 0});
+});
+
+// ---------- 1. availability
+function renderAvail() {
+  $("#whoTop").textContent = me;
+  $("#whoName").textContent = me;
+  $("#want").textContent = AV[me].want;
+  $("#dueNote").textContent = DIRTY[me] ? "Not sent yet — tap Send" : SENT[me] ? "Sent " + when(SENT[me].at) + (SENT[me].by && SENT[me].by !== me ? " (by " + SENT[me].by + ")" : "") : "Not sent yet";
+  $("#avNote").value = AV[me].note || "";
+  $("#avGrid").innerHTML = DAYS.map((d, i) => {
+    const v = AV[me].days[i], x = new Date(d + "T12:00"), w = win(v);
+    return `<div class="dl">${DOW[x.getDay()]}<small>${x.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</small></div>
+      <div class="seg" data-i="${i}">${[["all","All day"],["am","AM"],["pm","PM"],["t","Times"],["off","Off"]].map(([k, l]) =>
+        `<button data-v="${k}" class="${(k === "t" ? !!w : v === k) ? "on" : ""}">${l}</button>`).join("")}</div>
+      ${w ? `<div class="twin" data-i="${i}">From <input type="time" step="900" data-w="s" value="${hhmm(w.s)}"> to <input type="time" step="900" data-w="e" value="${hhmm(w.e % 1440)}"></div>` : ""}`;
+  }).join("");
+  $("#avGrid").querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+    const i = +b.parentNode.dataset.i;
+    AV[me].days[i] = b.dataset.v === "t" ? (win(AV[me].days[i]) ? AV[me].days[i] : "t:06:00-14:00") : b.dataset.v; save(); renderAvail();
+  });
+  $("#avGrid").querySelectorAll(".twin input").forEach(inp => inp.onchange = () => {
+    const box = inp.parentNode, i = +box.dataset.i, a = box.querySelector('[data-w="s"]').value, z = box.querySelector('[data-w="e"]').value;
+    if (a && z) { AV[me].days[i] = "t:" + a + "-" + z; save(); }
+  });
+}
+$("#switch").onclick = () => { me = ROSTER[(ROSTER.indexOf(me) + 1) % ROSTER.length]; renderAvail(); };
+$("#wMinus").onclick = () => { AV[me].want = Math.max(0, AV[me].want - 1); save(); renderAvail(); };
+$("#wPlus").onclick = () => { AV[me].want = Math.min(7, AV[me].want + 1); save(); renderAvail(); };
+$("#avNote").oninput = e => { AV[me].note = e.target.value; save(); };
+$("#send").onclick = async () => {
+  const rec = {days: AV[me].days.slice(), want: AV[me].want, note: AV[me].note || "", at: Date.now(), by: WHO.name};
+  const b = $("#send"); b.disabled = true; b.textContent = "Sending…";
+  try {
+    if (!window.schedSave) throw new Error("not connected");
+    await window.schedSave(me, rec);
+    DIRTY[me] = false; SENT[me] = rec; toast("Sent ✓ the captain and director can see it now");
+  } catch (e) { console.error("[scheduler]", e); toast("Didn't send — check signal and try again"); }
+  b.disabled = false; b.textContent = "Send availability"; renderAvail();
+};
+
+// ---------- the rubric, as code
+const amNeed = p => p === 0 ? 0 : p <= 30 ? 1 : p <= 60 ? 2 : p <= 120 ? 3 : Math.ceil(p / 30);
+const pmNeed = meals => {
+  let n = 0;
+  meals.forEach(m => { n += /dinner/i.test(m.tag) ? Math.max(1, Math.ceil(m.n / (/buffet/i.test(m.tag) ? 30 : 20))) : (m.n <= 150 ? 1 : Math.ceil(m.n / 75)); });
+  return n;
+};
+const fmt = m => { m = Math.round(m / 15) * 15; let h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? "P" : "A"; h = h % 12 || 12;
+  return h + (mm ? String(mm).padStart(2, "0") : "") + ap; };
+function plan(d) {
+  const meals = DATA.week[d].meals.concat((XEV[d] || []).filter(x => x.n > 0)), am = meals.filter(m => m.s < 900), pm = meals.filter(m => m.s >= 900);
+  const bkf = am.filter(m => /fast|bkf|brunch/i.test(m.tag)).reduce((a, m) => a + m.n, 0);
+  const lun = am.filter(m => /lunch/i.test(m.tag)).reduce((a, m) => a + m.n, 0);
+  const peak = Math.max(bkf, lun), out = [];
+  if (am.length) {
+    // Shift = 2 hours before the first event starts (setup) to 1 hour after the last one ends (Sam 2026-10-20).
+    const s = Math.min(...am.map(m => m.s)) - 120, e = Math.max(...am.map(m => m.e)) + 60;
+    out.push({k: "am", label: "AM crew", need: amNeed(peak), s, e, time: fmt(s) + "–" + fmt(e), hrs: (e - s) / 60,
+      why: `Biggest meal: ${peak === lun && lun ? "lunch" : "breakfast"} ${peak} guests → ${amNeed(peak)} server${amNeed(peak) > 1 ? "s" : ""}`,
+      meals: am});
+  }
+  if (pm.length) {
+    const s = Math.min(...pm.map(m => m.s)) - 120, e = Math.max(...pm.map(m => m.e)) + 60, n = pmNeed(pm);
+    out.push({k: "pm", label: "PM crew", need: n, s, e, time: fmt(s) + "–" + fmt(e), hrs: (e - s) / 60,
+      why: pm.map(m => `${m.tag} ${m.n}`).join(" + ") + ` → ${n} server${n > 1 ? "s" : ""}`, meals: pm});
+  }
+  // Bars (from the event orders, plus events added here with a bar): a bartender shift, 1 hour before to 1 hour after.
+  (DATA.week[d].bars || []).concat((XEV[d] || []).filter(x => x.bar).map(x => ({s: x.s, e: x.e, room: x.room, label: x.name, n: x.bt || 1})))
+    .forEach((b, bi) => out.push({k: "bar" + bi, label: "BAR · " + b.label, need: b.n, s: b.s - 60, e: b.e + 60, time: fmt(b.s - 60) + "–" + fmt(b.e + 60), hrs: (b.e - b.s + 120) / 60,
+      why: `Bar ${fmt(b.s)}–${fmt(b.e)}${b.room ? " · " + b.room : ""} → ${b.n} bartender${b.n > 1 ? "s" : ""} (Cole, Jade or Reggie)`, meals: [], bar: true}));
+  // Shifts Sam adds by hand (a bar shift, a setup crew, an extra event…)
+  (CUSTOM[d] || []).forEach(c => out.push({k: c.k, label: c.label, need: c.need || 0, s: c.s, e: c.e, time: fmt(c.s) + "–" + fmt(c.e), hrs: (c.e - c.s) / 60, why: "Added by hand", meals: [], custom: true}));
+  return out;
+}
+
+// ---------- 2. builder
+let ASSIGN = {};   // "date|am" -> [names]
+let MANUAL = false;   // true once Sam adds/removes someone by hand (then incoming answers don't redraft)
+let TIMES = {};       // "date|shift|name" -> {s, e} minutes: one person's own hours on that shift
+let CUSTOM = {};      // date -> [{k, label, s, e, need}] shifts added by hand
+let FINAL = {};       // "row|date" -> text typed into the final schedule grid
+let EXTRA = [];       // people added by name who aren't on the server roster
+let XEV = {};         // date -> [{id, name, tag, room, s, e, n}] events added by hand (they count toward the rubric)
+const BKEY = "bb-sched-build-" + WEEK;
+const saveBuild = () => { try { localStorage.setItem(BKEY, JSON.stringify({ASSIGN, TIMES, CUSTOM, FINAL, EXTRA, XEV, MANUAL})); } catch (e) {} };
+const loadBuild = () => { try { const b = JSON.parse(localStorage.getItem(BKEY) || "null"); if (!b) return false;
+  ({ASSIGN, TIMES, CUSTOM, FINAL, EXTRA, XEV} = Object.assign({ASSIGN: {}, TIMES: {}, CUSTOM: {}, FINAL: {}, EXTRA: [], XEV: {}}, b)); MANUAL = !!b.MANUAL;
+  EXTRA.forEach(n => { if (!AV[n]) AV[n] = {days: ["off","off","off","off","off","off","off"], want: 0, note: ""}; }); return true; } catch (e) { return false; } };
+const PEOPLE = () => ROSTER.concat(BARTENDERS.filter(n => !ROSTER.includes(n)), EXTRA.filter(n => !ROSTER.includes(n) && !BARTENDERS.includes(n)));
+const shiftOf = (d, k) => DATA.week[d] && plan(d).find(x => x.k === k);
+const timesOf = (d, k, n) => { const t = TIMES[d + "|" + k + "|" + n], sh = shiftOf(d, k); return t || (sh ? {s: sh.s, e: sh.e} : {s: 0, e: 0}); };
+// "530AM-2PM" style used on the posted schedule
+const xt = m => { m = ((m % 1440) + 1440) % 1440; let h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return h + (mm ? String(mm).padStart(2, "0") : "") + ap; };
+// Free for a shift: All day, the matching AM/PM, or typed hours that cover most of the shift.
+const free = (n, i, k, sh) => { const v = AV[n].days[i], w = win(v);
+  if (w && sh) { const o = Math.min(w.e, sh.e) - Math.max(w.s, sh.s); return o >= Math.min(180, (sh.e - sh.s) * 0.6); }
+  return v === "all" || v === k; };
+const winLabel = (n, i) => { const w = win(AV[n].days[i]); return w ? ` ${fmt(w.s)}–${fmt(w.e)}` : ""; };
+const shiftsOf = n => Object.values(ASSIGN).filter(a => a.includes(n)).length;
+const changed = () => { MANUAL = true; saveBuild(); };
+// Scheduled hours: each assigned shift runs 2h before its first event to 1h after its last.
+const hoursOf = n => Object.entries(ASSIGN).reduce((t, [key, who]) => { if (!who.includes(n)) return t;
+  const [d, k] = key.split("|"); if (!shiftOf(d, k)) return t; const x = timesOf(d, k, n); return t + Math.max(0, x.e - x.s) / 60; }, 0);
+const hfmt = h => (Math.round(h * 4) / 4).toString().replace(/\.25$/, "¼").replace(/\.5$/, "½").replace(/\.75$/, "¾");
+function autoFill() {
+  ASSIGN = {};
+  const slots = [];
+  DAYS.forEach((d, i) => plan(d).forEach(s => slots.push({d, i, s})));
+  // Biggest days first so the anchors land where they matter most.
+  slots.sort((a, b) => b.s.need - a.s.need);
+  slots.forEach(({d, i, s}) => {
+    const key = d + "|" + s.k, sameDay = n => Object.keys(ASSIGN).some(k2 => k2.startsWith(d + "|") && ASSIGN[k2].includes(n));
+    if (s.bar) {
+      const busy = n => plan(d).some(o => o.k !== s.k && (ASSIGN[d + "|" + o.k] || []).includes(n) && timesOf(d, o.k, n).s < s.e && timesOf(d, o.k, n).e > s.s);
+      const half = s.s >= 900 ? "pm" : "am";
+      const ok = BARTENDERS.filter(n => !busy(n)), avail = ok.filter(n => free(n, i, half, s));
+      ASSIGN[key] = avail.concat(ok.filter(n => !avail.includes(n))).slice(0, s.need);   // available first; otherwise still put a bartender on it
+      return;
+    }
+    const pool = ROSTER.filter(n => free(n, i, s.k, s) && !sameDay(n))
+      .sort((a, b) => (shiftsOf(a) >= AV[a].want) - (shiftsOf(b) >= AV[b].want) || shiftsOf(a) / (AV[a].want || 1) - shiftsOf(b) / (AV[b].want || 1) || ROSTER.indexOf(a) - ROSTER.indexOf(b));
+    ASSIGN[key] = pool.slice(0, s.need);
+    // Someone who typed their own hours works the part of the shift inside them.
+    ASSIGN[key].forEach(n => { const w = win(AV[n].days[i]); if (!w) return;
+      const t = {s: Math.max(w.s, s.s), e: Math.min(w.e, s.e)}; if (t.s !== s.s || t.e !== s.e) TIMES[key + "|" + n] = t; });
+  });
+}
+function renderBuild() {
+  const posted = DAYS.some(d => DATA.week[d].actual.length);
+  $("#actualWrap").hidden = !posted;
+  const showA = posted && $("#showActual").checked;
+  const sent = ROSTER.filter(n => SENT[n]);
+  $("#inCount").innerHTML = (sent.length ? "<b>Sent:</b> " + sent.map(n => `${n} <span class="sub">${when(SENT[n].at)}${SENT[n].note ? " · “" + SENT[n].note.replace(/</g, "&lt;") + "”" : ""}</span>`).join(" · ") : "Nobody has sent availability yet.") +
+    `<br><span class="sub">${ROSTER.length - sent.length} haven't sent yet, so they're left off the draft. Covers come from that week's event orders.</span>`;
+  $("#days").innerHTML = DAYS.map((d, i) => {
+    const w = DATA.week[d], p = plan(d);
+    let body = p.length ? p.map(s => {
+      const got = ASSIGN[d + "|" + s.k] || [], st = got.length === s.need ? "ok" : got.length < s.need ? "short" : "over";
+      const avail = s.bar ? BARTENDERS.filter(n => !got.includes(n)) : PEOPLE().filter(n => (s.custom ? AV[n].days[i] !== "off" : free(n, i, s.k, s)) && !got.includes(n));
+      const others = PEOPLE().filter(n => !avail.includes(n) && !got.includes(n));
+      return `<div class="shiftb">
+        <div class="sh"><span>${s.custom ? `<input class="shlabel" data-shl="${d}|${s.k}" value="${s.label.replace(/"/g, "&quot;")}"> <input type="time" step="900" class="shtime" data-sht="${d}|${s.k}|s" value="${hhmm(s.s)}"> – <input type="time" step="900" class="shtime" data-sht="${d}|${s.k}|e" value="${hhmm(s.e % 1440)}"> <button class="xs" data-delshift="${d}|${s.k}" title="Remove this shift">✕ Remove</button>` : `<b>${s.label}</b> <span class="sub">${s.time}</span>`}</span>
+          <span class="pill ${st}">${got.length}/${s.need}${st === "short" ? " · need " + (s.need - got.length) : st === "over" ? " · +" + (got.length - s.need) : " ✓"}</span></div>
+        <div class="meals">${s.meals.map(m => `${m.tag} ${m.n} · ${m.room}`).join("  ·  ")}</div>
+        <div class="why">${s.why}</div>
+        <div class="chips" style="margin-top:8px">${got.map(n => { const t = timesOf(d, s.k, n), ed = !!TIMES[d + "|" + s.k + "|" + n];
+            return `<span class="slot">${n}${SENT[n] ? " ✓" : ""} <button class="tm${ed ? " ed" : ""}" data-tm="${d}|${s.k}|${n}" title="Change ${n}'s hours">${fmt(t.s)}–${fmt(t.e)}</button><i>${shiftsOf(n)}/${AV[n].want}</i><button data-rm="${d}|${s.k}|${n}">×</button></span>`; }).join("")}
+          <button class="add" data-add="${d}|${s.k}">+ add</button></div>
+        <div class="tedit" id="te-${d}-${s.k}"></div>
+        <div class="pick chips" id="pick-${d}-${s.k}">
+          <div class="grp">Available</div>${avail.length ? avail.map(n => `<span class="chip" data-put="${d}|${s.k}|${n}">${n}${winLabel(n, i)}<small>${shiftsOf(n)}/${AV[n].want}</small></span>`).join("") : '<span class="sub">Nobody else marked available</span>'}
+          ${others.length ? `<div class="grp">Not marked available (add anyway)</div>${others.map(n => `<span class="chip na" data-put="${d}|${s.k}|${n}">${n}<small>${shiftsOf(n)}/${AV[n].want}</small></span>`).join("")}` : ""}
+          <div class="grp">Someone else</div><input class="nm" id="nm-${d}-${s.k}" placeholder="Type a name" maxlength="24"><button class="add" data-newname="${d}|${s.k}">Add</button>
+</div>
+      </div>`;
+    }).join("") : `<div class="empty">No meals on the books${w.clients.length ? " (meetings only)" : ""} → 0 servers.</div>`;
+    const totalNeed = p.reduce((a, s) => a + s.need, 0);
+    const act = w.actual.length ? w.actual.map(([n, sh]) => `${n} ${sh}`).join(" · ") : "nobody";
+    return `<div class="day"><div class="dhead"><div><div class="dname">${dLabel(d)}</div>
+      <div class="clients">${w.clients.join(" · ") || ((XEV[d] || []).length ? "" : "No events posted yet")}</div>
+      ${(XEV[d] || []).map(x => `<div class="xev">＋ ${x.name} · ${x.tag} ${x.n} · ${fmt(x.s)}–${fmt(x.e)}${x.room ? " · " + x.room : ""}${x.bar ? " · 🍸 bar" : ""} <button class="xs" data-delev="${d}|${x.id}">✕</button></div>`).join("")}</div>
+      <div class="need"><span class="pill ok" style="background:var(--blue-d);color:var(--blue)">Rubric: ${totalNeed} server${totalNeed === 1 ? "" : "s"}</span>${showA ? `<span class="pill" style="background:#5fe3c01c;color:var(--mint)">Posted: ${w.actual.length}</span>` : ""}</div></div>
+      ${body}<button class="addshift" data-addshift="${d}">+ Add a shift</button><button class="addshift" data-addev="${d}">+ Add an event</button>
+      <div class="evform" id="ef-${d}"><input data-f="name" placeholder="Group / event name" maxlength="40">
+        <select data-f="tag"><option>Breakfast</option><option selected>Lunch</option><option>Dinner</option><option>Dinner Buffet</option><option>Reception</option><option>Break</option></select>
+        <input type="time" step="900" data-f="s" value="11:00"> – <input type="time" step="900" data-f="e" value="13:00">
+        <input type="number" data-f="n" min="1" max="999" placeholder="Guests" style="width:80px"> <input data-f="room" placeholder="Room" maxlength="24" style="width:110px">
+        <label style="display:flex;align-items:center;gap:4px"><input type="checkbox" data-f="bar"> Bar</label>
+        <button class="add" data-saveev="${d}">Add event</button></div>${showA ? `<div class="actual empty" style="padding-top:0"><b>Actually posted:</b> ${act}</div>` : ""}</div>`;
+  }).join("");
+  $("#days").querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { const [d, k, n] = b.dataset.rm.split("|"); ASSIGN[d + "|" + k] = ASSIGN[d + "|" + k].filter(x => x !== n); delete TIMES[d + "|" + k + "|" + n]; changed(); renderBuild(); });
+  $("#days").querySelectorAll("[data-tm]").forEach(b => b.onclick = () => { const [d, k, n] = b.dataset.tm.split("|"), t = timesOf(d, k, n), box = document.getElementById("te-" + d + "-" + k);
+    box.innerHTML = `<b style="font-size:12.5px">${n}</b> <input type="time" step="900" id="ts" value="${hhmm(t.s)}"> to <input type="time" step="900" id="tt" value="${hhmm(t.e)}"> <button class="add" id="tok">Save</button> <button class="add" id="tdef">Reset to shift</button>`;
+    box.classList.add("on");
+    box.querySelector("#tok").onclick = () => { let s1 = unhhmm(box.querySelector("#ts").value), e1 = unhhmm(box.querySelector("#tt").value); if (e1 <= s1) e1 += 1440;
+      TIMES[d + "|" + k + "|" + n] = {s: s1, e: e1}; changed(); renderBuild(); };
+    box.querySelector("#tdef").onclick = () => { delete TIMES[d + "|" + k + "|" + n]; changed(); renderBuild(); }; });
+  $("#days").querySelectorAll("[data-newname]").forEach(b => b.onclick = () => { const [d, k] = b.dataset.newname.split("|"), inp = document.getElementById("nm-" + d + "-" + k);
+    const n = inp.value.trim().replace(/[|<>"]/g, "").split(/\s+/)[0]; if (!n) return;
+    const nm = n.charAt(0).toUpperCase() + n.slice(1);
+    if (!PEOPLE().includes(nm)) { EXTRA.push(nm); AV[nm] = {days: ["off","off","off","off","off","off","off"], want: 0, note: ""}; }
+    (ASSIGN[d + "|" + k] = ASSIGN[d + "|" + k] || []).includes(nm) || ASSIGN[d + "|" + k].push(nm); changed(); renderBuild(); });
+  $("#days").querySelectorAll("[data-sht]").forEach(inp => inp.onchange = () => { const [d, k, w] = inp.dataset.sht.split("|"), c = (CUSTOM[d] || []).find(x => x.k === k);
+    if (!c || !inp.value) return; c[w] = unhhmm(inp.value); if (c.e <= c.s) c.e += 1440; changed(); renderBuild(); });
+  $("#days").querySelectorAll("[data-addev]").forEach(b => b.onclick = () => document.getElementById("ef-" + b.dataset.addev).classList.toggle("on"));
+  $("#days").querySelectorAll("[data-saveev]").forEach(b => b.onclick = () => { const d = b.dataset.saveev, f = document.getElementById("ef-" + d), v = k => f.querySelector(`[data-f="${k}"]`).value.trim();
+    const n = parseInt(v("n"), 10), name = v("name").replace(/[<>"|]/g, "");
+    if (!name || !n || !v("s") || !v("e")) { toast("Add a name, guest count and times"); return; }
+    let s1 = unhhmm(v("s")), e1 = unhhmm(v("e")); if (e1 <= s1) e1 += 1440;
+    const bar = f.querySelector('[data-f="bar"]').checked;
+    (XEV[d] = XEV[d] || []).push({id: Date.now().toString(36), name, tag: v("tag"), room: v("room").replace(/[<>"|]/g, ""), s: s1, e: e1, n, bar, bt: Math.max(1, Math.ceil(n / 100))});
+    MANUAL = false; autoFill(); saveBuild(); renderBuild(); toast(name + " added — the week was rebuilt with it"); });
+  $("#days").querySelectorAll("[data-delev]").forEach(b => b.onclick = () => { const [d, id] = b.dataset.delev.split("|");
+    XEV[d] = (XEV[d] || []).filter(x => x.id !== id); MANUAL = false; autoFill(); saveBuild(); renderBuild(); toast("Event removed — the week was rebuilt"); });
+  $("#days").querySelectorAll("[data-addshift]").forEach(b => b.onclick = () => { const d = b.dataset.addshift, k = "x" + Date.now().toString(36);
+    (CUSTOM[d] = CUSTOM[d] || []).push({k, label: "Extra shift", s: 16 * 60, e: 23 * 60, need: 1}); changed(); renderBuild(); });
+  $("#days").querySelectorAll("[data-delshift]").forEach(b => b.onclick = () => { const [d, k] = b.dataset.delshift.split("|");
+    CUSTOM[d] = (CUSTOM[d] || []).filter(c => c.k !== k); delete ASSIGN[d + "|" + k]; changed(); renderBuild(); });
+  $("#days").querySelectorAll("[data-shl]").forEach(inp => inp.onchange = () => { const [d, k] = inp.dataset.shl.split("|"), c = (CUSTOM[d] || []).find(x => x.k === k);
+    if (c) { c.label = inp.value.trim() || "Extra shift"; changed(); renderBuild(); } });
+  $("#days").querySelectorAll("[data-add]").forEach(b => b.onclick = () => { const [d, k] = b.dataset.add.split("|"); document.getElementById("pick-" + d + "-" + k).classList.toggle("on"); });
+  $("#days").querySelectorAll("[data-put]").forEach(b => b.onclick = () => { const [d, k, n] = b.dataset.put.split("|"); (ASSIGN[d + "|" + k] = ASSIGN[d + "|" + k] || []).push(n);
+    const w = win(AV[n].days[DAYS.indexOf(d)]), sh = shiftOf(d, k);
+    if (w && sh) { const t = {s: Math.max(w.s, sh.s), e: Math.min(w.e, sh.e)}; if (t.e > t.s && (t.s !== sh.s || t.e !== sh.e)) TIMES[d + "|" + k + "|" + n] = t; }
+    changed(); renderBuild(); });
+  const mx = Math.max(...PEOPLE().map(hoursOf), 8);
+  $("#load").innerHTML = PEOPLE().map(n => { const s = shiftsOf(n), w = AV[n].want, h = hoursOf(n);
+    return `<span>${n}</span><span class="bar"><i class="${s >= w && s ? "max" : ""}" style="width:${h / mx * 100}%"></i></span><span class="sub">${hfmt(h)}h · ${s}/${w}</span>`; }).join("");
+  renderFinal();
+}
+
+// ---------- final schedule (the posted WhatsApp layout) + Excel download
+const BANDS = [
+  {label: "Director of Event Operations", fill: "FF8EA9DB", rows: ["Andre"]},
+  {label: "Banquet Captain", fill: "FF9BC2E6", rows: ["Sam"]},
+  {label: "SERVER", fill: "FFB4C6E7", servers: true},
+  {label: "Bartenders", fill: "FFB4C6E7", bar: true},
+  {label: "HOUSEMEN", fill: "FFF8CBAD", rows: ["Theo", "Ramon"]}];
+const cellFor = bar => (n, d) => plan(d).filter(s => !!s.bar === bar && (ASSIGN[d + "|" + s.k] || []).includes(n))
+  .map(s => { const t = timesOf(d, s.k, n); return xt(t.s) + "-" + xt(t.e) + (s.custom && !/extra shift/i.test(s.label) ? "/" + s.label.toUpperCase() : ""); }).join(" / ");
+const serverCell = cellFor(false), barCell = cellFor(true);
+function finalRows() {
+  const out = [];
+  BANDS.forEach((b, bi) => {
+    out.push({band: b});
+    const names = b.servers ? PEOPLE().filter(n => !BARTENDERS.includes(n) || ROSTER.includes(n)).filter(n => SENT[n] || DAYS.some(d => serverCell(n, d)) || EXTRA.includes(n)) : b.bar ? BARTENDERS : b.rows;
+    names.forEach(n => out.push({id: bi + ":" + n, name: n, auto: b.servers ? d => serverCell(n, d) : b.bar ? d => barCell(n, d) : () => ""}));
+    if (b.servers) out.push({id: bi + ":_blank", name: "", auto: () => ""});
+  });
+  return out;
+}
+const cellText = (r, d) => { const k = r.id + "|" + d; return k in FINAL ? FINAL[k] : r.auto(d); };
+function renderFinal() {
+  const DOWS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const head = `<tr><th></th>${DAYS.map(d => { const x = new Date(d + "T12:00"); return `<th>${DOWS[x.getDay()]}<small>${x.getDate()}-${mon[x.getMonth()]}</small></th>`; }).join("")}</tr>`;
+  const rows = finalRows().map(r => r.band
+    ? `<tr class="band"><td colspan="${DAYS.length + 1}" style="background:#${r.band.fill.slice(2)}">${r.band.label}</td></tr>`
+    : `<tr><td class="nm">${r.name}</td>${DAYS.map(d => `<td contenteditable="true" data-fc="${r.id}|${d}" class="${(r.id + "|" + d) in FINAL ? "edited" : ""}">${cellText(r, d)}</td>`).join("")}</tr>`).join("");
+  const t = $("#fin"); t.innerHTML = head + rows;
+  t.querySelectorAll("[data-fc]").forEach(td => td.onblur = () => { const k = td.dataset.fc, v = td.textContent.trim(), [id, d] = k.split("|");
+    const r = finalRows().find(x => x.id === id); if (!r) return;
+    if (v === r.auto(d)) delete FINAL[k]; else FINAL[k] = v; saveBuild(); td.classList.toggle("edited", k in FINAL); });
+}
+$("#finReset").onclick = () => { FINAL = {}; saveBuild(); renderFinal(); toast("Typed changes cleared"); };
+$("#mkxls").onclick = async () => {
+  const btn = $("#mkxls"); btn.disabled = true; btn.textContent = "Building…";
+  try {
+    if (!window.ExcelJS) await new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+    const wb = new ExcelJS.Workbook(), ws = wb.addWorksheet("Schedule", {views: [{showGridLines: false}]});
+    const DOWS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    ws.columns = [{width: 32}].concat(DAYS.map(() => ({width: 20})));
+    const thin = {style: "thin", color: {argb: "FF000000"}}, box = {top: thin, left: thin, bottom: thin, right: thin};
+    const r1 = ws.addRow([""].concat(DAYS.map(d => DOWS[new Date(d + "T12:00").getDay()])));
+    r1.eachCell({includeEmpty: true}, c => { c.fill = {type: "pattern", pattern: "solid", fgColor: {argb: "FF000000"}}; c.font = {bold: true, color: {argb: "FFFFFFFF"}, name: "Calibri", size: 12}; c.alignment = {horizontal: "center"}; });
+    const r2 = ws.addRow([""].concat(DAYS.map(d => { const x = new Date(d + "T12:00"); return x.getDate() + "-" + mon[x.getMonth()]; })));
+    r2.eachCell({includeEmpty: true}, (c, i) => { c.fill = {type: "pattern", pattern: "solid", fgColor: {argb: i === 1 ? "FF000000" : "FFDDEBF7"}}; c.font = {name: "Times New Roman", size: 14}; c.alignment = {horizontal: "center"}; c.border = box; });
+    finalRows().forEach(r => {
+      if (r.band) {
+        const row = ws.addRow([r.band.label]); ws.mergeCells(row.number, 1, row.number, DAYS.length + 1);
+        const c = row.getCell(1); c.fill = {type: "pattern", pattern: "solid", fgColor: {argb: r.band.fill}}; c.font = {bold: true, name: "Times New Roman", size: 12}; c.border = box; return;
+      }
+      const row = ws.addRow([r.name].concat(DAYS.map(d => cellText(r, d))));
+      row.eachCell({includeEmpty: true}, (c, i) => { c.border = box; c.font = {name: "Calibri", size: 11}; c.alignment = {horizontal: i === 1 ? "left" : "center", vertical: "middle"}; });
+    });
+    const buf = await wb.xlsx.writeBuffer(), a = document.createElement("a");
+    const f = d => { const x = new Date(d + "T12:00"); return (x.getMonth() + 1) + "-" + x.getDate(); };
+    a.href = URL.createObjectURL(new Blob([buf], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+    a.download = "Banquet Schedule " + f(DAYS[0]) + " to " + f(DAYS[DAYS.length - 1]) + ".xlsx"; document.body.appendChild(a); a.click(); a.remove();
+    toast("Schedule downloaded");
+  } catch (e) { console.error("[scheduler] excel", e); toast("Couldn't build the Excel file — try again"); }
+  finally { btn.disabled = false; btn.textContent = "⬇ Create schedule (Excel)"; }
+};
+$("#auto").onclick = () => { MANUAL = false; TIMES = {}; autoFill(); saveBuild(); renderBuild(); toast("Schedule built from everyone's availability — adjust anything, then Create schedule (Excel) at the bottom"); };
+$("#clear").onclick = () => { ASSIGN = {}; TIMES = {}; MANUAL = true; saveBuild(); renderBuild(); };
+$("#showActual").onchange = renderBuild;
+{ const f = d => new Date(d + "T12:00").toLocaleDateString("en-US", {weekday: "short", month: "short", day: "numeric"});
+  $("#weekLbl").textContent = "· week of " + f(DAYS[0]) + " – " + f(DAYS[6]); }
+
+// ---------- 3. rubric extras
+$("#nDays").textContent = DATA.pts.length;
+const WHO_LOAD = [];
+const wmx = Math.max(...WHO_LOAD.map(x => x[1]));
+$("#who-load").innerHTML = WHO_LOAD.map(([n, c]) => `<span>${n}</span><span class="bar"><i style="width:${c / wmx * 100}%"></i></span><span class="sub">${c}</span>`).join("");
+(function chart() {
+  const P = DATA.pts, W = 640, H = 300, L = 44, B = 36, xm = 450, ym = 12;
+  const X = v => L + Math.min(v, xm) / xm * (W - L - 12), Y = v => H - B - v / ym * (H - B - 14);
+  let s = "";
+  for (let g = 0; g <= ym; g += 2) s += `<line x1="${L}" x2="${W - 12}" y1="${Y(g)}" y2="${Y(g)}" stroke="#8bd1ff1a"/><text x="${L - 8}" y="${Y(g) + 4}" fill="#8aa3b5" font-size="11" text-anchor="end">${g}</text>`;
+  for (let g = 0; g <= xm; g += 50) s += `<text x="${X(g)}" y="${H - B + 16}" fill="#8aa3b5" font-size="11" text-anchor="middle">${g}</text>`;
+  s += `<text x="${(W + L) / 2}" y="${H - 4}" fill="#8aa3b5" font-size="11.5" text-anchor="middle">guests at the biggest meal</text>`;
+  s += `<text transform="translate(12 ${(H - B) / 2}) rotate(-90)" fill="#8aa3b5" font-size="11.5" text-anchor="middle">servers scheduled</text>`;
+  let path = "";
+  for (let v = 1; v <= xm; v += 2) path += (path ? "L" : "M") + X(v).toFixed(1) + " " + Y(amNeed(v)).toFixed(1);
+  s += `<path d="${path}" stroke="#f2c879" stroke-width="2.5" fill="none"/>`;
+  P.forEach(([c, n]) => s += `<circle cx="${X(c)}" cy="${Y(n)}" r="5" fill="#8bd1ff" fill-opacity=".55" stroke="#8bd1ff"/>`);
+  s += `<text x="${W - 16}" y="${Y(amNeed(xm)) - 8}" fill="#f2c879" font-size="12" text-anchor="end" font-weight="700">rubric</text>`;
+  $("#chart").innerHTML = s;
+  const within = P.filter(([c, n]) => Math.abs(amNeed(c) - n) <= 1).length;
+  $("#fit").innerHTML = `Each dot is one past day. The rubric lands within ±1 server of what Actually posted on <b>${within} of ${P.length}</b> days.`;
+})();
+renderAvail(); if (!(LEADV && loadBuild())) autoFill(); if (LEADV) renderBuild();
+</script>
+<script>
+// Demo: what you send stays on this phone; everyone else's answers are made up.
+(function () {
+  const KEY = "bb-sched-demo-" + WEEK, ago = h => Date.now() - h * 3600e3; let mine = {};
+  try { mine = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+  const seed = {"Luis": {"days": ["all", "all", "all", "am", "am", "off", "off"], "want": 5, "note": "", "at": 0, "by": "Luis"}, "Omar": {"days": ["am", "pm", "all", "off", "pm", "all", "off"], "want": 4, "note": "", "at": 0, "by": "Omar"}, "Tess": {"days": ["am", "am", "pm", "am", "off", "pm", "am"], "want": 4, "note": "Class Thursday until 1pm", "at": 0, "by": "Tess"}, "Reggie": {"days": ["pm", "all", "pm", "pm", "all", "all", "off"], "want": 5, "note": "", "at": 0, "by": "Reggie"}, "Bea": {"days": ["am", "all", "off", "am", "pm", "all", "am"], "want": 4, "note": "", "at": 0, "by": "Bea"}, "Marco": {"days": ["am", "am", "pm", "all", "off", "pm", "all"], "want": 4, "note": "", "at": 0, "by": "Marco"}, "Ivy": {"days": ["off", "all", "all", "am", "pm", "pm", "am"], "want": 3, "note": "Prefer evenings", "at": 0, "by": "Ivy"}, "Cole": {"days": ["pm", "off", "pm", "pm", "pm", "all", "off"], "want": 3, "note": "", "at": 0, "by": "Cole"}, "Jade": {"days": ["off", "off", "pm", "off", "pm", "pm", "off"], "want": 2, "note": "", "at": 0, "by": "Jade"}};
+  Object.keys(seed).forEach((n, i) => seed[n].at = ago(3 + i * 5));
+  window.schedSave = (name, rec) => { mine[name] = rec; try { localStorage.setItem(KEY, JSON.stringify(mine)); } catch (e) {} return Promise.resolve(); };
+  window.schedRemote({av: Object.assign({}, seed, mine)});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2400 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#101820">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="demo.js"></script>
+<title>BEO Rundown — Demo Hotel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="vendor/pdf.min.js"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+:root {
+  --bg:#09090c; --bg-card:#111316; --bg-active:#181c26;
+  --border:rgba(255,255,255,0.06); --border-h:rgba(255,255,255,0.13);
+  --text-1:#edeae2; --text-2:#7e7b74; --text-3:#44423f; --text-4:#2e2c2a;
+  --accent:#c9a84c; --accent-dim:rgba(201,168,76,0.10);
+  --green:#2dbd80; --green-dim:rgba(45,189,128,0.10);
+  --blue:#4f8ef0; --blue-dim:rgba(79,142,240,0.10);
+  --amber:#f0b429; --amber-dim:rgba(240,180,41,0.10);
+  --red:#e05555; --red-dim:rgba(220,80,80,0.10);
+  --purple:#8c64dc; --purple-dim:rgba(140,100,220,0.10);
+  --orange:#fb923c; --orange-dim:rgba(251,146,60,0.10);
+  --header-bg:rgba(9,9,12,0.95);
+  --tog-bg:#16181e; --tog-border:rgba(255,255,255,0.08); --tog-act:rgba(255,255,255,0.07);
+  --divider:rgba(255,255,255,0.04); --stripe:rgba(255,255,255,0.014);
+  --today-bg:linear-gradient(135deg,#221a06 0%,#15100a 55%,#0c0905 100%);
+  --today-border:rgba(201,168,76,0.45); --today-glow:rgba(201,168,76,0.16);
+  --today-top:rgba(201,168,76,0.60); --today-name:#f0cc70;
+  --today-dow:rgba(201,168,76,0.65); --today-sum:rgba(201,168,76,0.48);
+  --silver:#a9aeb6;
+}
+[data-theme="light"] {
+  --bg:#f0ece3; --bg-card:#faf7f2; --bg-active:#e8e2d6;
+  --border:rgba(0,0,0,0.07); --border-h:rgba(0,0,0,0.15);
+  --text-1:#18160f; --text-2:#6b6760; --text-3:#9e9a92; --text-4:#c0bbb2;
+  --accent:#9a7422; --accent-dim:rgba(154,116,34,0.09);
+  --green:#1a8f5e; --green-dim:rgba(26,143,94,0.09);
+  --blue:#2558c4; --blue-dim:rgba(37,88,196,0.09);
+  --amber:#9c6800; --amber-dim:rgba(156,104,0,0.09);
+  --red:#c03030; --red-dim:rgba(180,50,50,0.08);
+  --purple:#6030b0; --purple-dim:rgba(96,48,176,0.09);
+  --orange:#c05a10; --orange-dim:rgba(192,90,16,0.09);
+  --header-bg:rgba(240,236,227,0.95);
+  --tog-bg:#e4dfd4; --tog-border:rgba(0,0,0,0.08); --tog-act:rgba(0,0,0,0.05);
+  --divider:rgba(0,0,0,0.05); --stripe:rgba(0,0,0,0.010);
+  --today-bg:linear-gradient(135deg,#fdf5e0 0%,#faf0d0 55%,#f5e8b8 100%);
+  --today-border:rgba(160,116,30,0.40); --today-glow:rgba(160,116,30,0.08);
+  --today-top:rgba(160,116,30,0.45); --today-name:#7a5810;
+  --today-dow:rgba(120,88,16,0.65); --today-sum:rgba(120,88,16,0.50);
+  --silver:#6b7280;
+}
+html { background:var(--bg); min-height:100%; overflow-x:hidden; }
+body { background:var(--bg); color:var(--text-1); font-family:'Courier New',monospace; min-height:100vh; min-height:100dvh; width:100%; overflow-x:hidden; }
+.page-wrap { max-width:480px; min-height:100vh; min-height:100dvh; margin:0 auto; background:var(--bg); }
+@media (orientation:landscape){ .page-wrap { max-width:100%; } }
+
+.header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--header-bg); backdrop-filter:blur(14px); z-index:20; gap:8px; }
+.brand { display:flex; align-items:center; gap:9px; text-decoration:none; flex-shrink:0; }
+.brand-icon { width:32px; height:32px; background:var(--accent-dim); border:1px solid var(--accent); border-radius:7px; display:flex; align-items:center; justify-content:center; font-family:'Courier New',monospace; font-size:10px; font-weight:500; color:var(--accent); }
+.brand-name { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1.5px; color:var(--text-1); line-height:1; }
+.brand-sub  { font-family:'Courier New',monospace; font-size:8px; color:var(--text-3); margin-top:1px; }
+.controls { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+.toggle-group { display:flex; background:var(--tog-bg); border:1px solid var(--tog-border); border-radius:7px; overflow:hidden; }
+.tgl { padding:5px 8px; font-family:'Courier New',monospace; font-size:10px; font-weight:500; color:var(--text-3); background:none; border:none; cursor:pointer; transition:background .12s,color .12s; line-height:1; }
+.tgl.active { background:var(--tog-act); color:var(--text-1); }
+.tgl+.tgl { border-left:1px solid var(--tog-border); }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pip 2s infinite; }
+@keyframes pip { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+.page-hero { padding:18px 16px 14px; border-bottom:1px solid var(--divider); position:relative; overflow:hidden; }
+.page-hero::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(-55deg,var(--stripe) 0px,var(--stripe) 1px,transparent 1px,transparent 18px); pointer-events:none; }
+.page-eyebrow { font-family:'Courier New',monospace; font-size:9px; color:var(--accent); letter-spacing:2px; text-transform:uppercase; margin-bottom:5px; }
+.page-title { font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:1px; color:var(--text-1); line-height:0.95; margin-bottom:8px; }
+.header-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.chip { display:inline-flex; align-items:center; gap:4px; font-family:'Courier New',monospace; font-size:9px; padding:3px 8px; border-radius:5px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-2); }
+.chip-green { background:var(--green-dim); color:var(--green); border-color:rgba(45,189,128,0.2); }
+.chip-gold  { background:var(--accent-dim); color:var(--accent); border-color:rgba(201,168,76,0.2); }
+
+.expand-bar { display:flex; gap:8px; padding:8px 16px; background:var(--bg-card); border-bottom:1px solid var(--border); }
+.pill-btn { font-family:'Courier New',monospace; font-size:9.5px; letter-spacing:.06em; color:var(--text-2); border:1px solid var(--border); border-radius:20px; padding:5px 12px; white-space:nowrap; background:var(--bg-active); cursor:pointer; transition:all .15s; }
+.pill-btn:active { border-color:var(--accent); color:var(--accent); }
+
+.view-nav { display:flex; border-bottom:1px solid var(--border); position:sticky; top:57px; background:var(--header-bg); backdrop-filter:blur(14px); z-index:18; }
+.view-btn { flex:1; padding:12px 10px; font-family:'Courier New',monospace; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); background:none; border:none; border-bottom:3px solid transparent; cursor:pointer; transition:color .15s,border-color .15s; }
+.view-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+.diagrams-list { padding:0 0 80px; }
+.diag-group { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; margin:0 16px 8px; overflow:hidden; }
+.diag-group-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:11px 13px; cursor:pointer; }
+.diag-group-name { font-family:'Courier New',monospace; font-size:12.5px; font-weight:700; color:var(--text-1); letter-spacing:0.3px; }
+.diag-group-chevron { font-size:10px; color:var(--text-3); transition:transform .15s; flex-shrink:0; }
+.diag-group.open .diag-group-chevron { transform:rotate(90deg); }
+.diag-group-body { display:none; padding:0 13px 11px; }
+.diag-group.open .diag-group-body { display:block; }
+.diag-link { display:flex; width:100%; align-items:center; justify-content:space-between; gap:8px; padding:9px 10px; margin-top:6px; background:var(--bg-active); border:1px solid var(--divider); border-radius:8px; text-decoration:none; color:var(--text-1); font:inherit; font-family:'Courier New',monospace; font-size:11px; text-align:left; cursor:pointer; transition:border-color .15s; }
+.diag-link:active { border-color:var(--accent); }
+.diag-link-open { color:var(--accent); font-size:10px; letter-spacing:0.5px; text-transform:uppercase; flex-shrink:0; }
+.diag-warn { display:block; margin-top:6px; padding:7px 9px; background:var(--red-dim); border:1px solid rgba(220,80,80,0.25); border-radius:6px; color:var(--red); font-family:'Courier New',monospace; font-size:9.5px; line-height:1.5; }
+
+.diag-modal { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.9); display:none; flex-direction:column; }
+.diag-modal.open { display:flex; }
+.diag-modal-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; padding-top:calc(12px + env(safe-area-inset-top)); border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+.diag-modal-title { font-family:'Courier New',monospace; font-size:12px; font-weight:700; color:var(--text-1); letter-spacing:0.3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.diag-modal-close { background:var(--bg-active); border:1px solid var(--border); color:var(--text-1); width:30px; height:30px; border-radius:50%; font-size:15px; line-height:1; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.diag-modal-close:active { border-color:var(--accent); color:var(--accent); }
+.diag-modal-body { flex:1; background:#e8e8ea; min-height:0; position:relative; overflow:hidden; touch-action:none; }
+.diag-canvas-wrap { position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform; }
+#diagCanvas { display:block; box-shadow:0 4px 24px rgba(0,0,0,0.25); }
+.diag-loading { position:absolute; font-family:'Courier New',monospace; font-size:11px; letter-spacing:1px; color:#888; text-transform:uppercase; }
+.diag-modal-hint { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); font-family:'Courier New',monospace; font-size:9px; letter-spacing:0.5px; color:rgba(0,0,0,0.4); background:rgba(255,255,255,0.7); padding:4px 10px; border-radius:12px; pointer-events:none; transition:opacity .3s; }
+.diag-modal-hint.hidden { opacity:0; }
+
+.days-list { padding:0 0 80px; }
+.day-section { padding:6px 0 0; border-bottom:none; }
+
+/* SILVER SURFACE DAY BUTTONS */
+.day-btn { width:calc(100% - 32px); display:flex; align-items:center; gap:13px; padding:13px 14px; text-align:left; border:none; cursor:pointer; min-height:60px; position:relative; overflow:visible; background:#0d0f12; border:1px solid rgba(255,255,255,0.09); border-left:4px solid var(--ac,rgba(255,255,255,0.15)); border-radius:12px; margin:0 16px 7px; box-shadow:0 0 6px var(--ac, transparent); }
+.day-btn::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,var(--ac,rgba(255,255,255,0.08)),transparent); pointer-events:none; }
+.day-btn.a1 { --ac:rgba(45,189,128,0.85); --dc:#3de8a0; --dg1:rgba(45,189,128,0.20); --dg2:rgba(45,189,128,0.07); }
+.day-btn.a2 { --ac:rgba(79,142,240,0.85); --dc:#8ab8ff; --dg1:rgba(79,142,240,0.20); --dg2:rgba(79,142,240,0.07); }
+.day-btn.a3 { --ac:rgba(140,100,220,0.85); --dc:#c4a0ff; --dg1:rgba(140,100,220,0.20); --dg2:rgba(140,100,220,0.07); }
+.day-btn.a4 { --ac:rgba(240,100,100,0.80); --dc:#ff9090; --dg1:rgba(240,100,100,0.20); --dg2:rgba(240,100,100,0.07); }
+.day-btn.a5 { --ac:rgba(251,146,60,0.80); --dc:#fdb070; --dg1:rgba(251,146,60,0.20); --dg2:rgba(251,146,60,0.07); }
+.day-btn.a-dim { --ac:rgba(80,80,80,0.25); --dc:rgba(255,255,255,0.20); --dg1:rgba(255,255,255,0.04); --dg2:rgba(255,255,255,0.01); }
+.day-btn:active { transform:scale(0.975); }
+
+[data-theme="light"] .day-btn { background:#faf7f2; border-color:rgba(0,0,0,0.08); box-shadow:0 0 5px var(--ac, transparent); }
+[data-theme="light"] .day-btn.a1 { --dg1:rgba(45,189,128,0.24); --dg2:rgba(45,189,128,0.08); }
+[data-theme="light"] .day-btn.a2 { --dg1:rgba(79,142,240,0.24); --dg2:rgba(79,142,240,0.08); }
+[data-theme="light"] .day-btn.a3 { --dg1:rgba(140,100,220,0.24); --dg2:rgba(140,100,220,0.08); }
+[data-theme="light"] .day-btn.a4 { --dg1:rgba(240,100,100,0.22); --dg2:rgba(240,100,100,0.07); }
+[data-theme="light"] .day-btn.a5 { --dg1:rgba(251,146,60,0.22); --dg2:rgba(251,146,60,0.07); }
+[data-theme="light"] .day-btn.a1 .day-dot-num { color:var(--green); }
+[data-theme="light"] .day-btn.a2 .day-dot-num { color:var(--blue); }
+[data-theme="light"] .day-btn.a3 .day-dot-num { color:var(--purple); }
+[data-theme="light"] .day-btn.a4 .day-dot-num { color:var(--red); }
+[data-theme="light"] .day-btn.a5 .day-dot-num { color:var(--orange); }
+[data-theme="light"] .day-btn.a-dim { --ac:rgba(0,0,0,0.15); --dc:rgba(0,0,0,0.25); --dg1:rgba(0,0,0,0.12); --dg2:rgba(0,0,0,0.04); }
+[data-theme="light"] .day-dow { color:var(--dc); filter:brightness(0.30); }
+[data-theme="light"] .day-summary { color:rgba(0,0,0,0.82); }
+[data-theme="light"] .day-dot { background:linear-gradient(135deg,var(--dg1),var(--dg2)); border-color:var(--ac,rgba(0,0,0,0.12)); }
+[data-theme="light"] .day-btn.a-dim .day-dow { color:rgba(0,0,0,0.45); }
+[data-theme="light"] .day-btn.a-dim .day-summary { color:rgba(0,0,0,0.50); }
+[data-theme="light"] .day-btn.a-dim .day-dot-num { color:rgba(0,0,0,0.32); }
+[data-theme="light"] .week-label-main { color:rgba(0,0,0,0.72); }
+[data-theme="light"] .week-label::before, [data-theme="light"] .week-label::after { background:rgba(0,0,0,0.20); }
+
+.day-btn.is-today { background:var(--today-bg); border-left-width:1px; border-left-color:var(--today-border); box-shadow:inset 0 0 0 1px rgba(201,168,76,0.30),inset 0 0 22px rgba(201,168,76,0.40),inset 0 0 8px rgba(201,168,76,0.55),inset 0 8px 22px rgba(0,0,0,0.80); }
+[data-theme="light"] .day-btn.is-today { box-shadow:inset 0 0 0 1px rgba(160,116,30,0.25),inset 0 0 22px rgba(160,116,30,0.22),inset 0 0 8px rgba(160,116,30,0.30),inset 0 8px 18px rgba(0,0,0,0.15); }
+.day-btn.is-today::after { background:linear-gradient(90deg,transparent,var(--today-top),transparent); }
+
+.day-dot { width:36px; height:36px; border-radius:9px; flex-shrink:0; background:linear-gradient(135deg,var(--dg1),var(--dg2)); border:1px solid var(--ac,rgba(255,255,255,0.08)); display:flex; align-items:center; justify-content:center; }
+.day-btn.is-today .day-dot { background:var(--accent-dim); border-color:rgba(201,168,76,0.35); }
+
+.day-text { flex:1; min-width:0; }
+.day-dow { font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--dc); margin-bottom:4px; }
+.day-summary { font-family:'Courier New',monospace; font-size:12px; white-space:normal; line-height:1.45; color:rgba(255,255,255,0.92); }
+.day-summary-line { display:block; margin-top:3px; }
+.day-summary-line:first-child { margin-top:0; }
+.ds-head { font-weight:700; }
+
+.today-chip { background:var(--accent); color:#09090c; font-family:'Courier New',monospace; font-size:8px; font-weight:600; letter-spacing:.12em; padding:3px 7px; border-radius:4px; text-transform:uppercase; flex-shrink:0; }
+[data-theme="light"] .today-chip { color:#fff; }
+
+.day-body { display:none; padding:0 16px 16px; background:var(--bg); }
+.day-body.is-open { display:block; }
+
+.event-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:10px; animation:cardIn .18s ease both; }
+@keyframes cardIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+
+.card-head { padding:11px 13px 9px; border-bottom:1px solid var(--divider); display:flex; flex-direction:column; gap:5px; }
+.card-group { font-size:13px; font-weight:600; color:var(--text-1); line-height:1.25; }
+.card-badges { display:flex; flex-wrap:wrap; gap:5px; }
+.badge { font-family:'Courier New',monospace; font-size:8.5px; letter-spacing:.05em; padding:3px 7px; border-radius:5px; border:1px solid; white-space:nowrap; }
+.badge-mgr  { color:var(--text-3); border-color:var(--border-h); background:var(--bg-active); }
+.badge-ic   { color:var(--accent); border-color:rgba(201,168,76,0.3); background:var(--accent-dim); }
+.badge-flag { color:var(--red); border-color:var(--red); background:var(--red-dim); }
+[data-theme="light"] .badge-ic { color:var(--accent); }
+
+.svc-row { padding:10px 13px; border-bottom:1px solid var(--divider); display:grid; grid-template-columns:68px 1fr; gap:10px; align-items:start; }
+.svc-row:last-of-type { border-bottom:none; }
+.svc-time { font-family:'Courier New',monospace; font-size:10.5px; font-weight:500; color:var(--text-1); line-height:1.3; padding-top:2px; }
+.svc-content { min-width:0; }
+.svc-top { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-bottom:5px; }
+
+.tag { font-family:'Courier New',monospace; font-size:8.5px; letter-spacing:.06em; padding:3px 7px; border-radius:5px; text-transform:uppercase; font-weight:500; white-space:nowrap; }
+.tag-bkf  { background:var(--green-dim); color:var(--green); }
+.tag-lnch { background:var(--blue-dim); color:var(--blue); }
+.tag-brk  { background:var(--amber-dim); color:var(--amber); }
+.tag-din  { background:var(--red-dim); color:var(--red); }
+.tag-rec  { background:var(--purple-dim); color:var(--purple); }
+.tag-bar  { background:var(--orange-dim); color:var(--orange); }
+
+.room-pill { background:var(--text-1); color:var(--bg); font-family:'Courier New',monospace; font-size:8.5px; letter-spacing:.06em; padding:3px 7px; border-radius:5px; text-transform:uppercase; font-weight:500; white-space:nowrap; }
+[data-theme="light"] .room-pill { background:#1a1714; color:#fff; }
+.gtd-pill { background:var(--blue-dim); color:var(--blue); font-family:'Courier New',monospace; font-size:8.5px; letter-spacing:.06em; padding:3px 7px; border-radius:5px; font-weight:500; white-space:nowrap; }
+
+.svc-menu { font-size:12px; color:var(--text-1); line-height:1.6; opacity:0.88; }
+[data-theme="light"] .svc-menu { opacity:1; color:#2a2720; }
+.svc-menu strong { color:var(--text-1); font-weight:500; }
+.svc-menu strong.menu-hl { color:var(--accent); font-weight:700; }
+.note { margin-top:6px; background:var(--blue-dim); border-left:2px solid var(--blue); border-radius:0 6px 6px 0; padding:5px 9px; font-family:'Courier New',monospace; font-size:9.5px; color:var(--blue); line-height:1.5; }
+[data-theme="light"] .note { background:#e5effe; }
+.allergy { display:flex; align-items:flex-start; gap:5px; margin-top:6px; background:var(--amber-dim); border:1px solid var(--amber); color:var(--amber); font-family:'Courier New',monospace; font-size:9.5px; padding:6px 9px; border-radius:6px; line-height:1.4; }
+
+.card-foot { padding:8px 13px; background:var(--bg-active); border-top:1px solid var(--border); display:flex; flex-direction:column; gap:3px; }
+.foot-row { display:flex; gap:8px; font-family:'Courier New',monospace; font-size:9.5px; line-height:1.4; }
+.foot-key { color:var(--accent); flex-shrink:0; min-width:52px; }
+.foot-val { color:var(--text-2); min-width:0; }
+
+.day-strip { margin-top:0; margin-bottom:10px; background:var(--accent-dim); border:1px solid rgba(201,168,76,0.2); border-radius:8px; padding:8px 13px; display:flex; flex-wrap:wrap; gap:8px 18px; }
+.strip-item { font-family:'Courier New',monospace; font-size:11px; color:var(--text-1); line-height:1.5; }
+.strip-item strong { color:var(--accent); font-weight:700; }
+.empty-day { padding:16px; font-family:'Courier New',monospace; font-size:10px; color:var(--text-4); text-align:center; letter-spacing:.05em; }
+.month-banner { margin:10px 16px 6px; padding:10px 14px; background:linear-gradient(90deg,rgba(201,168,76,0.08),transparent); border-left:2px solid #c9a84c; border-radius:0 8px 8px 0; display:flex; align-items:baseline; gap:10px; }
+.month-banner::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(201,168,76,0.20),transparent); align-self:center; margin-left:8px; }
+.month-banner-name { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; color:#c9a84c; line-height:1; }
+.month-banner-year { font-family:'Courier New',monospace; font-size:9px; letter-spacing:.16em; color:rgba(201,168,76,0.40); }
+.week-label { margin:18px 16px 10px; padding:0; display:flex; align-items:center; gap:12px; }
+.week-label-main { font-family:'Courier New',monospace; font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,0.60); white-space:nowrap; }
+.week-label::before, .week-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.16); }
+.color-key { display:flex; align-items:center; gap:6px; padding:7px 16px; overflow-x:auto; border-bottom:1px solid rgba(255,255,255,0.04); scrollbar-width:none; }
+.color-key::-webkit-scrollbar { display:none; }
+.key-item { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.key-dot { width:7px; height:7px; border-radius:50%; }
+.kd-green{background:#2dbd80;} .kd-amber{background:#f0b429;} .kd-dim{background:rgba(255,255,255,0.22);}
+.key-label { font-family:'Courier New',monospace; font-size:8px; color:rgba(255,255,255,0.28); letter-spacing:.04em; white-space:nowrap; }
+.key-div { width:1px; height:10px; background:rgba(255,255,255,0.07); margin:0 2px; }
+.day-dot-num { font-family:'Courier New',monospace; font-size:16px; font-weight:600; color:var(--dc); opacity:1; line-height:1; }
+@media (min-width: 900px) {
+  .header, .page-hero, .day-section { max-width: 720px; margin-left: auto; margin-right: auto; }
+}
+.today-fab { position:fixed; bottom:20px; right:16px; z-index:30; display:none; align-items:center; gap:5px; background:var(--accent); color:#09090c; font-family:'Courier New',monospace; font-size:10px; font-weight:700; letter-spacing:.1em; padding:10px 16px; border:none; border-radius:22px; box-shadow:0 4px 14px rgba(0,0,0,0.45); cursor:pointer; }
+.today-fab.show { display:flex; }
+.today-fab.view-hidden { display:none !important; }
+[data-theme="light"] .today-fab { color:#fff; }
+
+/* ── FULL-PAGE DAY VIEW ── */
+.day-full-view { display:none; position:fixed; inset:0; z-index:45; background:var(--bg); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.day-full-inner { max-width:460px; margin:0 auto; padding:16px 16px 120px; }
+@media (min-width: 900px) {
+  .day-full-inner { max-width:720px; }
+}
+.day-full-topbar { position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 16px; background:var(--bg); border-bottom:1px solid var(--border); }
+.day-full-topbar .day-full-header { display:flex; align-items:center; gap:12px; margin:0; }
+.back-fab { flex-shrink:0; display:flex; align-items:center; gap:6px; background:var(--accent); color:#09090c; font-family:'Courier New',monospace; font-size:11px; font-weight:700; letter-spacing:.08em; padding:10px 16px; border:none; border-radius:22px; box-shadow:0 2px 8px rgba(0,0,0,0.35); cursor:pointer; }
+.back-fab:active { transform:scale(0.96); }
+[data-theme="light"] .back-fab { color:#fff; }
+.day-full-header .day-dot { width:44px; height:44px; border-radius:11px; }
+.day-full-header .day-dot-num { font-size:18px; }
+.day-full-header .day-dow { font-family:'DM Serif Display',serif; font-size:26px; letter-spacing:2px; color:var(--text-1); }
+.day-full-view .day-strip { margin:0 0 16px; }
+.day-full-view .event-card { margin-top:18px; }
+.day-full-view .card-head { padding:16px 16px 13px; }
+.day-full-view .card-group { font-size:17px; line-height:1.3; }
+.day-full-view .badge { font-size:10px; padding:4px 9px; }
+.day-full-view .badge-mgr { color:var(--red); border-color:rgba(224,85,85,0.4); background:var(--red-dim); }
+[data-theme="light"] .day-full-view .badge-mgr { color:var(--red); border-color:rgba(192,48,48,0.35); }
+.day-full-view .svc-row { grid-template-columns:92px 1fr; padding:15px 16px; gap:14px; }
+.day-full-view .svc-time { font-size:15px; font-weight:700; line-height:1.4; color:var(--amber); }
+.day-full-view .svc-top .tag { font-size:10.5px; padding:5px 10px; }
+.day-full-view .room-pill, .day-full-view .gtd-pill { font-size:10.5px; padding:5px 10px; }
+.day-full-view .room-pill { background:var(--purple-dim); color:#c9aeff; box-shadow:0 0 9px rgba(140,100,220,0.55), 0 0 2px rgba(140,100,220,0.8); border:1px solid rgba(140,100,220,0.4); text-shadow:0 0 8px rgba(180,140,255,0.95), 0 0 16px rgba(180,140,255,0.6); }
+[data-theme="light"] .day-full-view .room-pill { color:#4a1f9e; box-shadow:0 0 9px rgba(96,48,176,0.35), 0 0 2px rgba(96,48,176,0.6); border-color:rgba(96,48,176,0.35); text-shadow:0 0 6px rgba(96,48,176,0.5); }
+.day-full-view .gtd-pill { color:#a8c8ff; box-shadow:0 0 9px rgba(79,142,240,0.55), 0 0 2px rgba(79,142,240,0.8); border:1px solid rgba(79,142,240,0.4); text-shadow:0 0 8px rgba(150,190,255,0.95), 0 0 16px rgba(150,190,255,0.6); }
+[data-theme="light"] .day-full-view .gtd-pill { color:#1543a0; box-shadow:0 0 9px rgba(37,88,196,0.35), 0 0 2px rgba(37,88,196,0.6); border-color:rgba(37,88,196,0.35); text-shadow:0 0 6px rgba(37,88,196,0.5); }
+.day-full-view .card-foot { padding:13px 16px; }
+.day-full-view .foot-row { font-size:11.5px; gap:10px; }
+.day-full-view .foot-key { min-width:60px; }
+.day-full-view .foot-val { color:var(--text-1); }
+.day-full-view .svc-row { border-bottom-color:var(--border-h); }
+.day-full-view .svc-menu { font-size:14px; line-height:1.5; opacity:1; }
+
+/* Full-page day view only: keeps the newer type system (DM Serif Display /
+   DM Mono / Instrument Sans) Sam liked, while the main Rundown list above
+   reverts to the original Courier New / Bebas Neue treatment. */
+.day-full-view .card-group { font-family:'DM Serif Display',serif; }
+.day-full-view .badge { font-family:'DM Mono',monospace; }
+.day-full-view .svc-time { font-family:'DM Mono',monospace; font-size:13px; }
+.day-full-view .svc-top .tag { font-family:'DM Mono',monospace; }
+.day-full-view .room-pill, .day-full-view .gtd-pill { font-family:'DM Mono',monospace; }
+.day-full-view .foot-row { font-family:'DM Mono',monospace; }
+.day-full-view .day-strip .strip-item { font-family:'DM Mono',monospace; }
+.day-full-view .svc-menu { font-family:'Instrument Sans',sans-serif; }
+.day-full-view .note, .day-full-view .allergy { font-family:'DM Mono',monospace; }
+.menu-line { padding:3px 0; }
+.menu-line-header { font-size:14.5px; margin-bottom:5px; }
+.menu-line-solo { opacity:0.75; }
+.menu-item { padding:2px 0 2px 16px; position:relative; }
+.menu-item::before { content:''; position:absolute; left:2px; top:0.65em; width:5px; height:5px; border-radius:50%; background:var(--text-3); }
+
+/* ══════════════════════════════════════════
+   OVERVIEW TAB — black/green digital terminal
+   ══════════════════════════════════════════ */
+#overviewList { background:#060807; padding:0 0 80px; position:relative; overflow:hidden; }
+.ov2-day { padding:0 16px; }
+.ov2-day-hd { display:flex; align-items:center; gap:8px; font-family:'Courier New',monospace; font-size:12px; letter-spacing:1.5px; color:#4ade80; margin:18px 0 8px; text-shadow:0 0 5px rgba(74,222,128,0.4); }
+.ov2-day-hd .today { background:#4ade80; color:#062b14; font-size:8px; font-weight:700; letter-spacing:.1em; padding:2px 6px; border-radius:4px; text-transform:uppercase; }
+.ov2-day-hd::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(74,222,128,0.35),transparent); }
+.ov2-day.ov2-past { opacity:0.42; }
+.ov2-ev { background:#0b120d; border:1px solid rgba(34,197,94,0.22); border-radius:6px; padding:10px 12px; margin-bottom:10px; box-shadow:0 0 14px rgba(34,197,94,0.05) inset; font-family:'Courier New',monospace; }
+.ov2-client { font-size:13.5px; font-weight:700; letter-spacing:.25px; color:#a8ffcf; text-shadow:0 0 9px rgba(74,222,128,0.65),0 0 2px rgba(74,222,128,0.9); line-height:1.4; margin-bottom:2px; }
+.ov2-ev-hd { font-size:11px; font-weight:400; color:#eafff0; line-height:1.4; }
+.ov2-ev-hd .dim { color:#5fae7c; font-weight:400; }
+.ov2-room { font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#5fae7c; margin-top:8px; display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.ov2-diag-btn { font-family:'Courier New',monospace; font-size:9px; letter-spacing:0.3px; text-transform:none; color:#4ade80; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.35); border-radius:4px; padding:2px 7px; cursor:pointer; }
+.ov2-diag-btn:active { background:rgba(74,222,128,0.2); }
+.ov2-row { display:flex; gap:10px; font-size:11.5px; padding:2px 0 2px 14px; color:#c8ffd8; }
+.ov2-row .t { color:#4ade80; width:118px; flex-shrink:0; }
+.ov2-row .t .g { color:#4ade80; opacity:.6; font-size:9.5px; }
+.ov2-row .l { padding:0 5px; border-radius:3px; background:rgba(74,222,128,0.08); }
+.ov2-w { position:relative; display:inline-block; }
+.ov2-w.fuzz { animation:ov2WordFuzz 0.32s steps(3,end); }
+@keyframes ov2WordFuzz {
+  0%   { transform:translate(0,0); text-shadow:none; }
+  25%  { transform:translate(-2px,1px); text-shadow:2px 0 rgba(255,45,110,0.85),-2px 0 rgba(34,224,255,0.85); }
+  50%  { transform:translate(2px,-1px); text-shadow:-2px 0 rgba(255,45,110,0.85),2px 0 rgba(34,224,255,0.85); }
+  75%  { transform:translate(-1px,0); text-shadow:1px 0 rgba(255,45,110,0.6); }
+  100% { transform:translate(0,0); text-shadow:none; }
+}
+.ov2-empty { padding:40px 16px; text-align:center; font-family:'Courier New',monospace; font-size:11px; color:#3f8a5a; letter-spacing:.05em; }
+
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/bb-shell.css">
+<style id="bb-rundown">
+/* ═══ Rundown / Overview / Diagrams — navy + ice-blue + lavender redesign ═══
+   The hand-edited event cards (#rundownList), diagram groups (#diagramsList) stay
+   in this file as the source of truth; #bb-app renders them for one date at a time. */
+html:root,html[data-theme]{
+  color-scheme:dark;
+  --bg:#101820;--bg-card:#162530;--bg-active:#1d3344;
+  --border:rgba(139,209,255,.12);--border-h:rgba(139,209,255,.28);
+  --text-1:#eaf3fa;--text-2:#b1c6d6;--text-3:#8aa4b8;--text-4:#6f8aa0;
+  --accent:#8bd1ff;--accent-dim:rgba(139,209,255,.10);
+  --red:#ff8f8f;--red-dim:rgba(255,143,143,.10);
+  --divider:rgba(166,216,255,.07);
+}
+html,body{background:#101820!important;background-color:#101820!important}
+body{font-family:Manrope,Arial,sans-serif}
+.page-wrap{max-width:none!important;background:transparent!important}
+/* Source data: kept in the DOM, never shown directly */
+#rundownList,#diagramsList,#overviewList{display:none!important}
+
+#bb-app{position:relative;isolation:isolate;max-width:430px;min-height:100vh;min-height:100dvh;margin:auto;--blue:#8bd1ff;--ink:#eaf3fa;--dim:#a1b7c8;--copper:#e2b089;color:var(--ink);background:radial-gradient(ellipse at 100% 0,#23496355,transparent 36%),#101820;font:12px/1.6 Manrope,Arial,sans-serif}
+#bb-app *{box-sizing:border-box}
+#bb-app p{margin:0}
+#bb-app button{font-family:inherit;cursor:pointer}
+#bb-app>.wave-layer{position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(100%,430px);height:100vh;height:100dvh;z-index:-1;pointer-events:none;opacity:.44}
+
+/* Header */
+#bb-app header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:1px solid #ffffff0c}
+#bb-app .brand{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:1.7px;font-weight:600;color:var(--ink);text-decoration:none}
+#bb-app .logo{display:grid;place-items:center;width:29px;height:29px;border:1px solid #7cc6ff70;border-radius:7px;color:var(--blue);font:19px Georgia,serif;letter-spacing:-1px;box-shadow:0 0 12px #80caff13;animation:bb-digital-logo 5s ease-in-out infinite}
+
+/* Hero */
+#bb-app .hero{position:relative;overflow:hidden;padding:15px 17px 12px;background:repeating-linear-gradient(0deg,transparent 0 5px,#82cfff05 5px 6px),linear-gradient(130deg,#1e405850,#0d172200)}
+#bb-app.on-rundown .hero{background:repeating-linear-gradient(125deg,transparent 0 34px,#86cfff0a 35px 36px,transparent 37px 68px),linear-gradient(130deg,#244e6545,#101c29);background-size:180% 180%;animation:rundown-drift 18s linear infinite}
+#bb-app .hero:before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,#8bd7ff90,transparent);box-shadow:0 0 12px #80ceff55;animation:bb-scan 8s linear infinite;pointer-events:none}
+#bb-app .hero:after{content:attr(data-day);position:absolute;right:10px;top:-9px;font:600 95px/1 'Barlow Condensed',sans-serif;color:#90d2ff07;pointer-events:none}
+#bb-app .eyebrow{font-size:9px;letter-spacing:1.8px;color:var(--blue)}
+#bb-app .eyebrow:before{content:'';display:inline-block;width:5px;height:5px;margin:0 7px 1px 0;background:#91dbff;box-shadow:0 0 9px #91dbff;border-radius:50%;animation:bb-signal-dot 3.8s ease-in-out infinite}
+#bb-app h1{font:600 31px/1 'Barlow Condensed',sans-serif;letter-spacing:.5px;margin:6px 0;color:#edf5fa}
+#bb-app .hero .date{font-size:12px;color:var(--dim)}
+
+/* Date navigation + tabs */
+#bb-app .date-nav{display:flex;align-items:center;gap:10px;padding:0 17px 14px}
+#bb-app .date-nav button,#bb-app .week-nav button{border:1px solid #557c98;border-radius:7px;background:#203a4c;color:#d8edff;padding:10px 13px;min-height:44px;font:12px Manrope,Arial,sans-serif}
+#bb-app .week-nav button:disabled{opacity:.3;cursor:default}
+#bb-app .date-nav span{font-size:12px;color:#c4def1}
+#bb-app .tabs{display:flex;gap:4px;margin:0 15px 12px;padding:4px;border:1px solid #334c60;border-radius:11px;background:#0d151d;box-shadow:inset 0 2px 7px #00000055}
+#bb-app .tabs button{-webkit-appearance:none;appearance:none;flex:1 1 0;min-width:0;height:38px;margin:0;padding:0 6px;border:1px solid #2c4458;border-radius:8px;background:linear-gradient(135deg,#172735,#121e28);color:#a9c3d6;font:500 12px/1 Manrope,Arial,sans-serif;letter-spacing:.2px;box-shadow:inset 0 1px #ffffff08;transition:background .2s,color .2s,border-color .2s}
+#bb-app .tabs button:focus{outline:none}#bb-app .tabs button:focus-visible{outline:1px solid #8bd1ff;outline-offset:1px}
+#bb-app .tabs button:active{background:#1d3142}
+#bb-app .tabs button[aria-pressed=true]{border-color:#5f8fb0;background:linear-gradient(120deg,#28455b,#1e3446);color:#cdeeff;font-weight:600;box-shadow:inset 0 -2px #8bcfff,0 3px 7px #00000040;animation:bb-tab-breathe 3.7s ease-in-out infinite}
+#bb-app main{padding:0 13px 17px}
+
+/* Rundown: client → room → services */
+#bb-app .group{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:16px 2px 9px}
+#bb-app .group h2{font:600 22px 'Barlow Condensed',sans-serif;letter-spacing:.8px;margin:0;color:var(--ink);overflow-wrap:anywhere}
+/* Contact: the vault's icy-lavender badge, same as the Overview */
+#bb-app .group-contact,#bb-app .original-contact{padding:3px 8px;font:700 13px/1.4 'Courier New',monospace;letter-spacing:.2px;color:#d1daff;border:1px solid #a9bcff4a;border-radius:5px;background:linear-gradient(135deg,#697fb52e,#34466535);box-shadow:inset 0 1px #d2dcff18;text-shadow:0 0 9px #a8baff20;white-space:nowrap}
+#bb-app .room{position:relative;margin-bottom:9px;overflow:hidden;border:1px solid #395368;border-top-color:#739db75e;border-radius:3px 12px 3px 3px;background:radial-gradient(ellipse at 100% 0,#39729719,transparent 65%),linear-gradient(135deg,#1e3547,#13232e 65%);box-shadow:0 8px 18px #00000038,inset 0 1px #ffffff06}
+#bb-app .room[open]{animation:bb-room-breathe 4.8s ease-in-out infinite}
+#bb-app .room:after{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,#a5e2ff,transparent);transform:translateX(-100%);animation:rundown-edge 7s ease-in-out infinite;pointer-events:none}
+#bb-app .room:nth-child(2n):after{animation-delay:-2.3s}
+#bb-app .room:nth-child(3n):after{animation-delay:-4.6s}
+#bb-app .room>summary{list-style:none;position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:42px;padding:8px 11px;background:repeating-linear-gradient(90deg,#a0d4ff03 0 1px,transparent 1px 22px)}
+#bb-app .room>summary::-webkit-details-marker{display:none}
+#bb-app .room>summary:before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--blue);box-shadow:0 0 12px #89cfff77;animation:rundown-beacon 4.5s ease-in-out infinite}
+#bb-app .room-name{display:block;font:500 21px 'Barlow Condensed',sans-serif;letter-spacing:.3px}
+/* Organization name: soft green glow. */
+#bb-app .group h2{color:#a8f2c7;text-shadow:0 0 14px #7fe0a061,0 0 2px #7fe0a080}
+/* Staff assigned to a room (assignments.json): position badge + name + duty, colored by duty. */
+#bb-app .room-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;min-width:0}
+#bb-app .crew{font:600 12.5px/1.45 Manrope,'Instrument Sans',Arial,sans-serif;letter-spacing:0;text-transform:none;color:#eef6fc}
+#bb-app .crew-pos{display:inline-block;margin-right:6px;padding:1px 5px;border-radius:4px;font:800 9px/1.4 Manrope,Arial,sans-serif;letter-spacing:1px;color:#0c1a14;background:#7fe0a0;vertical-align:1px}
+#bb-app .crew-pos.p-bar{background:#c1baff;color:#17123a} #bb-app .crew-pos.p-cpt{background:#8bd1ff;color:#0b1f2e} #bb-app .crew-pos.p-hsmn{background:#ffc085;color:#2e1a08}
+#bb-app .crew-duty{color:#7fe0a0} #bb-app .crew-duty.k-buffet{color:#ffc085} #bb-app .crew-duty.k-bev{color:#8bd1ff} #bb-app .crew-duty.k-roll{color:#c1baff} #bb-app .crew-duty.k-assist{color:#78d6ca}
+#bb-app .crew-sep{color:#8aa4b8;margin:0 5px}
+#bb-app .expand{font-size:20px;color:var(--blue);transition:transform .2s}
+#bb-app .room[open]>summary .expand{transform:rotate(45deg)}
+#bb-app .room-body{padding:0 11px 6px}
+#bb-app .service{display:block;padding:8px 0;border-top:1px solid #9ebbd41e}
+#bb-app .time{font-size:15px;font-weight:600;line-height:1.35;white-space:nowrap;margin-bottom:3px;color:#b9e5ff;font-variant-numeric:tabular-nums}
+#bb-app .time small{display:inline;font:inherit;color:inherit;margin:0 0 0 3px}
+/* Everything under a time (tag, count, menu, details) sits slightly indented */
+#bb-app .service>.time+div{padding-left:12px}
+#bb-app .service strong{display:inline;font-weight:600;font-size:13px;line-height:1.4}
+#bb-app .count{display:inline-block;font-size:11px;margin:0 0 0 8px;color:#c0daed}
+#bb-app .menu-name{font-size:13px;line-height:1.45;margin:3px 0 0;color:#deebf5}
+#bb-app .menu-name strong,#bb-app .menu-detail strong{font-size:inherit;font-weight:600;display:inline}
+#bb-app .menu-detail{margin-top:4px;font-size:10px;color:#b3c7d6}
+#bb-app .menu-detail summary{min-height:26px;align-content:center;padding:5px 0;font-size:12px;color:#a5d9fc;cursor:pointer}
+#bb-app .menu-detail p{padding:5px 0;font-size:13px;line-height:1.45}
+#bb-app .flag{font-size:10px;color:#e8c6a9;border-left:2px solid var(--copper);background:#d8a4750b;padding:7px 9px;margin:0 0 8px}
+#bb-app .room-more{border-top:1px solid #ffffff0f;font-size:10px;color:#aac6d9}
+#bb-app .room-more>summary{min-height:30px;align-content:center;cursor:pointer}
+#bb-app .setup{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;font-size:11px;line-height:1.5;color:#b9cfdf;padding:7px 0 0}
+#bb-app .setup:last-child{padding-bottom:8px}
+#bb-app .setup-key{padding-top:1px;font-size:9px;font-weight:600;letter-spacing:1px;color:#7fa3bd}
+#bb-app .setup .diag-link:first-child{margin-top:0}
+
+/* Upcoming-days list (like the original Banquet Bot rundown, in the new theme) */
+#bb-app .week-label{display:flex;align-items:center;gap:12px;margin:18px 2px 10px;font:600 12px 'Courier New',monospace;letter-spacing:1.4px;color:#c6eaff;text-transform:uppercase}
+#bb-app .week-label:first-child{margin-top:6px}
+#bb-app .week-label:after{content:'';height:1px;flex:1;background:linear-gradient(90deg,#80cfff70,transparent)}
+#bb-app .week-choice .day-line{display:block;margin-top:3px;color:#cfe3f2}
+#bb-app .week-choice .ds-head{color:#f0f8ff;font-weight:700}
+#bb-app .week-choice{display:block;width:100%;padding:14px 12px;margin-bottom:9px;text-align:left;border:1px solid #466782;border-radius:4px 13px 4px 4px;background:linear-gradient(135deg,#233e53,#142631);color:#dcefff;font:12px/1.5 Manrope,Arial,sans-serif}
+#bb-app .week-choice strong{display:block;color:#b4e2ff;margin-bottom:5px}
+#bb-app .week-choice.today{border-color:#a4dcff;box-shadow:inset 3px 0 #9ad7ff,0 0 14px #84cfff16}
+#bb-app .week-choice.empty span{color:#8fa9bc}
+#bb-app .date-empty{padding:25px 12px;color:#c6deef;font-size:14px}
+
+/* Overview: compact, close to the original live format */
+#bb-app .original-event{position:relative;overflow:hidden;padding:16px 12px 17px;margin:12px 0 15px;font-family:'Courier New',monospace;background:radial-gradient(ellipse at 100% 0,#6484ba16,transparent 65%),linear-gradient(135deg,#1b2f41,#101e2b);border:1px solid #648aaa70;border-radius:3px 14px 3px 3px;box-shadow:0 8px 18px #00000045,inset 0 1px #bcdfff18}
+#bb-app .original-event:before{content:'';position:absolute;top:0;left:-35%;width:32%;height:2px;background:linear-gradient(90deg,transparent,#a5e2ff,transparent);box-shadow:0 0 12px #75c6ff88;animation:bb-edge-travel 6s ease-in-out infinite;pointer-events:none}
+#bb-app .original-client{display:flex;align-items:baseline;flex-wrap:wrap;gap:9px;margin-bottom:2px;font-size:15px;font-weight:700;line-height:1.4;color:#f0f8ff;text-shadow:0 1px 2px #00000080,0 0 14px #94cfff28}
+#bb-app .mgr-chip{padding:3px 8px;font:700 12px/1.4 Manrope,Arial,sans-serif;letter-spacing:.3px;color:#ffd9b0;border:1px solid #ffc0855c;border-radius:5px;background:linear-gradient(135deg,#ffc08524,#ffc08508);white-space:nowrap}
+#bb-app .original-contact{padding:3px 8px;font-size:13px;font-weight:700;letter-spacing:.2px;color:#d1daff;border:1px solid #a9bcff4a;border-radius:5px;background:linear-gradient(135deg,#697fb52e,#34466535);box-shadow:inset 0 1px #d2dcff18;text-shadow:0 0 9px #a8baff20}
+#bb-app .original-room{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:15px 0 5px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#c4e5ff}
+#bb-app .original-room:before{content:'';width:3px;height:12px;border-radius:2px;background:#9bd9ff;box-shadow:0 0 8px #83cfff55}
+#bb-app .original-room:after{content:'';height:1px;flex:1;min-width:20px;background:linear-gradient(90deg,#9bcfff38,transparent)}
+#bb-app .original-row{display:grid;grid-template-columns:122px minmax(0,1fr);gap:7px;padding:4px 0 4px 7px;font-size:12px;line-height:1.5;color:#ecf5ff}
+#bb-app .original-time{color:#b4e3ff;font-weight:600;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px #00000080}
+#bb-app .original-count{display:inline-block;margin-left:5px;font-size:11px;font-weight:400;color:#c5d1e8}
+#bb-app .original-total{margin:2px 0 0;font:700 13px/1.4 'Courier New',monospace;letter-spacing:.4px;color:#e6f4ff;text-shadow:0 0 10px #8bd1ff30}
+/* Guarantee / expected counts in amber so they stand out (Rundown + Overview) */
+#bb-app .count,#bb-app .original-count{padding:1px 7px;border-radius:10px;font-weight:700!important;color:#ffd9a6!important;background:#ffc0851f;border:1px solid #ffc08540}
+#bb-app .original-total{display:inline-block;padding:2px 9px;border-radius:10px;color:#ffd9a6!important;background:#ffc0851f;border:1px solid #ffc08547;text-shadow:none!important}
+#bb-app .original-label{padding:0 5px;border-left:1px solid #a7cced24;border-radius:3px;overflow-wrap:anywhere;color:#f0f5fc;background:linear-gradient(90deg,#a8cfff0d,transparent);text-shadow:0 1px 2px #00000070}
+#bb-app .original-diag{order:3;padding:2px 7px;font:600 10px Manrope,Arial,sans-serif;letter-spacing:.3px;text-transform:none;color:#d1daff;border:1px solid #a9bcff4a;border-radius:5px;background:#697fb51f}
+
+/* Diagram buttons (rundown setup, diagrams tab) */
+#bb-app .diag-link{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;padding:9px 10px;border:1px solid #466782;border-radius:8px;background:#1d3344;color:var(--ink);font:12px/1.4 Manrope,Arial,sans-serif;text-align:left}
+#bb-app .diag-upd{margin-left:6px;padding:1px 6px;border-radius:10px;background:#ffc085;color:#1a1208;font:800 9px Manrope,Arial,sans-serif;letter-spacing:.8px;vertical-align:1px}
+#bb-app .diag-link-open{flex-shrink:0;font-size:10px;letter-spacing:.5px;color:var(--blue)}
+#bb-app .diag-warn{display:block;margin-top:6px;padding:7px 9px;border:1px solid #ff8f8f40;border-radius:6px;background:#ff8f8f12;color:#ffb4b4;font:10px/1.5 Manrope,Arial,sans-serif}
+
+/* Diagram viewer */
+.diag-modal-head{background:#13222d!important;border-bottom-color:#ffffff12!important}
+.diag-modal-title{font-family:Manrope,Arial,sans-serif!important;color:#eaf3fa!important}
+.diag-modal-close{background:#1c3445!important;border-color:#577c97!important;color:#d3edff!important}
+
+@media (min-width:600px){#bb-app{max-width:720px}#bb-app>.wave-layer{width:min(100%,720px)}}
+@media (max-width:350px){#bb-app main{padding:0 10px 17px}#bb-app .original-row{grid-template-columns:112px minmax(0,1fr);gap:5px;padding-left:3px}#bb-app h1{font-size:28px}}
+
+@keyframes bb-digital-logo{0%,100%{border-color:#7cc6ff60;box-shadow:0 0 8px #80caff15,inset 0 0 8px #80caff08}50%{border-color:#a7e0ff;box-shadow:0 0 19px #80caff55,inset 0 0 12px #80caff22}}
+@keyframes bb-signal-dot{0%,100%{opacity:.4;box-shadow:0 0 4px #91dbff40}50%{opacity:1;box-shadow:0 0 12px #91dbff99}}
+@keyframes bb-scan{0%{transform:translateY(0);opacity:0}15%{opacity:.6}85%{opacity:.6}100%{transform:translateY(145px);opacity:0}}
+@keyframes bb-tab-run{0%{left:-24px;opacity:0}10%{opacity:.8}90%{opacity:.8}100%{left:100%;opacity:0}}
+@keyframes bb-tab-breathe{0%,100%{box-shadow:inset 0 -2px #8bcfff,0 3px 7px #00000040,0 0 4px #81ccff05}50%{box-shadow:inset 0 -2px #b6e6ff,0 3px 7px #00000040,0 0 15px #81ccff28}}
+@keyframes bb-room-breathe{0%,100%{border-top-color:#739db75e;box-shadow:0 8px 18px #00000038,inset 0 1px #ffffff06}50%{border-top-color:#86cfffaa;box-shadow:0 8px 18px #00000038,inset 0 1px #ffffff0b,0 -3px 16px #80caff13}}
+@keyframes bb-edge-travel{0%{left:-35%;opacity:0}15%{opacity:.9}80%{opacity:.9}100%{left:105%;opacity:0}}
+@keyframes rundown-drift{from{background-position:0 0}to{background-position:170px 0}}
+@keyframes rundown-edge{0%,15%{transform:translateX(-100%);opacity:0}30%{opacity:.8}75%{opacity:.6}90%,100%{transform:translateX(100%);opacity:0}}
+@keyframes rundown-beacon{0%,100%{opacity:.45;box-shadow:0 0 3px #89cfff33}50%{opacity:1;box-shadow:0 0 13px #89cfff99}}
+</style>
+
+</head>
+<body>
+<div class="page-wrap">
+
+<div id="bb-app" class="on-rundown">
+  <header>
+    <a class="brand" href="index.html"><span class="logo">bb</span>BANQUET BOT</a>
+    <a class="bb-btn" href="index.html">‹ Home</a>
+  </header>
+  <div class="hero" id="rdHero" data-day="">
+    <div class="eyebrow" id="rdEyebrow"></div>
+    <h1 id="rdTitle">THE RUNDOWN.</h1>
+    <p class="date" id="rdDate"></p>
+  </div>
+  <div class="date-nav">
+    <button type="button" id="rdBack">‹ Week</button>
+    <span id="rdCaption"></span>
+  </div>
+  <div class="tabs" role="group" aria-label="Choose view">
+    <button type="button" data-screen="rundown" aria-pressed="true">Rundown</button>
+    <button type="button" data-screen="overview" aria-pressed="false">Overview</button>
+  </div>
+  <main><section id="rdScreen" aria-live="polite"></section></main>
+</div>
+
+<!-- ══ SOURCE DATA ══ Hand-edited event cards below are the source of truth (and what
+     scripts/extract-rundown.js reads). They are hidden; #bb-app above renders them. -->
+
+<div class="days-list" id="rundownList">
+
+<div class="month-banner"><span class="month-banner-name">November</span><span class="month-banner-year">2026</span></div>
+<div class="week-label"><span class="week-label-main" data-en="Week of Nov 16–22" data-es="Week of Nov 16–22">Week of Nov 16–22</span></div>
+<!-- ══ MON NOV 16 ══ -->
+<div class="day-section" data-date="2026-11-16">
+<button class="day-btn a1" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">16</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="MON" data-es="MON">MON</div>
+    <div class="day-summary" data-en="Northwind Analytics — Leadership Summit, Cypress AB · Northwind Analytics — Welcome Reception, Terrace · Brightline Health — Board Meeting, Juniper A · Solace Software — Sales Kickoff, Aspen" data-es="Northwind Analytics — Leadership Summit, Cypress AB · Northwind Analytics — Welcome Reception, Terrace · Brightline Health — Board Meeting, Juniper A · Solace Software — Sales Kickoff, Aspen">Northwind Analytics — Leadership Summit, Cypress AB · Northwind Analytics — Welcome Reception, Terrace · Brightline Health — Board Meeting, Juniper A · Solace Software — Sales Kickoff, Aspen</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--blue)">
+      <div class="card-group" data-en="Northwind Analytics — Leadership Summit" data-es="Northwind Analytics — Leadership Summit">Northwind Analytics — Leadership Summit</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Erin" data-es="IC: Erin">IC: Erin</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>5:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="General Session — No F&amp;B" data-es="General Session — No F&amp;B">General Session — No F&amp;B</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">GTD 110</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:00–<br>8:00 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Breakfast Buffet" data-es="Breakfast Buffet">Breakfast Buffet</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">GTD 110</span></div>
+        <div class="svc-menu" data-en="<strong class='menu-hl'>Hill Country Breakfast</strong> — Scrambled eggs · Applewood bacon · Breakfast potatoes · Sliced fruit · Pastries · Coffee, tea &amp; juices" data-es="<strong class='menu-hl'>Hill Country Breakfast</strong> — Scrambled eggs · Applewood bacon · Breakfast potatoes · Sliced fruit · Pastries · Coffee, tea &amp; juices"><strong class='menu-hl'>Hill Country Breakfast</strong> — Scrambled eggs · Applewood bacon · Breakfast potatoes · Sliced fruit · Pastries · Coffee, tea &amp; juices</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">10:00–<br>10:30 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Coffee Break" data-es="Coffee Break">Coffee Break</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">EXP 110</span></div>
+        <div class="svc-menu" data-en="Coffee &amp; tea refresh · Greek yogurt parfaits · Granola bars" data-es="Coffee &amp; tea refresh · Greek yogurt parfaits · Granola bars">Coffee &amp; tea refresh · Greek yogurt parfaits · Granola bars</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Lunch Buffet" data-es="Lunch Buffet">Lunch Buffet</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">GTD 110</span></div>
+        <div class="svc-menu" data-en="<strong class='menu-hl'>Tex-Mex Lunch</strong> — Chicken fajitas · Cilantro rice · Charro beans · Chips, salsa &amp; guacamole · Tres leches" data-es="<strong class='menu-hl'>Tex-Mex Lunch</strong> — Chicken fajitas · Cilantro rice · Charro beans · Chips, salsa &amp; guacamole · Tres leches"><strong class='menu-hl'>Tex-Mex Lunch</strong> — Chicken fajitas · Cilantro rice · Charro beans · Chips, salsa &amp; guacamole · Tres leches</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">3:00–<br>3:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Coffee Break" data-es="Coffee Break">Coffee Break</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">EXP 110</span></div>
+        <div class="svc-menu" data-en="Warm pretzel bites with beer cheese · Sodas &amp; sparkling water" data-es="Warm pretzel bites with beer cheese · Sodas &amp; sparkling water">Warm pretzel bites with beer cheese · Sodas &amp; sparkling water</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Erin</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Cypress AB · Rounds of 10 · set for 120, stage + podium, 2 screens" data-es="Cypress AB · Rounds of 10 · set for 120, stage + podium, 2 screens">Cypress AB · Rounds of 10 · set for 120, stage + podium, 2 screens</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="FOOD" data-es="COMIDA">FOOD</span><span class="foot-val" data-en="2 gluten-free, 1 vegan, 1 tree-nut allergy (plated separately, marked seat)" data-es="2 gluten-free, 1 vegan, 1 tree-nut allergy (plated separately, marked seat)">2 gluten-free, 1 vegan, 1 tree-nut allergy (plated separately, marked seat)</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Day 1 of 2 — continues Tue, same room" data-es="Day 1 of 2 — continues Tue, same room">Day 1 of 2 — continues Tue, same room</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf', 'Cypress AB — 12 rounds of 10 + stage')"><span>Cypress AB — 12 rounds of 10 + stage</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--purple)">
+      <div class="card-group" data-en="Northwind Analytics — Welcome Reception" data-es="Northwind Analytics — Welcome Reception">Northwind Analytics — Welcome Reception</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Erin" data-es="IC: Erin">IC: Erin</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">5:30–<br>7:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-rec" data-en="Reception" data-es="Reception">Reception</span><span class="room-pill">Terrace</span><span class="gtd-pill">EXP 150</span></div>
+        <div class="svc-menu" data-en="Passed: brisket sliders · shrimp ceviche shooters · caprese skewers · Display: Texas cheese board" data-es="Passed: brisket sliders · shrimp ceviche shooters · caprese skewers · Display: Texas cheese board">Passed: brisket sliders · shrimp ceviche shooters · caprese skewers · Display: Texas cheese board</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">5:30–<br>7:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bar" data-en="Hosted Bar" data-es="Hosted Bar">Hosted Bar</span><span class="room-pill">Terrace</span><span class="gtd-pill">1 bar</span></div>
+        <div class="svc-menu" data-en="Beer &amp; wine · 1 bartender" data-es="Beer &amp; wine · 1 bartender">Beer &amp; wine · 1 bartender</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Erin</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Terrace · Reception · 12 highboys, 1 bar" data-es="Terrace · Reception · 12 highboys, 1 bar">Terrace · Reception · 12 highboys, 1 bar</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Rain plan: Cypress C — the call is made by 2 PM" data-es="Rain plan: Cypress C — the call is made by 2 PM">Rain plan: Cypress C — the call is made by 2 PM</span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--green)">
+      <div class="card-group" data-en="Brightline Health — Board Meeting" data-es="Brightline Health — Board Meeting">Brightline Health — Board Meeting</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Paul" data-es="IC: Paul">IC: Paul</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>4:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Meeting — No F&amp;B" data-es="Meeting — No F&amp;B">Meeting — No F&amp;B</span><span class="room-pill">Juniper A</span><span class="gtd-pill">GTD 14</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00–<br>9:00 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Continental Breakfast" data-es="Continental Breakfast">Continental Breakfast</span><span class="room-pill">Juniper A</span><span class="gtd-pill">GTD 14</span></div>
+        <div class="svc-menu" data-en="Fresh fruit · Pastries · Yogurt · Coffee &amp; juice" data-es="Fresh fruit · Pastries · Yogurt · Coffee &amp; juice">Fresh fruit · Pastries · Yogurt · Coffee &amp; juice</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Plated Lunch" data-es="Plated Lunch">Plated Lunch</span><span class="room-pill">Juniper A</span><span class="gtd-pill">GTD 14</span></div>
+        <div class="svc-menu" data-en="Chicken piccata · Lemon orzo · Haricots verts · Chocolate torte" data-es="Chicken piccata · Lemon orzo · Haricots verts · Chocolate torte">Chicken piccata · Lemon orzo · Haricots verts · Chocolate torte</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Paul</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Juniper A · Conference for 14" data-es="Juniper A · Conference for 14">Juniper A · Conference for 14</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="FOOD" data-es="COMIDA">FOOD</span><span class="foot-val" data-en="1 vegetarian (mushroom risotto)" data-es="1 vegetarian (mushroom risotto)">1 vegetarian (mushroom risotto)</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/JUNIPERAfromBrightlineHealth_conference14.pdf', 'Juniper A — conference for 14')"><span>Juniper A — conference for 14</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--orange)">
+      <div class="card-group" data-en="Solace Software — Sales Kickoff" data-es="Solace Software — Sales Kickoff">Solace Software — Sales Kickoff</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Dana" data-es="IC: Dana">IC: Dana</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:30 AM–<br>5:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Meeting — No F&amp;B" data-es="Meeting — No F&amp;B">Meeting — No F&amp;B</span><span class="room-pill">Aspen</span><span class="gtd-pill">GTD 40</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:30–<br>8:30 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Grab &amp; Go Breakfast" data-es="Grab &amp; Go Breakfast">Grab &amp; Go Breakfast</span><span class="room-pill">Aspen</span><span class="gtd-pill">EXP 40</span></div>
+        <div class="svc-menu" data-en="Breakfast tacos · Fruit cups · Cold brew" data-es="Breakfast tacos · Fruit cups · Cold brew">Breakfast tacos · Fruit cups · Cold brew</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Boxed Lunch" data-es="Boxed Lunch">Boxed Lunch</span><span class="room-pill">Aspen</span><span class="gtd-pill">EXP 40</span></div>
+        <div class="svc-menu" data-en="Turkey club · Chicken caesar wrap · Veggie hummus wrap · Chips &amp; cookie" data-es="Turkey club · Chicken caesar wrap · Veggie hummus wrap · Chips &amp; cookie">Turkey club · Chicken caesar wrap · Veggie hummus wrap · Chips &amp; cookie</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">2:30–<br>3:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Coffee Break" data-es="Coffee Break">Coffee Break</span><span class="room-pill">Aspen</span><span class="gtd-pill">EXP 40</span></div>
+        <div class="svc-menu" data-en="Cookies &amp; brownies · Coffee refresh" data-es="Cookies &amp; brownies · Coffee refresh">Cookies &amp; brownies · Coffee refresh</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Dana</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Aspen · Classroom for 40, presenter table up front" data-es="Aspen · Classroom for 40, presenter table up front">Aspen · Classroom for 40, presenter table up front</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Day 1 of 2 — back Fri / ⚑ Diagram shows classroom for 36; event order says 40. Confirm with Priya" data-es="Day 1 of 2 — back Fri / ⚑ Diagram shows classroom for 36; event order says 40. Confirm with Priya">Day 1 of 2 — back Fri<br>⚑ Diagram shows classroom for 36; event order says 40. Confirm with Priya</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/ASPENfromSolaceSoftware_classroom36.pdf', 'Aspen — classroom for 36')"><span>Aspen — classroom for 36</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>4</strong> <span data-en="groups · 4 rooms" data-es="groups · 4 rooms">groups · 4 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Aspen, Cypress AB, Juniper A, Terrace</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ TUE NOV 17 ══ -->
+<div class="day-section" data-date="2026-11-17">
+<button class="day-btn a2" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">17</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="TUE" data-es="TUE">TUE</div>
+    <div class="day-summary" data-en="Northwind Analytics — Leadership Summit — Final Day, Cypress AB · Kestrel Robotics — Product Training, Birch A · City Bar Association — CLE Luncheon, Cypress CD" data-es="Northwind Analytics — Leadership Summit — Final Day, Cypress AB · Kestrel Robotics — Product Training, Birch A · City Bar Association — CLE Luncheon, Cypress CD">Northwind Analytics — Leadership Summit — Final Day, Cypress AB · Kestrel Robotics — Product Training, Birch A · City Bar Association — CLE Luncheon, Cypress CD</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--blue)">
+      <div class="card-group" data-en="Northwind Analytics — Leadership Summit — Final Day" data-es="Northwind Analytics — Leadership Summit — Final Day">Northwind Analytics — Leadership Summit — Final Day</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Erin" data-es="IC: Erin">IC: Erin</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>3:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="General Session — No F&amp;B" data-es="General Session — No F&amp;B">General Session — No F&amp;B</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">GTD 105</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:00–<br>8:00 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Breakfast Buffet" data-es="Breakfast Buffet">Breakfast Buffet</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">GTD 105</span></div>
+        <div class="svc-menu" data-en="<strong class='menu-hl'>Southern Sunrise</strong> — Biscuits &amp; gravy · Scrambled eggs · Chicken sausage · Fruit · Coffee, tea &amp; juices" data-es="<strong class='menu-hl'>Southern Sunrise</strong> — Biscuits &amp; gravy · Scrambled eggs · Chicken sausage · Fruit · Coffee, tea &amp; juices"><strong class='menu-hl'>Southern Sunrise</strong> — Biscuits &amp; gravy · Scrambled eggs · Chicken sausage · Fruit · Coffee, tea &amp; juices</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">10:00–<br>10:30 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Coffee Break" data-es="Coffee Break">Coffee Break</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">EXP 105</span></div>
+        <div class="svc-menu" data-en="Coffee refresh · Banana bread · Whole fruit" data-es="Coffee refresh · Banana bread · Whole fruit">Coffee refresh · Banana bread · Whole fruit</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Plated Lunch" data-es="Plated Lunch">Plated Lunch</span><span class="room-pill">Cypress AB</span><span class="gtd-pill">GTD 105</span></div>
+        <div class="svc-menu" data-en="Grilled salmon · Herbed farro · Roasted carrots · Key lime tart" data-es="Grilled salmon · Herbed farro · Roasted carrots · Key lime tart">Grilled salmon · Herbed farro · Roasted carrots · Key lime tart</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Erin</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Cypress AB · existing set (rounds of 10)" data-es="Cypress AB · existing set (rounds of 10)">Cypress AB · existing set (rounds of 10)</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="FOOD" data-es="COMIDA">FOOD</span><span class="foot-val" data-en="2 gluten-free, 1 vegan, 1 tree-nut allergy" data-es="2 gluten-free, 1 vegan, 1 tree-nut allergy">2 gluten-free, 1 vegan, 1 tree-nut allergy</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Final day — room clears at 3 PM, then flips for the gala" data-es="Final day — room clears at 3 PM, then flips for the gala">Final day — room clears at 3 PM, then flips for the gala</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf', 'Cypress AB — 12 rounds of 10 + stage')"><span>Cypress AB — 12 rounds of 10 + stage</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--amber)">
+      <div class="card-group" data-en="Kestrel Robotics — Product Training" data-es="Kestrel Robotics — Product Training">Kestrel Robotics — Product Training</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Victor" data-es="IC: Victor">IC: Victor</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>5:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Training — No F&amp;B" data-es="Training — No F&amp;B">Training — No F&amp;B</span><span class="room-pill">Birch A</span><span class="gtd-pill">GTD 24</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>5:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Continuous Break" data-es="Continuous Break">Continuous Break</span><span class="room-pill">Birch A</span><span class="gtd-pill">EXP 24</span></div>
+        <div class="svc-menu" data-en="All-day coffee, tea, sodas &amp; water" data-es="All-day coffee, tea, sodas &amp; water">All-day coffee, tea, sodas &amp; water</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Conference Dining Lunch" data-es="Conference Dining Lunch">Conference Dining Lunch</span><span class="room-pill">Birch A</span><span class="gtd-pill">GTD 24</span></div>
+        <div class="svc-menu" data-en="Choice of: Cobb salad · Grilled chicken club · Veggie grain bowl" data-es="Choice of: Cobb salad · Grilled chicken club · Veggie grain bowl">Choice of: Cobb salad · Grilled chicken club · Veggie grain bowl</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Victor</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Birch A · Classroom for 24" data-es="Birch A · Classroom for 24">Birch A · Classroom for 24</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="AV" data-es="AV">AV</span><span class="foot-val" data-en="Projector + screen, wireless lavalier" data-es="Projector + screen, wireless lavalier">Projector + screen, wireless lavalier</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Day 1 of 3 — same room through Thu" data-es="Day 1 of 3 — same room through Thu">Day 1 of 3 — same room through Thu</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHAfromKestrelRobotics_classroom24.pdf', 'Birch A — classroom for 24')"><span>Birch A — classroom for 24</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--red)">
+      <div class="card-group" data-en="City Bar Association — CLE Luncheon" data-es="City Bar Association — CLE Luncheon">City Bar Association — CLE Luncheon</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Grace" data-es="IC: Grace">IC: Grace</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">11:30 AM–<br>1:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Plated Lunch" data-es="Plated Lunch">Plated Lunch</span><span class="room-pill">Cypress CD</span><span class="gtd-pill">GTD 175</span></div>
+        <div class="svc-menu" data-en="Herb roasted chicken · Garlic mashed potatoes · Seasonal vegetables · Pecan pie" data-es="Herb roasted chicken · Garlic mashed potatoes · Seasonal vegetables · Pecan pie">Herb roasted chicken · Garlic mashed potatoes · Seasonal vegetables · Pecan pie</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Grace</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Cypress CD · Rounds of 10 · set for 180, podium + 1 screen" data-es="Cypress CD · Rounds of 10 · set for 180, podium + 1 screen">Cypress CD · Rounds of 10 · set for 180, podium + 1 screen</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="FOOD" data-es="COMIDA">FOOD</span><span class="foot-val" data-en="6 vegetarian, 3 gluten-free, 1 shellfish allergy" data-es="6 vegetarian, 3 gluten-free, 1 shellfish allergy">6 vegetarian, 3 gluten-free, 1 shellfish allergy</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Speaker at 12:15 — clear salads by 12:10" data-es="Speaker at 12:15 — clear salads by 12:10">Speaker at 12:15 — clear salads by 12:10</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSCDfromCityBarAssociation_rounds18x10.pdf', 'Cypress CD — 18 rounds of 10')"><span>Cypress CD — 18 rounds of 10</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>3</strong> <span data-en="groups · 3 rooms" data-es="groups · 3 rooms">groups · 3 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Birch A, Cypress AB, Cypress CD</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ WED NOV 18 ══ -->
+<div class="day-section" data-date="2026-11-18">
+<button class="day-btn a3" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">18</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="WED" data-es="WED">WED</div>
+    <div class="day-summary" data-en="Riverbend Children's Fund — Autumn Gala, Cypress &amp; Pre-Function · Kestrel Robotics — Product Training, Birch A · Pinecrest Dental — Study Club, Willow A" data-es="Riverbend Children's Fund — Autumn Gala, Cypress &amp; Pre-Function · Kestrel Robotics — Product Training, Birch A · Pinecrest Dental — Study Club, Willow A">Riverbend Children's Fund — Autumn Gala, Cypress &amp; Pre-Function · Kestrel Robotics — Product Training, Birch A · Pinecrest Dental — Study Club, Willow A</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--purple)">
+      <div class="card-group" data-en="Riverbend Children's Fund — Autumn Gala" data-es="Riverbend Children's Fund — Autumn Gala">Riverbend Children's Fund — Autumn Gala</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Holly" data-es="IC: Holly">IC: Holly</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:00–<br>7:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-rec" data-en="Cocktail Reception" data-es="Cocktail Reception">Cocktail Reception</span><span class="room-pill">Pre-Function</span><span class="gtd-pill">EXP 300</span></div>
+        <div class="svc-menu" data-en="Passed: crab cakes · beef wellington bites · wild mushroom tartlets" data-es="Passed: crab cakes · beef wellington bites · wild mushroom tartlets">Passed: crab cakes · beef wellington bites · wild mushroom tartlets</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:00–<br>7:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bar" data-en="Hosted Bars" data-es="Hosted Bars">Hosted Bars</span><span class="room-pill">Pre-Function</span><span class="gtd-pill">2 bars</span></div>
+        <div class="svc-menu" data-en="Premium brands · 2 bartenders" data-es="Premium brands · 2 bartenders">Premium brands · 2 bartenders</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:00–<br>10:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-din" data-en="Plated Dinner" data-es="Plated Dinner">Plated Dinner</span><span class="room-pill">Cypress</span><span class="gtd-pill">GTD 300</span></div>
+        <div class="svc-menu" data-en="<strong class='menu-hl'>Three courses</strong> — Roasted beet salad · Duo of filet &amp; sea bass · Chocolate pot de crème" data-es="<strong class='menu-hl'>Three courses</strong> — Roasted beet salad · Duo of filet &amp; sea bass · Chocolate pot de crème"><strong class='menu-hl'>Three courses</strong> — Roasted beet salad · Duo of filet &amp; sea bass · Chocolate pot de crème</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:00–<br>11:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bar" data-en="Ballroom Bar" data-es="Ballroom Bar">Ballroom Bar</span><span class="room-pill">Cypress</span><span class="gtd-pill">1 bar</span></div>
+        <div class="svc-menu" data-en="Wine service with dinner + 1 bar in the ballroom" data-es="Wine service with dinner + 1 bar in the ballroom">Wine service with dinner + 1 bar in the ballroom</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Holly</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Cypress (A–D) · Rounds of 10 for 300 · stage, dance floor, auction tables" data-es="Cypress (A–D) · Rounds of 10 for 300 · stage, dance floor, auction tables">Cypress (A–D) · Rounds of 10 for 300 · stage, dance floor, auction tables</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="FOOD" data-es="COMIDA">FOOD</span><span class="foot-val" data-en="14 vegetarian, 6 gluten-free, 2 nut allergy — seat cards marked" data-es="14 vegetarian, 6 gluten-free, 2 nut allergy — seat cards marked">14 vegetarian, 6 gluten-free, 2 nut allergy — seat cards marked</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Auction 8:15–8:45 — no service during the auction / ⚑ Event order says 30 rounds; diagram shows 31. Confirm with Maya" data-es="Auction 8:15–8:45 — no service during the auction / ⚑ Event order says 30 rounds; diagram shows 31. Confirm with Maya">Auction 8:15–8:45 — no service during the auction<br>⚑ Event order says 30 rounds; diagram shows 31. Confirm with Maya</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSfromRiverbendChildrensFund_rounds31x10.pdf', 'Cypress — 31 rounds of 10, stage + dance floor')"><span>Cypress — 31 rounds of 10, stage + dance floor</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--amber)">
+      <div class="card-group" data-en="Kestrel Robotics — Product Training" data-es="Kestrel Robotics — Product Training">Kestrel Robotics — Product Training</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Victor" data-es="IC: Victor">IC: Victor</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>5:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Training — No F&amp;B" data-es="Training — No F&amp;B">Training — No F&amp;B</span><span class="room-pill">Birch A</span><span class="gtd-pill">GTD 24</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>5:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Continuous Break" data-es="Continuous Break">Continuous Break</span><span class="room-pill">Birch A</span><span class="gtd-pill">EXP 24</span></div>
+        <div class="svc-menu" data-en="All-day coffee, tea, sodas &amp; water" data-es="All-day coffee, tea, sodas &amp; water">All-day coffee, tea, sodas &amp; water</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Lunch Buffet" data-es="Lunch Buffet">Lunch Buffet</span><span class="room-pill">Birch A</span><span class="gtd-pill">GTD 24</span></div>
+        <div class="svc-menu" data-en="Build-your-own grain bowls · Grilled chicken &amp; tofu · Roasted vegetables" data-es="Build-your-own grain bowls · Grilled chicken &amp; tofu · Roasted vegetables">Build-your-own grain bowls · Grilled chicken &amp; tofu · Roasted vegetables</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Victor</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Birch A · existing set" data-es="Birch A · existing set">Birch A · existing set</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Day 2 of 3" data-es="Day 2 of 3">Day 2 of 3</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHAfromKestrelRobotics_classroom24.pdf', 'Birch A — classroom for 24')"><span>Birch A — classroom for 24</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--green)">
+      <div class="card-group" data-en="Pinecrest Dental — Study Club" data-es="Pinecrest Dental — Study Club">Pinecrest Dental — Study Club</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Owen" data-es="IC: Owen">IC: Owen</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:30 AM–<br>12:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Meeting — No F&amp;B" data-es="Meeting — No F&amp;B">Meeting — No F&amp;B</span><span class="room-pill">Willow A</span><span class="gtd-pill">GTD 18</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:30–<br>8:30 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Continental Breakfast" data-es="Continental Breakfast">Continental Breakfast</span><span class="room-pill">Willow A</span><span class="gtd-pill">GTD 18</span></div>
+        <div class="svc-menu" data-en="Pastries · Fruit · Yogurt · Coffee &amp; juice" data-es="Pastries · Fruit · Yogurt · Coffee &amp; juice">Pastries · Fruit · Yogurt · Coffee &amp; juice</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>12:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Boxed Lunch To Go" data-es="Boxed Lunch To Go">Boxed Lunch To Go</span><span class="room-pill">Willow A</span><span class="gtd-pill">GTD 18</span></div>
+        <div class="svc-menu" data-en="Turkey avocado · Caprese · Chips &amp; cookie" data-es="Turkey avocado · Caprese · Chips &amp; cookie">Turkey avocado · Caprese · Chips &amp; cookie</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Owen</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Willow A · U-shape for 18" data-es="Willow A · U-shape for 18">Willow A · U-shape for 18</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/WILLOWAfromPinecrestDental_ushape18.pdf', 'Willow A — U-shape for 18')"><span>Willow A — U-shape for 18</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>3</strong> <span data-en="groups · 4 rooms" data-es="groups · 4 rooms">groups · 4 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Birch A, Cypress, Pre-Function, Willow A</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ THU NOV 19 ══ -->
+<div class="day-section" data-date="2026-11-19">
+<button class="day-btn a4" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">19</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="THU" data-es="THU">THU</div>
+    <div class="day-summary" data-en="Kestrel Robotics — Product Training — Final Day, Birch A · Atlas Freight — Quarterly Review, Juniper · Harbor Credit Union — Board Dinner, Willow B" data-es="Kestrel Robotics — Product Training — Final Day, Birch A · Atlas Freight — Quarterly Review, Juniper · Harbor Credit Union — Board Dinner, Willow B">Kestrel Robotics — Product Training — Final Day, Birch A · Atlas Freight — Quarterly Review, Juniper · Harbor Credit Union — Board Dinner, Willow B</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--amber)">
+      <div class="card-group" data-en="Kestrel Robotics — Product Training — Final Day" data-es="Kestrel Robotics — Product Training — Final Day">Kestrel Robotics — Product Training — Final Day</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Victor" data-es="IC: Victor">IC: Victor</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>2:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Training — No F&amp;B" data-es="Training — No F&amp;B">Training — No F&amp;B</span><span class="room-pill">Birch A</span><span class="gtd-pill">GTD 24</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:00 AM–<br>2:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-brk" data-en="Continuous Break" data-es="Continuous Break">Continuous Break</span><span class="room-pill">Birch A</span><span class="gtd-pill">EXP 24</span></div>
+        <div class="svc-menu" data-en="All-day coffee, tea, sodas &amp; water" data-es="All-day coffee, tea, sodas &amp; water">All-day coffee, tea, sodas &amp; water</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Conference Dining Lunch" data-es="Conference Dining Lunch">Conference Dining Lunch</span><span class="room-pill">Birch A</span><span class="gtd-pill">GTD 24</span></div>
+        <div class="svc-menu" data-en="Choice of: Cobb salad · Grilled chicken club · Veggie grain bowl" data-es="Choice of: Cobb salad · Grilled chicken club · Veggie grain bowl">Choice of: Cobb salad · Grilled chicken club · Veggie grain bowl</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Victor</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Birch A · existing set" data-es="Birch A · existing set">Birch A · existing set</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Final day — out by 2 PM" data-es="Final day — out by 2 PM">Final day — out by 2 PM</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHAfromKestrelRobotics_classroom24.pdf', 'Birch A — classroom for 24')"><span>Birch A — classroom for 24</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--blue)">
+      <div class="card-group" data-en="Atlas Freight — Quarterly Review" data-es="Atlas Freight — Quarterly Review">Atlas Freight — Quarterly Review</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Nora" data-es="IC: Nora">IC: Nora</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:30 AM–<br>4:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Meeting — No F&amp;B" data-es="Meeting — No F&amp;B">Meeting — No F&amp;B</span><span class="room-pill">Juniper</span><span class="gtd-pill">GTD 60</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:30–<br>8:30 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Breakfast Buffet" data-es="Breakfast Buffet">Breakfast Buffet</span><span class="room-pill">Juniper</span><span class="gtd-pill">GTD 60</span></div>
+        <div class="svc-menu" data-en="Migas · Breakfast potatoes · Bacon · Fruit · Coffee &amp; juices" data-es="Migas · Breakfast potatoes · Bacon · Fruit · Coffee &amp; juices">Migas · Breakfast potatoes · Bacon · Fruit · Coffee &amp; juices</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="BBQ Lunch Buffet" data-es="BBQ Lunch Buffet">BBQ Lunch Buffet</span><span class="room-pill">Juniper</span><span class="gtd-pill">GTD 60</span></div>
+        <div class="svc-menu" data-en="Smoked brisket &amp; chicken · Mac &amp; cheese · Coleslaw · Peach cobbler" data-es="Smoked brisket &amp; chicken · Mac &amp; cheese · Coleslaw · Peach cobbler">Smoked brisket &amp; chicken · Mac &amp; cheese · Coleslaw · Peach cobbler</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Nora</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Juniper (A+B) · Theater for 60" data-es="Juniper (A+B) · Theater for 60">Juniper (A+B) · Theater for 60</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/JUNIPERfromAtlasFreight_theater60.pdf', 'Juniper — theater for 60')"><span>Juniper — theater for 60</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--red)">
+      <div class="card-group" data-en="Harbor Credit Union — Board Dinner" data-es="Harbor Credit Union — Board Dinner">Harbor Credit Union — Board Dinner</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Sofia" data-es="IC: Sofia">IC: Sofia</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:00–<br>9:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-din" data-en="Plated Dinner" data-es="Plated Dinner">Plated Dinner</span><span class="room-pill">Willow B</span><span class="gtd-pill">GTD 16</span></div>
+        <div class="svc-menu" data-en="Caesar salad · Braised short rib · Creamy polenta · Bread pudding" data-es="Caesar salad · Braised short rib · Creamy polenta · Bread pudding">Caesar salad · Braised short rib · Creamy polenta · Bread pudding</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:00–<br>9:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bar" data-en="Wine Service" data-es="Wine Service">Wine Service</span><span class="room-pill">Willow B</span><span class="gtd-pill">1 bar</span></div>
+        <div class="svc-menu" data-en="Red &amp; white wine with dinner" data-es="Red &amp; white wine with dinner">Red &amp; white wine with dinner</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Sofia</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Willow B · Conference for 16" data-es="Willow B · Conference for 16">Willow B · Conference for 16</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/WILLOWBfromHarborCreditUnion_conference16.pdf', 'Willow B — conference for 16')"><span>Willow B — conference for 16</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>3</strong> <span data-en="groups · 3 rooms" data-es="groups · 3 rooms">groups · 3 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Birch A, Juniper, Willow B</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ FRI NOV 20 ══ -->
+<div class="day-section" data-date="2026-11-20">
+<button class="day-btn a5" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">20</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="FRI" data-es="FRI">FRI</div>
+    <div class="day-summary" data-en="Solace Software — Sales Kickoff — Day 2, Aspen · Harper &amp; Lane Wedding — Rehearsal Dinner, Birch" data-es="Solace Software — Sales Kickoff — Day 2, Aspen · Harper &amp; Lane Wedding — Rehearsal Dinner, Birch">Solace Software — Sales Kickoff — Day 2, Aspen · Harper &amp; Lane Wedding — Rehearsal Dinner, Birch</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--orange)">
+      <div class="card-group" data-en="Solace Software — Sales Kickoff — Day 2" data-es="Solace Software — Sales Kickoff — Day 2">Solace Software — Sales Kickoff — Day 2</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Priya" data-es="MGR: Priya">MGR: Priya</span>
+        <span class="badge badge-ic" data-en="IC: Dana" data-es="IC: Dana">IC: Dana</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">8:30 AM–<br>3:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Meeting — No F&amp;B" data-es="Meeting — No F&amp;B">Meeting — No F&amp;B</span><span class="room-pill">Aspen</span><span class="gtd-pill">GTD 40</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">7:30–<br>8:30 AM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Grab &amp; Go Breakfast" data-es="Grab &amp; Go Breakfast">Grab &amp; Go Breakfast</span><span class="room-pill">Aspen</span><span class="gtd-pill">EXP 40</span></div>
+        <div class="svc-menu" data-en="Breakfast burritos · Fruit cups · Cold brew" data-es="Breakfast burritos · Fruit cups · Cold brew">Breakfast burritos · Fruit cups · Cold brew</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">12:00–<br>1:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-lnch" data-en="Lunch Buffet" data-es="Lunch Buffet">Lunch Buffet</span><span class="room-pill">Aspen</span><span class="gtd-pill">EXP 40</span></div>
+        <div class="svc-menu" data-en="Pasta bar · Caesar salad · Garlic bread · Tiramisu" data-es="Pasta bar · Caesar salad · Garlic bread · Tiramisu">Pasta bar · Caesar salad · Garlic bread · Tiramisu</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Dana</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Aspen · Classroom for 40" data-es="Aspen · Classroom for 40">Aspen · Classroom for 40</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/ASPENfromSolaceSoftware_classroom40.pdf', 'Aspen — classroom for 40')"><span>Aspen — classroom for 40</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--purple)">
+      <div class="card-group" data-en="Harper &amp; Lane Wedding — Rehearsal Dinner" data-es="Harper &amp; Lane Wedding — Rehearsal Dinner">Harper &amp; Lane Wedding — Rehearsal Dinner</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Claire" data-es="IC: Claire">IC: Claire</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:30–<br>9:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-din" data-en="Family-Style Dinner" data-es="Family-Style Dinner">Family-Style Dinner</span><span class="room-pill">Birch</span><span class="gtd-pill">GTD 40</span></div>
+        <div class="svc-menu" data-en="Antipasti · Rigatoni bolognese · Chicken marsala · Tiramisu" data-es="Antipasti · Rigatoni bolognese · Chicken marsala · Tiramisu">Antipasti · Rigatoni bolognese · Chicken marsala · Tiramisu</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:30–<br>9:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bar" data-en="Hosted Bar" data-es="Hosted Bar">Hosted Bar</span><span class="room-pill">Birch</span><span class="gtd-pill">1 bar</span></div>
+        <div class="svc-menu" data-en="Beer, wine &amp; signature cocktail" data-es="Beer, wine &amp; signature cocktail">Beer, wine &amp; signature cocktail</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Claire</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Birch · 5 rounds of 8" data-es="Birch · 5 rounds of 8">Birch · 5 rounds of 8</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHfromHarperLaneWedding_rounds5x8.pdf', 'Birch — 5 rounds of 8')"><span>Birch — 5 rounds of 8</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>2</strong> <span data-en="groups · 2 rooms" data-es="groups · 2 rooms">groups · 2 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Aspen, Birch</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ SAT NOV 21 ══ -->
+<div class="day-section" data-date="2026-11-21">
+<button class="day-btn a1" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">21</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="SAT" data-es="SAT">SAT</div>
+    <div class="day-summary" data-en="Harper &amp; Lane Wedding — Ceremony, Terrace · Harper &amp; Lane Wedding — Reception, Cypress CD &amp; Pre-Function" data-es="Harper &amp; Lane Wedding — Ceremony, Terrace · Harper &amp; Lane Wedding — Reception, Cypress CD &amp; Pre-Function">Harper &amp; Lane Wedding — Ceremony, Terrace · Harper &amp; Lane Wedding — Reception, Cypress CD &amp; Pre-Function</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--purple)">
+      <div class="card-group" data-en="Harper &amp; Lane Wedding — Ceremony" data-es="Harper &amp; Lane Wedding — Ceremony">Harper &amp; Lane Wedding — Ceremony</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Claire" data-es="IC: Claire">IC: Claire</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">5:00–<br>5:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag" data-en="Ceremony — No F&amp;B" data-es="Ceremony — No F&amp;B">Ceremony — No F&amp;B</span><span class="room-pill">Terrace</span><span class="gtd-pill">EXP 180</span></div>
+        <div class="svc-menu" data-en="No F&amp;B" data-es="No F&amp;B">No F&amp;B</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Claire</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Terrace · Theater for 180 with center aisle" data-es="Terrace · Theater for 180 with center aisle">Terrace · Theater for 180 with center aisle</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="NOTE" data-es="NOTA">NOTE</span><span class="foot-val" data-en="Rain plan: Cypress AB" data-es="Rain plan: Cypress AB">Rain plan: Cypress AB</span></div>
+    </div>
+  </div>
+
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--purple)">
+      <div class="card-group" data-en="Harper &amp; Lane Wedding — Reception" data-es="Harper &amp; Lane Wedding — Reception">Harper &amp; Lane Wedding — Reception</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Claire" data-es="IC: Claire">IC: Claire</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">5:30–<br>6:30 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-rec" data-en="Cocktail Hour" data-es="Cocktail Hour">Cocktail Hour</span><span class="room-pill">Pre-Function</span><span class="gtd-pill">EXP 180</span></div>
+        <div class="svc-menu" data-en="Passed: chicken &amp; waffle bites · tomato bisque shooters · Display: charcuterie" data-es="Passed: chicken &amp; waffle bites · tomato bisque shooters · Display: charcuterie">Passed: chicken &amp; waffle bites · tomato bisque shooters · Display: charcuterie</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">5:30–<br>11:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bar" data-en="Hosted Bars" data-es="Hosted Bars">Hosted Bars</span><span class="room-pill">Pre-Function</span><span class="gtd-pill">2 bars</span></div>
+        <div class="svc-menu" data-en="Full bar · 2 bartenders" data-es="Full bar · 2 bartenders">Full bar · 2 bartenders</div>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">6:30–<br>11:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-din" data-en="Dinner Buffet" data-es="Dinner Buffet">Dinner Buffet</span><span class="room-pill">Cypress CD</span><span class="gtd-pill">GTD 180</span></div>
+        <div class="svc-menu" data-en="Carving station · Herb chicken · Truffle mac &amp; cheese · Grilled vegetables · Wedding cake (couple brings)" data-es="Carving station · Herb chicken · Truffle mac &amp; cheese · Grilled vegetables · Wedding cake (couple brings)">Carving station · Herb chicken · Truffle mac &amp; cheese · Grilled vegetables · Wedding cake (couple brings)</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Claire</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Cypress CD · 18 rounds of 10, dance floor, DJ + head table" data-es="Cypress CD · 18 rounds of 10, dance floor, DJ + head table">Cypress CD · 18 rounds of 10, dance floor, DJ + head table</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="FOOD" data-es="COMIDA">FOOD</span><span class="foot-val" data-en="Couple's cake from their bakery — cut and serve, plates + forks" data-es="Couple's cake from their bakery — cut and serve, plates + forks">Couple's cake from their bakery — cut and serve, plates + forks</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSCDfromHarperLaneWedding_rounds18x10.pdf', 'Cypress CD — 18 rounds of 10 + dance floor')"><span>Cypress CD — 18 rounds of 10 + dance floor</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>2</strong> <span data-en="groups · 3 rooms" data-es="groups · 3 rooms">groups · 3 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Cypress CD, Pre-Function, Terrace</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- ══ SUN NOV 22 ══ -->
+<div class="day-section" data-date="2026-11-22">
+<button class="day-btn a2" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">22</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="SUN" data-es="SUN">SUN</div>
+    <div class="day-summary" data-en="Harper &amp; Lane Wedding — Farewell Brunch, Juniper" data-es="Harper &amp; Lane Wedding — Farewell Brunch, Juniper">Harper &amp; Lane Wedding — Farewell Brunch, Juniper</div>
+  </div>
+</button>
+<div class="day-body">
+  <div class="event-card">
+    <div class="card-head" style="border-left:3px solid var(--purple)">
+      <div class="card-group" data-en="Harper &amp; Lane Wedding — Farewell Brunch" data-es="Harper &amp; Lane Wedding — Farewell Brunch">Harper &amp; Lane Wedding — Farewell Brunch</div>
+      <div class="card-badges">
+        <span class="badge badge-mgr" data-en="MGR: Maya" data-es="MGR: Maya">MGR: Maya</span>
+        <span class="badge badge-ic" data-en="IC: Claire" data-es="IC: Claire">IC: Claire</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-time">10:00 AM–<br>12:00 PM</div>
+      <div class="svc-content">
+        <div class="svc-top"><span class="tag tag-bkf" data-en="Brunch Buffet" data-es="Brunch Buffet">Brunch Buffet</span><span class="room-pill">Juniper</span><span class="gtd-pill">GTD 60</span></div>
+        <div class="svc-menu" data-en="Chicken &amp; waffles · Frittata · Fruit · Pastries · Mimosa bar" data-es="Chicken &amp; waffles · Frittata · Fruit · Pastries · Mimosa bar">Chicken &amp; waffles · Frittata · Fruit · Pastries · Mimosa bar</div>
+      </div>
+    </div>
+    <div class="card-foot">
+      <div class="foot-row"><span class="foot-key" data-en="CONTACT" data-es="CONTACTO">CONTACT</span><span class="foot-val">Claire</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="ROOM" data-es="SALA">ROOM</span><span class="foot-val" data-en="Juniper · 8 rounds of 8" data-es="Juniper · 8 rounds of 8">Juniper · 8 rounds of 8</span></div>
+      <div class="foot-row"><span class="foot-key" data-en="DIAGRAM" data-es="DIAGRAMA">DIAGRAM</span><span class="foot-val"><button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/JUNIPERfromHarperLaneWedding_rounds8x8.pdf', 'Juniper — 8 rounds of 8')"><span>Juniper — 8 rounds of 8</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button></span></div>
+    </div>
+  </div>
+
+  <div class="day-strip">
+    <div class="strip-item"><strong>1</strong> <span data-en="groups · 1 rooms" data-es="groups · 1 rooms">groups · 1 rooms</span></div>
+    <div class="strip-item"><span data-en="Rooms:" data-es="Rooms:">Rooms:</span> <strong>Juniper</strong></div>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div class="diagrams-list" id="diagramsList" style="display:none">
+
+<div class="month-banner"><span class="month-banner-name">November</span><span class="month-banner-year">2026</span></div>
+<div class="week-label"><span class="week-label-main" data-en="Week of Nov 16–22" data-es="Week of Nov 16–22">Week of Nov 16–22</span></div>
+
+<div class="day-section" data-date="2026-11-16">
+<button class="day-btn a1" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">16</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="MON" data-es="MON">MON</div>
+    <div class="day-summary" data-en="Northwind Analytics — Leadership Summit · Brightline Health — Board Meeting · Solace Software — Sales Kickoff" data-es="Northwind Analytics — Leadership Summit · Brightline Health — Board Meeting · Solace Software — Sales Kickoff">Northwind Analytics — Leadership Summit · Brightline Health — Board Meeting · Solace Software — Sales Kickoff</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Northwind Analytics — Leadership Summit</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf', 'Cypress AB — 12 rounds of 10 + stage')"><span>Cypress AB — 12 rounds of 10 + stage</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Brightline Health — Board Meeting</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/JUNIPERAfromBrightlineHealth_conference14.pdf', 'Juniper A — conference for 14')"><span>Juniper A — conference for 14</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Solace Software — Sales Kickoff</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/ASPENfromSolaceSoftware_classroom36.pdf', 'Aspen — classroom for 36')"><span>Aspen — classroom for 36</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+      <span class="diag-warn" data-en="Diagram shows classroom for 36; event order says 40. Confirm with Priya" data-es="Diagram shows classroom for 36; event order says 40. Confirm with Priya">Diagram shows classroom for 36; event order says 40. Confirm with Priya</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="day-section" data-date="2026-11-17">
+<button class="day-btn a2" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">17</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="TUE" data-es="TUE">TUE</div>
+    <div class="day-summary" data-en="Northwind Analytics — Leadership Summit — Final Day · Kestrel Robotics — Product Training · City Bar Association — CLE Luncheon" data-es="Northwind Analytics — Leadership Summit — Final Day · Kestrel Robotics — Product Training · City Bar Association — CLE Luncheon">Northwind Analytics — Leadership Summit — Final Day · Kestrel Robotics — Product Training · City Bar Association — CLE Luncheon</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Northwind Analytics — Leadership Summit — Final Day</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf', 'Cypress AB — 12 rounds of 10 + stage')"><span>Cypress AB — 12 rounds of 10 + stage</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Kestrel Robotics — Product Training</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHAfromKestrelRobotics_classroom24.pdf', 'Birch A — classroom for 24')"><span>Birch A — classroom for 24</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">City Bar Association — CLE Luncheon</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSCDfromCityBarAssociation_rounds18x10.pdf', 'Cypress CD — 18 rounds of 10')"><span>Cypress CD — 18 rounds of 10</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="day-section" data-date="2026-11-18">
+<button class="day-btn a3" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">18</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="WED" data-es="WED">WED</div>
+    <div class="day-summary" data-en="Riverbend Children's Fund — Autumn Gala · Kestrel Robotics — Product Training · Pinecrest Dental — Study Club" data-es="Riverbend Children's Fund — Autumn Gala · Kestrel Robotics — Product Training · Pinecrest Dental — Study Club">Riverbend Children's Fund — Autumn Gala · Kestrel Robotics — Product Training · Pinecrest Dental — Study Club</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Riverbend Children's Fund — Autumn Gala</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSfromRiverbendChildrensFund_rounds31x10.pdf', 'Cypress — 31 rounds of 10, stage + dance floor')"><span>Cypress — 31 rounds of 10, stage + dance floor</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+      <span class="diag-warn" data-en="Event order says 30 rounds; diagram shows 31. Confirm with Maya" data-es="Event order says 30 rounds; diagram shows 31. Confirm with Maya">Event order says 30 rounds; diagram shows 31. Confirm with Maya</span>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Kestrel Robotics — Product Training</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHAfromKestrelRobotics_classroom24.pdf', 'Birch A — classroom for 24')"><span>Birch A — classroom for 24</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Pinecrest Dental — Study Club</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/WILLOWAfromPinecrestDental_ushape18.pdf', 'Willow A — U-shape for 18')"><span>Willow A — U-shape for 18</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="day-section" data-date="2026-11-19">
+<button class="day-btn a4" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">19</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="THU" data-es="THU">THU</div>
+    <div class="day-summary" data-en="Kestrel Robotics — Product Training — Final Day · Atlas Freight — Quarterly Review · Harbor Credit Union — Board Dinner" data-es="Kestrel Robotics — Product Training — Final Day · Atlas Freight — Quarterly Review · Harbor Credit Union — Board Dinner">Kestrel Robotics — Product Training — Final Day · Atlas Freight — Quarterly Review · Harbor Credit Union — Board Dinner</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Kestrel Robotics — Product Training — Final Day</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHAfromKestrelRobotics_classroom24.pdf', 'Birch A — classroom for 24')"><span>Birch A — classroom for 24</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Atlas Freight — Quarterly Review</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/JUNIPERfromAtlasFreight_theater60.pdf', 'Juniper — theater for 60')"><span>Juniper — theater for 60</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Harbor Credit Union — Board Dinner</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/WILLOWBfromHarborCreditUnion_conference16.pdf', 'Willow B — conference for 16')"><span>Willow B — conference for 16</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="day-section" data-date="2026-11-20">
+<button class="day-btn a5" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">20</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="FRI" data-es="FRI">FRI</div>
+    <div class="day-summary" data-en="Solace Software — Sales Kickoff — Day 2 · Harper &amp; Lane Wedding — Rehearsal Dinner" data-es="Solace Software — Sales Kickoff — Day 2 · Harper &amp; Lane Wedding — Rehearsal Dinner">Solace Software — Sales Kickoff — Day 2 · Harper &amp; Lane Wedding — Rehearsal Dinner</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Solace Software — Sales Kickoff — Day 2</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/ASPENfromSolaceSoftware_classroom40.pdf', 'Aspen — classroom for 40')"><span>Aspen — classroom for 40</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Harper &amp; Lane Wedding — Rehearsal Dinner</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/BIRCHfromHarperLaneWedding_rounds5x8.pdf', 'Birch — 5 rounds of 8')"><span>Birch — 5 rounds of 8</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="day-section" data-date="2026-11-21">
+<button class="day-btn a1" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">21</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="SAT" data-es="SAT">SAT</div>
+    <div class="day-summary" data-en="Harper &amp; Lane Wedding — Reception" data-es="Harper &amp; Lane Wedding — Reception">Harper &amp; Lane Wedding — Reception</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Harper &amp; Lane Wedding — Reception</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/CYPRESSCDfromHarperLaneWedding_rounds18x10.pdf', 'Cypress CD — 18 rounds of 10 + dance floor')"><span>Cypress CD — 18 rounds of 10 + dance floor</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="day-section" data-date="2026-11-22">
+<button class="day-btn a2" onclick="openDayFull(this)">
+  <div class="day-dot"><span class="day-dot-num">22</span></div>
+  <div class="day-text">
+    <div class="day-dow" data-en="SUN" data-es="SUN">SUN</div>
+    <div class="day-summary" data-en="Harper &amp; Lane Wedding — Farewell Brunch" data-es="Harper &amp; Lane Wedding — Farewell Brunch">Harper &amp; Lane Wedding — Farewell Brunch</div>
+  </div>
+</button>
+<div class="day-body">
+
+  <div class="diag-group" onclick="toggleDiagGroup(this)">
+    <div class="diag-group-head">
+      <div class="diag-group-name">Harper &amp; Lane Wedding — Farewell Brunch</div>
+      <span class="diag-group-chevron">▶</span>
+    </div>
+    <div class="diag-group-body">
+      <button type="button" class="diag-link" onclick="event.stopPropagation(); openDiagram('diagrams/JUNIPERfromHarperLaneWedding_rounds8x8.pdf', 'Juniper — 8 rounds of 8')"><span>Juniper — 8 rounds of 8</span><span class="diag-link-open" data-en="OPEN →" data-es="ABRIR →">OPEN →</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div id="overviewList" style="display:none">
+  <div id="ov2Days"></div>
+</div>
+
+<div class="diag-modal" id="diagModal">
+  <div class="diag-modal-head">
+    <div class="diag-modal-title" id="diagModalTitle">Diagram</div>
+    <button class="diag-modal-close" onclick="closeDiagram()" aria-label="Close">✕</button>
+  </div>
+  <div class="diag-modal-body" id="diagModalBody">
+    <div class="diag-loading" id="diagLoading">Loading…</div>
+    <div class="diag-canvas-wrap" id="diagCanvasWrap">
+      <canvas id="diagCanvas"></canvas>
+    </div>
+    <div class="diag-modal-hint" id="diagHint">Pinch to zoom · drag to pan</div>
+  </div>
+</div>
+
+<script>
+  function toggleDiagGroup(el){
+    el.classList.toggle('open');
+  }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+  const DIAG_RENDER_SCALE = 3;
+  const DIAG_MIN_ZOOM = 0.5, DIAG_MAX_ZOOM = 6;
+  let diagFitScale = 1, diagZoom = 1, diagPanX = 0, diagPanY = 0;
+  let diagCanvasW = 0, diagCanvasH = 0;
+  let diagActivePointers = new Map();
+  let diagIsPanning = false, diagPanStart = {x:0,y:0}, diagPanOrigin = {x:0,y:0};
+  let diagPinchStartDist = 0, diagPinchStartScale = 1;
+  let diagLastTapTime = 0;
+
+  function diagTotalScale(){ return diagFitScale * diagZoom; }
+
+  function diagApplyTransform(){
+    document.getElementById('diagCanvasWrap').style.transform =
+      `translate(${diagPanX}px, ${diagPanY}px) scale(${diagTotalScale()})`;
+  }
+
+  function diagClamp(){
+    const body = document.getElementById('diagModalBody');
+    const total = diagTotalScale();
+    const w = diagCanvasW * total, h = diagCanvasH * total;
+    const bw = body.clientWidth, bh = body.clientHeight;
+    const padX = Math.max(w, bw) * 0.4, padY = Math.max(h, bh) * 0.4;
+    diagPanX = Math.min(padX, Math.max(bw - w - padX, diagPanX));
+    diagPanY = Math.min(padY, Math.max(bh - h - padY, diagPanY));
+  }
+
+  function diagZoomTo(newTotalScale, anchorX, anchorY){
+    const oldTotal = diagTotalScale();
+    const contentX = (anchorX - diagPanX) / oldTotal;
+    const contentY = (anchorY - diagPanY) / oldTotal;
+    diagZoom = newTotalScale / diagFitScale;
+    const total = diagTotalScale();
+    diagPanX = anchorX - contentX * total;
+    diagPanY = anchorY - contentY * total;
+    diagClamp();
+    diagApplyTransform();
+  }
+
+  function diagFitToScreen(){
+    const body = document.getElementById('diagModalBody');
+    const bw = body.clientWidth, bh = body.clientHeight, pad = 0.92;
+    diagFitScale = Math.min((bw*pad)/diagCanvasW, (bh*pad)/diagCanvasH);
+    diagZoom = 1;
+    diagPanX = (bw - diagCanvasW*diagFitScale)/2;
+    diagPanY = (bh - diagCanvasH*diagFitScale)/2;
+    diagApplyTransform();
+  }
+
+  async function openDiagram(path, title){
+    document.getElementById('diagModalTitle').textContent = title;
+    document.getElementById('diagModal').classList.add('open');
+    document.getElementById('diagHint').classList.remove('hidden');
+    const loading = document.getElementById('diagLoading');
+    loading.style.display = 'block';
+    loading.textContent = 'Loading…';
+    document.getElementById('diagCanvasWrap').style.transform = 'scale(0)';
+    try{
+      const pdf = await pdfjsLib.getDocument(path).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: DIAG_RENDER_SCALE });
+      const canvas = document.getElementById('diagCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      diagCanvasW = viewport.width;
+      diagCanvasH = viewport.height;
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      loading.style.display = 'none';
+      diagFitToScreen();
+    }catch(e){
+      loading.textContent = 'Could not load diagram: ' + (e && e.message ? e.message : e);
+    }
+  }
+
+  // Diagram uploaded in Housemen (a JPEG data URL in Firestore) → draw it into the same zoomable viewer.
+  async function showDiagramImage(id, title){
+    document.getElementById('diagModalTitle').textContent = title;
+    document.getElementById('diagModal').classList.add('open');
+    document.getElementById('diagHint').classList.remove('hidden');
+    const loading = document.getElementById('diagLoading');
+    loading.style.display = 'block'; loading.textContent = 'Loading…';
+    document.getElementById('diagCanvasWrap').style.transform = 'scale(0)';
+    try{
+      const url = await window.BB_HSM.image(id);
+      if(!url) throw new Error('not found');
+      const img = await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=url; });
+      const canvas = document.getElementById('diagCanvas'), ctx = canvas.getContext('2d');
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0);
+      diagCanvasW = canvas.width; diagCanvasH = canvas.height;
+      loading.style.display = 'none';
+      diagFitToScreen();
+    }catch(e){ loading.textContent = 'Could not load the updated diagram'; }
+  }
+  // Housemen overrides, keyed by event date + original PDF path (filled in by the module script below).
+  function hsmOverride(date,path){ const H=window.BB_HSM; return H&&date&&path ? H.byFile[date+'|'+String(path).replace(/^.*diagrams\//,'')] : null; }
+  function hsmExtraFor(date,rooms){ const H=window.BB_HSM, L=(H&&H.extra[date])||[]; const rs=(rooms||[]).map(r=>String(r).toLowerCase()); return L.filter(x=>rs.indexOf(x.room.toLowerCase())>=0); }
+  function diagPathOf(btn){ const m=(btn.getAttribute('onclick')||'').match(/openDiagram\('([^']+)'/); return m?m[1]:''; }
+  function markUpdated(btn,o){ const sp=btn.querySelector('span'); if(sp) sp.insertAdjacentHTML('beforeend',' <b class="diag-upd">UPDATED</b>'); }
+  function uploadedButton(date,x){
+    const b=document.createElement('button'); b.type='button'; b.className='diag-link';
+    b.innerHTML='<span>'+x.room.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' — diagram <b class="diag-upd">UPDATED</b></span><span class="diag-link-open">OPEN →</span>';
+    b.addEventListener('click',e=>{ e.stopPropagation(); openDiagramImage(x.id,x.room+' — diagram (uploaded in Housemen)'); });
+    return b;
+  }
+  // Remember which day a diagram button belongs to, so openDiagram can find that day's override.
+  document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-date]'); window.__bbDiagDate=b?b.dataset.date:null; },true);
+
+  function closeDiagram(){
+    document.getElementById('diagModal').classList.remove('open');
+    diagActivePointers.clear();
+    diagIsPanning = false;
+  }
+
+  (function(){
+    const body = document.getElementById('diagModalBody');
+    body.addEventListener('pointerdown', function(e){
+      diagActivePointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      document.getElementById('diagHint').classList.add('hidden');
+      if(diagActivePointers.size === 1){
+        const now = Date.now();
+        if(now - diagLastTapTime < 300){ diagFitToScreen(); diagLastTapTime = 0; return; }
+        diagLastTapTime = now;
+        diagIsPanning = true;
+        diagPanStart = {x:e.clientX, y:e.clientY};
+        diagPanOrigin = {x:diagPanX, y:diagPanY};
+      }else if(diagActivePointers.size === 2){
+        diagIsPanning = false;
+        const pts = [...diagActivePointers.values()];
+        diagPinchStartDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y) || 1;
+        diagPinchStartScale = diagTotalScale();
+      }
+      try{ body.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    body.addEventListener('pointermove', function(e){
+      if(!diagActivePointers.has(e.pointerId)) return;
+      diagActivePointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if(diagActivePointers.size === 2){
+        const pts = [...diagActivePointers.values()];
+        const dist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y) || 1;
+        const rect = body.getBoundingClientRect();
+        const midX = (pts[0].x+pts[1].x)/2 - rect.left;
+        const midY = (pts[0].y+pts[1].y)/2 - rect.top;
+        const rawScale = diagPinchStartScale * (dist/diagPinchStartDist);
+        const minTotal = diagFitScale*DIAG_MIN_ZOOM, maxTotal = diagFitScale*DIAG_MAX_ZOOM;
+        diagZoomTo(Math.min(maxTotal, Math.max(minTotal, rawScale)), midX, midY);
+      }else if(diagActivePointers.size === 1 && diagIsPanning){
+        const p = [...diagActivePointers.values()][0];
+        diagPanX = diagPanOrigin.x + (p.x - diagPanStart.x);
+        diagPanY = diagPanOrigin.y + (p.y - diagPanStart.y);
+        diagClamp();
+        diagApplyTransform();
+      }
+    });
+    function diagPointerEnd(e){
+      diagActivePointers.delete(e.pointerId);
+      if(diagActivePointers.size === 1){
+        const p = [...diagActivePointers.values()][0];
+        diagIsPanning = true;
+        diagPanStart = {x:p.x, y:p.y};
+        diagPanOrigin = {x:diagPanX, y:diagPanY};
+      }else{
+        diagIsPanning = false;
+      }
+    }
+    body.addEventListener('pointerup', diagPointerEnd);
+    body.addEventListener('pointercancel', diagPointerEnd);
+    body.addEventListener('wheel', function(e){
+      e.preventDefault();
+      const rect = body.getBoundingClientRect();
+      const anchorX = e.clientX - rect.left, anchorY = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? 1.12 : 0.89;
+      const minTotal = diagFitScale*DIAG_MIN_ZOOM, maxTotal = diagFitScale*DIAG_MAX_ZOOM;
+      diagZoomTo(Math.min(maxTotal, Math.max(minTotal, diagTotalScale()*factor)), anchorX, anchorY);
+    }, {passive:false});
+  })();
+  // ── OVERVIEW DATA: condensed per-client rows built from the cards on this page ──
+    const OV2_TRAILING_SUFFIXES = [
+    "Breakfast Table","Afternoon Break","Dinner Table","Display Station",
+    "Beverage Service","On Consumption","Bar (Cash)","Working Lunch Buffet",
+    "Lunch Buffet","Buffet Table","Buffet","Table","Break","Display","Service","Station",
+  ];
+  function ov2ShortenMenuName(name){
+    name = name.trim().replace(/^MODIFIED\s+/,'');
+    if (name.indexOf(' - ') !== -1){
+      name = name.split(' - ')[0].trim();
+    } else {
+      name = name.replace(/,?\s*On Consumption$/i,'').trim();
+      for (const suf of OV2_TRAILING_SUFFIXES){
+        const re = new RegExp('\\s+'+suf.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'$','i');
+        if (re.test(name)){ name = name.replace(re,'').trim(); break; }
+      }
+    }
+    return name;
+  }
+  const OV2_COURSE_PREFIX = /^(first course|second course|third course|dessert)\s*:?\s*(,?\s*choice of\s*—?\s*)?/i;
+  function ov2CleanFoodItem(item){
+    item = item.trim().replace(OV2_COURSE_PREFIX,'');
+    item = item.replace(/^\(\d+\)\s*/,'');
+    item = item.split(/\s+@\s*\$/)[0];
+    item = item.split(/\s+—\s+/)[0];
+    item = item.replace(/,?\s*(all\s+)?on consumption$/i,'');
+    item = item.split(/,\s*/)[0];
+    return item.trim().replace(/\.$/,'');
+  }
+  const OV2_BEV_PATTERNS = [
+    ["Coffee", /regular\b/i], ["Decaf", /decaf/i], ["Tea", /hot water|tazo tea|assortment of teas/i],
+    ["Pepsi", /\bpepsi\b/i], ["Coke", /\bcoke\b/i], ["Red Bull", /red bull/i], ["Sparkling Water", /sparkling water/i],
+  ];
+  const OV2_SKIP_SEGMENT = /^(bottled water|little city)/i;
+  function ov2LabelFromMenu(tagName, tagClass, menuHtml){
+    if (!tagClass){
+      return tagName.split('—')[0].trim();
+    }
+    menuHtml = menuHtml.replace(/<br\s*\/?>/gi,' · ');
+    if (menuHtml.indexOf('No F&amp;B') !== -1 || !menuHtml.trim()){
+      return tagName.split('—')[0].trim();
+    }
+    const hl = /<strong class='menu-hl'>(.*?)<\/strong>/.exec(menuHtml);
+    if (hl) return ov2ShortenMenuName(hl[1]);
+
+    const plain = menuHtml.replace(/<[^>]+>/g,'');
+    const segments = plain.split('·').map(s=>s.trim()).filter(Boolean);
+    const bevFound = OV2_BEV_PATTERNS.filter(([,pat])=>pat.test(plain)).map(([code])=>code);
+    const foodItems = [];
+    for (const seg of segments){
+      const isBevSeg = OV2_BEV_PATTERNS.some(([,pat])=>pat.test(seg));
+      if (!isBevSeg && !OV2_SKIP_SEGMENT.test(seg)){
+        const cleaned = ov2CleanFoodItem(seg);
+        if (cleaned && !/^(all on consumption|on consumption)$/i.test(cleaned)){
+          const pm = /@\s*\$(\d+)/.exec(seg);
+          const price = pm ? parseInt(pm[1],10) : -1;
+          foodItems.push([price, cleaned]);
+        }
+      }
+    }
+    const parts = bevFound.slice();
+    if (foodItems.length){
+      foodItems.sort((a,b)=>b[0]-a[0]);
+      parts.push(foodItems[0][1]);
+    }
+    if (parts.length) return parts.join(' + ');
+    return tagName.split('—')[0].trim();
+  }
+  function ov2ParseTime(raw){
+    raw = raw.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    const m = /(\d{1,2}):(\d{2})\s*(AM|PM)?\s*[–-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/.exec(raw);
+    if (!m) return {startStr:raw, endStr:raw, smin:0, emin:0};
+    let [, sh, sm, sap, eh, em, eap] = m;
+    if (!sap) sap = eap;
+    sh = parseInt(sh,10); eh = parseInt(eh,10); sm = parseInt(sm,10); em = parseInt(em,10);
+    const toMin = (h,mnt,ap)=>{ h = h % 12; if (ap==='PM') h += 12; return h*60+mnt; };
+    const smin = toMin(sh,sm,sap), emin = toMin(eh,em,eap);
+    const samePeriod = sap === eap;
+    const fmt = (h,mnt,ap)=>{ const suf = ap==='AM'?'a':'p'; return mnt ? `${h}:${String(mnt).padStart(2,'0')}${suf}` : `${h}${suf}`; };
+    const startStr = samePeriod ? (sm ? `${sh}:${String(sm).padStart(2,'0')}` : `${sh}`) : fmt(sh,sm,sap);
+    const endStr = fmt(eh,em,eap);
+    return {startStr, endStr, smin, emin};
+  }
+  function ov2FmtClock(totalMin){
+    const h = Math.floor(totalMin/60)%24, mnt = totalMin%60;
+    const ap = h < 12 ? 'a' : 'p';
+    let h12 = h % 12; if (h12===0) h12 = 12;
+    return mnt ? `${h12}:${String(mnt).padStart(2,'0')}${ap}` : `${h12}${ap}`;
+  }
+  function ov2WrapWords(text){
+    return text.split(' ').map(w=>`<span class="ov2-w">${w}</span>`).join(' ');
+  }
+  function buildOverviewData(){
+    const daySections = Array.from(document.querySelectorAll('#rundownList .day-section[data-date]'));
+    const days = [];
+    for (const section of daySections){
+      const dateStr = section.dataset.date;
+      const cards = Array.from(section.querySelectorAll('.event-card'));
+      const parsedCards = cards.map(card=>{
+        const groupEl = card.querySelector('.card-group');
+        const group = groupEl ? groupEl.getAttribute('data-en') : '?';
+        let contact = null;
+        const mgrEl = card.querySelector('.card-badges .badge-mgr');
+        const mgr = mgrEl ? mgrEl.textContent.replace(/^\s*MGR:?\s*/i,'').trim() : '';
+        card.querySelectorAll('.foot-row').forEach(fr=>{
+          const key = fr.querySelector('.foot-key');
+          if (key && key.getAttribute('data-en') === 'CONTACT'){
+            const val = fr.querySelector('.foot-val');
+            if (val) contact = val.textContent.trim();
+          }
+        });
+        const rows = [];
+        card.querySelectorAll('.svc-row').forEach(row=>{
+          const timeEl = row.querySelector('.svc-time');
+          const tagEl = row.querySelector('.tag');
+          const roomEl = row.querySelector('.room-pill');
+          const menuEl = row.querySelector('.svc-menu');
+          const gtdEl = row.querySelector('.gtd-pill');
+          if (!timeEl) return;
+          const tagName = tagEl ? tagEl.getAttribute('data-en') : '?';
+          const tagClass = tagEl ? Array.from(tagEl.classList).find(c=>c.startsWith('tag-')) || '' : '';
+          const room = roomEl ? roomEl.textContent.trim() : '?';
+          const menuHtml = menuEl ? (menuEl.getAttribute('data-en')||'') : '';
+          const gtdMatch = gtdEl ? gtdEl.textContent.match(/\d+/) : null;
+          const gtd = gtdMatch ? gtdMatch[0] : '';
+          const gtdText = gtdEl ? gtdEl.textContent.trim() : '';
+          const {startStr, endStr, smin, emin} = ov2ParseTime(timeEl.innerHTML);
+          const label = ov2LabelFromMenu(tagName, tagClass, menuHtml);
+          rows.push({startStr, endStr, smin, emin, label, room, gtd, gtdText});
+        });
+        return {group, contact, mgr, rows};
+      }).filter(c => c.rows.length);
+
+      const merged = new Map();
+      const order = [];
+      for (const c of parsedCards){
+        const base = c.group.split('—')[0].trim();
+        if (!merged.has(base)){ merged.set(base, {contact:null, mgr:'', rows:[]}); order.push(base); }
+        const e = merged.get(base);
+        if (c.contact) e.contact = c.contact;
+        if (c.mgr && !e.mgr) e.mgr = c.mgr;
+        e.rows.push(...c.rows);
+      }
+      const events = order.map(base=>{
+        const e = merged.get(base);
+        const rooms = new Map();
+        for (const r of e.rows){
+          if (!rooms.has(r.room)) rooms.set(r.room, []);
+          rooms.get(r.room).push(r);
+        }
+        const overallStart = Math.min(...e.rows.map(r=>r.smin));
+        const overallEnd = Math.max(...e.rows.map(r=>r.emin));
+        const gtdNums = e.rows.map(r=>r.gtd).filter(Boolean).map(Number);
+        const maxGtd = gtdNums.length ? Math.max(...gtdNums) : null;
+        return {
+          company: base,
+          contact: e.contact || '',
+          mgr: e.mgr || '',
+          range: `${ov2FmtClock(overallStart)}–${ov2FmtClock(overallEnd)}`,
+          maxGtd,
+          rooms,
+        };
+      });
+      if (events.length) days.push({date: dateStr, events});
+    }
+    return days;
+  }
+  function buildDiagramIndex(){
+    const index = {};
+    document.querySelectorAll('#diagramsList .day-section[data-date]').forEach(sec=>{
+      const date = sec.getAttribute('data-date');
+      const groups = [];
+      sec.querySelectorAll('.diag-group').forEach(g=>{
+        const nameEl = g.querySelector('.diag-group-name');
+        const name = nameEl ? nameEl.textContent.trim() : '';
+        const links = Array.from(g.querySelectorAll('.diag-link')).map(btn=>{
+          const m = btn.getAttribute('onclick').match(/openDiagram\('([^']+)',\s*'([^']+)'\)/);
+          return m ? {path: m[1], label: m[2]} : null;
+        }).filter(Boolean);
+        if (links.length) groups.push({name, links});
+      });
+      if (groups.length) index[date] = groups;
+    });
+    return index;
+  }
+  function ov2DiagramsFor(index, date, company, room){
+    const groups = index[date];
+    if (!groups) return [];
+    const companyNorm = company.toLowerCase();
+    const roomNorm = room.toLowerCase();
+    let matches = [];
+    groups.forEach(g=>{
+      const nameNorm = g.name.toLowerCase();
+      if (nameNorm.startsWith(companyNorm) || companyNorm.startsWith(nameNorm.split('—')[0].trim())){
+        g.links.forEach(l=>{ if (l.label.toLowerCase().includes(roomNorm)) matches.push(l); });
+      }
+    });
+    return matches;
+  }
+  /* Diagram modal: close with Escape key or phone back button */
+  let diagHistoryPushed=false;
+  const _openDiagram=openDiagram;
+  openDiagram=function(path,title){
+    history.pushState({bbDiag:1},'');
+    diagHistoryPushed=true;
+    const o=hsmOverride(window.__bbDiagDate,path);
+    if(o&&o.id) return showDiagramImage(o.id,title+' · updated in Housemen');
+    return _openDiagram(path,title);
+  };
+  function openDiagramImage(id,title){ history.pushState({bbDiag:1},''); diagHistoryPushed=true; return showDiagramImage(id,title); }
+  const _closeDiagram=closeDiagram;
+  closeDiagram=function(){
+    if(diagHistoryPushed){ history.back(); return; }
+    _closeDiagram();
+  };
+  window.addEventListener('popstate',function(){
+    diagHistoryPushed=false;
+    if(document.getElementById('diagModal').classList.contains('open')) _closeDiagram();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.getElementById('diagModal').classList.contains('open')) closeDiagram();
+  });
+  // ══ RUNDOWN APP — renders one date at a time from the hidden source cards ══
+  (function(){
+    const TZ='America/Chicago';
+    const todayISO=()=>new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const TODAY=todayISO();
+
+    // Standing rule: days before today are removed, never shown (hotel timezone).
+    ['rundownList','diagramsList'].forEach(function(id){
+      const box=document.getElementById(id);
+      if(!box) return;
+      box.querySelectorAll('.day-section').forEach(function(sec){
+        const d=sec.dataset.date, end=sec.dataset.dateEnd;
+        if((d&&d<TODAY)||(end&&end<TODAY)) sec.remove();
+      });
+    });
+
+    // ── date helpers (dates are YYYY-MM-DD strings) ──
+    const dObj=d=>new Date(d+'T12:00:00Z');
+    const iso=x=>x.toISOString().slice(0,10);
+    const add=(d,n)=>{const x=dObj(d); x.setUTCDate(x.getUTCDate()+n); return iso(x);};
+    const longLabel=d=>dObj(d).toLocaleDateString('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'});
+    const shortLabel=d=>dObj(d).toLocaleDateString('en-US',{timeZone:'UTC',month:'short',day:'numeric'});
+    const weekOf=d=>add(d,-((dObj(d).getUTCDay()+1)%7)); // hotel week runs Saturday–Friday
+    const clock=min=>{const h=Math.floor(min/60)%24, m=min%60; return (h%12||12)+(m?':'+String(m).padStart(2,'0'):'')+(h>=12?'p':'a');};
+
+    // "10:00–<br>10:30 AM" → minutes; null when the cell isn't a plain range
+    function parseRange(html){
+      const raw=html.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+      const m=/(\d{1,2}):(\d{2})\s*(AM|PM)?\s*[–-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(raw);
+      if(!m) return {raw:raw};
+      const sap=(m[3]||m[6]).toUpperCase(), eap=m[6].toUpperCase();
+      const toMin=(h,mm,ap)=>((+h%12)+(ap==='PM'?12:0))*60+(+mm);
+      let start=toMin(m[1],m[2],sap);
+      const end=toMin(m[4],m[5],eap);
+      // "9:00–5:00 PM" means 9 AM: an unmarked start that would land after the end is morning
+      if(!m[3]&&start>end) start-=720;
+      return {raw:raw, start:start, end:end};
+    }
+    // Display-only cleanup (matches the approved preview): no prices, beverage shorthand.
+    const clean=s=>(s||'')
+      .replace(/\s*@?\s*\$[\d,.]+(?:\/(?:pp|person|dozen|gal)|\s+each)?/gi,'')
+      .replace(/Regular and Decaf Coffee, Assortment of Teas/gi,'Reg, Decaf, House Teas')
+      .replace(/Regular &(?:amp;)? Decaf Coffee/gi,'Reg &amp; Decaf')
+      .replace(/Assortment of (?:House )?Teas/gi,'House Teas')
+      .replace(/[ \t]{2,}/g,' ').trim();
+    const htmlOf=el=>el?(el.hasAttribute('data-en')?el.getAttribute('data-en'):el.innerHTML):'';
+    const node=(tag,cls,text)=>{const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null&&text!=='') n.textContent=text; return n;};
+    const htmlNode=(tag,cls,html)=>{const n=node(tag,cls); n.innerHTML=html; return n;};
+
+    // ── read the source cards once ──
+    function readCard(card){
+      const g=card.querySelector('.card-group');
+      const client=((g&&(g.getAttribute('data-en')||g.textContent))||'Event').trim();
+      const cut=client.indexOf('—');
+      const ev={
+        base:(cut<0?client:client.slice(0,cut)).trim(),
+        subtitle:cut<0?'':client.slice(cut+1).trim(),
+        badges:Array.from(card.querySelectorAll('.card-badges .badge')).map(b=>b.textContent.trim()).filter(Boolean),
+        contact:'', note:'', room:'', av:'', food:'', billing:'', shipping:'', diagram:null, items:[]
+      };
+      card.querySelectorAll('.card-foot .foot-row').forEach(function(row){
+        const key=row.querySelector('.foot-key'), val=row.querySelector('.foot-val');
+        if(!key||!val) return;
+        switch(key.getAttribute('data-en')){
+          case 'CONTACT': ev.contact=val.textContent.trim(); break;
+          case 'NOTE': ev.note=htmlOf(val); break;
+          case 'ROOM': ev.room=htmlOf(val); break;
+          case 'AV': ev.av=htmlOf(val); break;
+          case 'FOOD': ev.food=htmlOf(val); break;
+          case 'BILLING': ev.billing=htmlOf(val); break;
+          case 'SHIPPING': ev.shipping=htmlOf(val); break;
+          case 'DIAGRAM': ev.diagram=val; break;
+        }
+      });
+      card.querySelectorAll('.svc-row').forEach(function(row){
+        const t=row.querySelector('.svc-time'), tag=row.querySelector('.tag'),
+              room=row.querySelector('.room-pill'), gtd=row.querySelector('.gtd-pill'), menu=row.querySelector('.svc-menu');
+        ev.items.push({
+          time:parseRange(t?t.innerHTML:''),
+          tag:tag?(tag.getAttribute('data-en')||tag.textContent).trim():'',
+          room:room?room.textContent.trim():'',
+          gtd:gtd?gtd.textContent.trim():'',
+          menu:htmlOf(menu)
+        });
+      });
+      return ev;
+    }
+    const days={};
+    document.querySelectorAll('#rundownList .day-section[data-date]').forEach(function(sec){
+      const date=sec.dataset.date;
+      const sum=sec.querySelector('.day-summary');
+      const day=days[date]||(days[date]={summary:'',events:[]});
+      if(sum&&!day.summary) day.summary=(sum.getAttribute('data-en')||sum.textContent).trim();
+      sec.querySelectorAll('.event-card').forEach(c=>day.events.push(readCard(c)));
+    });
+    let overviewDays=null, diagIndex=null;
+    // Staff assignments (assignments.json): matched by date, part of the client name, and room.
+    let ASSIGN={};
+    const lc=s=>String(s||'').toLowerCase().trim();
+    function crewFor(d,ev,rooms){
+      const out=[];
+      (ASSIGN[d]||[]).forEach(function(a){
+        if(lc(ev.base).includes(lc(a.group))&&rooms.some(r=>lc(r)===lc(a.room))) out.push(...(a.staff||[]));
+      });
+      return out;
+    }
+    const dutyKind=t=>/buffet/i.test(t)?'k-buffet':/bev|break|coffee|bar/i.test(t)?'k-bev':/roll|clean/i.test(t)?'k-roll':/assist|help/i.test(t)?'k-assist':'';
+    // One compact line: people grouped by duty ("Buffet: Luis, Marco V. · Bev & breaks: …").
+    // Position shows once when everyone shares it, otherwise after each name.
+    function crewNode(list){
+      const wrap=node('span','crew');
+      const posOf=p=>String(p.pos||'SVR').toUpperCase();
+      const one=new Set(list.map(posOf)).size===1;
+      if(one) wrap.append(node('span','crew-pos p-'+posOf(list[0]).toLowerCase(),posOf(list[0])));
+      const groups=new Map();
+      list.forEach(function(p){
+        const duty=String(p.duty||'').trim(), key=/^server$/i.test(duty)?'':duty;
+        if(!groups.has(key)) groups.set(key,[]);
+        groups.get(key).push(one?p.name:p.name+' ('+posOf(p)+')');
+      });
+      let first=true;
+      groups.forEach(function(names,duty){
+        if(!first) wrap.append(node('span','crew-sep','·'));
+        first=false;
+        if(duty) wrap.append(node('span','crew-duty '+dutyKind(duty),duty+': '));
+        wrap.append(document.createTextNode(names.join(', ')));
+      });
+      return wrap;
+    }
+
+    // ── state + elements ──
+    const app=document.getElementById('bb-app'), screen=document.getElementById('rdScreen');
+    const hero=document.getElementById('rdHero'), eyebrow=document.getElementById('rdEyebrow'),
+          title=document.getElementById('rdTitle'), dateLine=document.getElementById('rdDate'),
+          back=document.getElementById('rdBack'), caption=document.getElementById('rdCaption');
+    const tabs=Array.from(app.querySelectorAll('.tabs [data-screen]'));
+    const TITLES={rundown:'THE RUNDOWN.',overview:'THE OVERVIEW.'};
+    let tab=location.hash==='#overview'?'overview':'rundown', mode='day', selected=TODAY;
+
+    function headings(){
+      const isWeek=mode==='week', allDays=!isWeek&&tab==='overview';
+      hero.dataset.day=isWeek?'':String(Number((allDays?TODAY:selected).slice(-2)));
+      eyebrow.textContent=isWeek?'CHOOSE A DATE':longLabel(allDays?TODAY:selected).toUpperCase();
+      title.textContent=isWeek?'THE WEEK.':TITLES[tab];
+      dateLine.textContent=isWeek?'Every upcoming day':allDays?'Every upcoming event':(selected===TODAY?'Today · ':'')+longLabel(selected);
+      caption.textContent=isWeek?'All upcoming days':allDays?'Every upcoming event':longLabel(selected);
+      back.textContent=(isWeek||allDays)?'Today':'‹ Week';
+      tabs.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.screen===tab)));
+      app.classList.toggle('on-rundown',tab==='rundown');
+      app.classList.toggle('on-overview',allDays);
+    }
+    function empty(text){ screen.append(node('p','date-empty',text)); }
+
+    function renderRundown(d){
+      // Earliest group first; inside a group, earliest room first (ties keep BEO order).
+      const startOf=ev=>Math.min(Infinity,...ev.items.map(i=>i.time.start).filter(v=>v!=null));
+      const groupStart=new Map();
+      ((days[d]&&days[d].events)||[]).forEach(ev=>groupStart.set(ev.base,Math.min(groupStart.has(ev.base)?groupStart.get(ev.base):Infinity,startOf(ev))));
+      // One block per room: a card that spans several rooms (e.g. Q2's hospitality rooms) is split
+      // so each room shows its own times and its own staff. Note + event order details stay on the first room.
+      const blocks=[];
+      ((days[d]&&days[d].events)||[]).forEach(function(ev){
+        const order=[], byRoom=new Map();
+        ev.items.forEach(function(it){ const r=it.room||''; if(!byRoom.has(r)){ byRoom.set(r,[]); order.push(r); } byRoom.get(r).push(it); });
+        if(order.length<=1){ blocks.push(Object.assign({},ev,{firstRoom:true})); return; }
+        order.forEach((r,k)=>blocks.push(Object.assign({},ev,{items:byRoom.get(r),firstRoom:k===0})));
+      });
+      const events=blocks.map((ev,i)=>({ev,i})).sort(function(a,b){
+        const g=groupStart.get(a.ev.base)-groupStart.get(b.ev.base);
+        if(g) return g;
+        if(a.ev.base!==b.ev.base) return a.ev.base<b.ev.base?-1:1;
+        return (startOf(a.ev)-startOf(b.ev))||(a.i-b.i);
+      }).map(x=>x.ev);
+      if(!events.length) return empty(d===TODAY?'No events listed today.':'No events listed for this date.');
+      let prevBase=null;
+      events.forEach(function(ev){
+        if(ev.base!==prevBase){
+          const group=node('div','group');
+          group.append(node('h2','',ev.base));
+          if(ev.contact) group.append(node('span','group-contact',ev.contact));
+          const mgrB=(ev.badges||[]).find(b=>/^MGR/i.test(b));
+          if(mgrB) group.append(node('span','mgr-chip','MGR · '+mgrB.replace(/^MGR:?\s*/i,'').trim()));
+          screen.append(group);
+          prevBase=ev.base;
+        }
+        const box=node('details','room'); box.open=true;
+        const sum=node('summary');
+        const rooms=Array.from(new Set(ev.items.map(i=>i.room).filter(Boolean)));
+        const titleBox=node('div','room-title');
+        titleBox.append(node('span','room-name',(rooms.join(' / ')||ev.subtitle||ev.base).toUpperCase()));
+        const crew=crewFor(d,ev,rooms);
+        if(crew.length) titleBox.append(crewNode(crew));
+        sum.append(titleBox, node('span','expand','+'));
+        sum.lastChild.setAttribute('aria-hidden','true');
+        box.append(sum);
+        const body=node('div','room-body');
+        // A room that has food or beverage doesn't need its "— No F&B" booking line; a dry room keeps it.
+        const noFnb=it=>/no f&b/i.test(it.tag||'');
+        const shown=ev.items.some(it=>!noFnb(it))?ev.items.filter(it=>!noFnb(it)):ev.items;
+        shown.forEach(function(item){
+          const row=node('div','service');
+          const time=node('div','time');
+          if(item.time.start!=null){ time.textContent=clock(item.time.start); time.append(node('small','','– '+clock(item.time.end))); }
+          else time.textContent=item.time.raw;
+          const content=node('div');
+          content.append(node('strong','',item.tag));
+          if(item.gtd) content.append(node('span','count',item.gtd));
+          const menu=clean(item.menu), cut=menu.indexOf(' — ');
+          const head=cut<0?menu:menu.slice(0,cut), rest=cut<0?'':menu.slice(cut+3);
+          if(head) content.append(htmlNode('p','menu-name',head));
+          if(rest){
+            const more=node('details','menu-detail');
+            more.append(node('summary','','Menu details'), htmlNode('p','',rest));
+            content.append(more);
+          }
+          row.append(time,content);
+          body.append(row);
+        });
+        if(ev.note&&ev.firstRoom) body.append(htmlNode('div','flag',clean(ev.note)));
+        // Setup: everything from the card footer/badges that isn't shown above.
+        const setup=[];
+        const line=(key,html,text)=>{
+          const p=node('p','setup'), val=node('span','setup-val');
+          p.append(node('span','setup-key',key), val);
+          if(html) val.insertAdjacentHTML('beforeend',html);
+          if(text) val.append(document.createTextNode(text));
+          p.val=val;
+          return p;
+        };
+        if(ev.subtitle) setup.push(line('EVENT','',ev.subtitle));
+        if(ev.room) setup.push(line('ROOM',clean(ev.room)));
+        if(ev.food) setup.push(line('FOOD',clean(ev.food)));
+        if(ev.av) setup.push(line('AV',clean(ev.av)));
+        if(ev.billing) setup.push(line('BILLING',clean(ev.billing)));
+        if(ev.shipping) setup.push(line('SHIPPING',clean(ev.shipping)));
+        if(ev.badges.length) setup.push(line('TEAM','',ev.badges.join(' · ')));
+        if(ev.diagram||hsmExtraFor(d,rooms).length){
+          const p=line('DIAGRAM');
+          if(ev.diagram) ev.diagram.querySelectorAll('.diag-link,.diag-warn').forEach(function(b){
+            const c=b.cloneNode(true), o=hsmOverride(d,diagPathOf(c));
+            if(o&&o.none) return;                       // a lead hid this diagram in Housemen
+            c.dataset.date=d;
+            if(o&&o.id) markUpdated(c,o);
+            p.val.append(c);
+          });
+          hsmExtraFor(d,rooms).forEach(x=>p.val.append(uploadedButton(d,x)));
+          if(p.val.childNodes.length) setup.push(p);
+        }
+        if(setup.length&&ev.firstRoom){
+          const more=node('details','room-more');
+          more.append(node('summary','','Event order details'), ...setup);
+          body.append(more);
+        }
+        box.append(body);
+        screen.append(box);
+      });
+    }
+
+    // Overview lists every upcoming event, day by day (like the original), and snaps to d.
+    const dayHeading=d=>dObj(d).toLocaleDateString('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric'}).replace(',','').toUpperCase();
+    function renderOverview(d){
+      if(!overviewDays) overviewDays=buildOverviewData();
+      if(!diagIndex) diagIndex=buildDiagramIndex();
+      const list=overviewDays.filter(x=>x.date>=TODAY);
+      if(!list.length) return empty('No upcoming events listed.');
+      let target=null;
+      list.forEach(function(day){
+        const h=node('div','week-label',dayHeading(day.date)+(day.date===TODAY?' · TODAY':''));
+        h.id='ov-'+day.date;
+        screen.append(h);
+        if(!target&&day.date>=d) target=h;
+        renderOverviewDay(day);
+      });
+      // Snap: leave the hero in view when the first day is the target (e.g. today on load).
+      if(target&&target!==screen.firstChild) requestAnimationFrame(()=>target.scrollIntoView({block:'start'}));
+    }
+    function renderOverviewDay(day){
+      const d=day.date;
+      day.events.forEach(function(e){
+        const card=node('article','original-event');
+        const head=node('div','original-client',e.company);
+        if(e.contact) head.append(node('span','original-contact',e.contact));
+        if(e.mgr) head.append(node('span','mgr-chip','MGR · '+e.mgr));
+        card.append(head);
+        // Same count on every row → state it once under the client, not on each row.
+        const counts=new Set(); e.rooms.forEach(rows=>rows.forEach(r=>counts.add(r.gtdText||'')));
+        const sharedCount=counts.size===1?[...counts][0]:'';
+        if(sharedCount) card.append(node('div','original-total',sharedCount));
+        e.rooms.forEach(function(rows,room){
+          const r=node('div','original-room',room);
+          ov2DiagramsFor(diagIndex,d,e.company,room).forEach(function(dg){
+            const o=hsmOverride(d,dg.path);
+            if(o&&o.none) return;                       // hidden in Housemen
+            const b=node('button','original-diag',o&&o.id?'⌗ Diagram · updated':'⌗ Diagram'); b.type='button'; b.title=dg.label;
+            b.dataset.date=d;
+            b.addEventListener('click',()=>openDiagram(dg.path,dg.label));
+            r.append(b);
+          });
+          hsmExtraFor(d,[room]).forEach(function(x){
+            const b=node('button','original-diag','⌗ Diagram · updated'); b.type='button'; b.title=x.room+' — uploaded';
+            b.addEventListener('click',()=>openDiagramImage(x.id,x.room+' — diagram (uploaded in Housemen)'));
+            r.append(b);
+          });
+          card.append(r);
+          rows.forEach(function(row){
+            const line=node('div','original-row');
+            const t=node('span','original-time',row.startStr+'–'+row.endStr);
+            if(row.gtdText&&!sharedCount) t.append(node('span','original-count',row.gtdText));
+            line.append(t, node('span','original-label',row.label));
+            card.append(line);
+          });
+        });
+        screen.append(card);
+      });
+    }
+
+    function renderDay(d){
+      selected=d; mode='day';
+      screen.replaceChildren();
+      ({rundown:renderRundown,overview:renderOverview})[tab](d);
+      headings();
+    }
+
+    // Every upcoming day with events (like the original rundown list), grouped by hotel week.
+    function renderWeek(focus){
+      mode='week';
+      screen.replaceChildren();
+      const dates=Object.keys(days).filter(d=>d>=TODAY&&days[d].events.length).sort();
+      if(dates[0]!==TODAY) dates.unshift(TODAY);
+      let shownWeek=null, target=null;
+      dates.forEach(function(d){
+        const ws=weekOf(d);
+        if(ws!==shownWeek){
+          screen.append(node('div','week-label','Week of '+shortLabel(ws)+' – '+shortLabel(add(ws,6))));
+          shownWeek=ws;
+        }
+        const info=days[d], has=!!(info&&info.events.length);
+        const b=node('button','week-choice'+(d===TODAY?' today':'')+(has?'':' empty'));
+        b.type='button';
+        b.append(node('strong','',longLabel(d)+(d===TODAY?' · TODAY':'')));
+        if(!has) b.append(node('span','','No events listed'));
+        else {
+          // Hand-written day summary, one clause per line, client name emphasised.
+          const clauses=info.summary?info.summary.split(' · ').map(s=>s.trim()).filter(Boolean):info.events.map(e=>e.base);
+          clauses.forEach(function(c){
+            const line=node('span','day-line'), cut=c.indexOf(' — ');
+            if(cut<0) line.append(node('span','ds-head',c));
+            else line.append(node('span','ds-head',c.slice(0,cut)), document.createTextNode(' — '+c.slice(cut+3)));
+            b.append(line);
+          });
+        }
+        b.onclick=()=>{ renderDay(d); window.scrollTo(0,0); };
+        if(d===focus) target=b;
+        screen.append(b);
+      });
+      headings();
+      if(target&&focus!==TODAY) requestAnimationFrame(()=>target.scrollIntoView({block:'center'}));
+      else window.scrollTo(0,0);
+    }
+
+    back.addEventListener('click',function(){
+      if(mode==='week'){ renderDay(TODAY); window.scrollTo(0,0); }
+      else if(tab==='overview'){ selected=TODAY; headings(); window.scrollTo(0,0); }
+      else renderWeek(selected);
+    });
+    tabs.forEach(b=>b.addEventListener('click',function(){
+      tab=b.dataset.screen;
+      renderDay(selected);
+    }));
+    // Desktop mode hides the tabs and switches views from the sidebar (rundown.html#rundown / #overview).
+    window.addEventListener('hashchange',function(){
+      const t=location.hash==='#overview'?'overview':'rundown';
+      if(t===tab&&mode==='day') return;
+      tab=t; renderDay(t==='overview'?TODAY:selected); window.scrollTo(0,0);
+    });
+    // A page left open past midnight reloads so "today" and the past-day purge stay right.
+    document.addEventListener('visibilitychange',function(){
+      if(!document.hidden&&todayISO()!==TODAY) location.reload();
+    });
+    renderDay(TODAY);
+    window.addEventListener('bb-hsm-diagrams',function(){ if(mode==='day') renderDay(selected); });
+    fetch('assignments.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{}).then(function(j){
+      ASSIGN=j||{};
+      if(mode==='day'&&tab==='rundown') renderDay(selected);
+    }).catch(()=>{});
+  })();
+
+  // ══ BACKGROUND — slow mathematical curves, orbital forms and a sparse drifting field ══
+  (function(){
+    const app=document.getElementById('bb-app');
+    const canvas=document.createElement('canvas');
+    canvas.className='wave-layer'; canvas.setAttribute('aria-hidden','true');
+    app.prepend(canvas);
+    const ctx=canvas.getContext('2d');
+    if(!ctx) return;
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    let w=390,h=844,frame=0,last=0,time=0;
+    function resize(){
+      const r=canvas.getBoundingClientRect(); w=r.width||390; h=r.height||844;
+      const d=Math.min(devicePixelRatio||1,2);
+      canvas.width=Math.round(w*d); canvas.height=Math.round(h*d);
+      ctx.setTransform(d,0,0,d,0,0); draw();
+    }
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      const cx=w*.5+Math.sin(time*.09)*w*.13, cy=h*.33+Math.sin(time*.065)*Math.min(h*.15,170);
+      const rx=w*.66, ry=Math.min(h*.4,340);
+      for(let layer=0;layer<3;layer++){
+        ctx.beginPath();
+        for(let i=0;i<=460;i++){
+          const a=i/460*Math.PI*2;
+          const x=cx+Math.sin(3*a+time*.27+layer*.028)*rx;
+          const y=cy+Math.sin(2*a+time*.19)*ry+Math.sin(a*5-time*.1)*17;
+          if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.strokeStyle=layer===0?'#85ccff':layer===1?'#659ec3':'#c2a0e7';
+        ctx.lineWidth=layer===0?.85:.45; ctx.globalAlpha=layer===0?.85:.28; ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+      for(let k=0;k<6;k++){
+        const x=w*(.16+.23*k)+Math.sin(time*.11+k*2)*24, y=h*(.13+.2*k)+Math.cos(time*.09+k)*40;
+        const radius=20+k*9, angle=time*(k%2?.065:-.05)+k;
+        ctx.save(); ctx.translate(x,y); ctx.rotate(angle);
+        ctx.strokeStyle=k%2?'#b8a0e5':'#81ccff'; ctx.globalAlpha=.48; ctx.lineWidth=.7;
+        ctx.beginPath();
+        if(k%2){ for(let n=0;n<=6;n++){ const a=n*Math.PI/3; const px=Math.cos(a)*radius, py=Math.sin(a)*radius; if(n===0) ctx.moveTo(px,py); else ctx.lineTo(px,py); } }
+        else ctx.ellipse(0,0,radius*1.6,radius*.66,0,0,Math.PI*1.72);
+        ctx.stroke();
+        const a=time*.25+k; ctx.fillStyle='#b5e4ff'; ctx.globalAlpha=.85;
+        ctx.beginPath(); ctx.arc(Math.cos(a)*radius*1.6,Math.sin(a)*radius*.66,1.4,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+      for(let k=0;k<24;k++){
+        const x=(k*83.7+Math.sin(time*.08+k)*12)%w, y=((k*137.3-time*(2+k%3))%h+h)%h;
+        ctx.globalAlpha=.28+.15*Math.sin(time*.4+k); ctx.fillStyle=k%4===0?'#c4a8ed':'#95d5ff';
+        ctx.fillRect(x,y,k%3===0?2:1,k%3===0?2:1);
+      }
+      ctx.globalAlpha=1;
+    }
+    function tick(now){
+      frame=0;
+      if(document.hidden||reduced.matches) return;
+      if(last) time+=Math.min((now-last)/1000,.06);
+      last=now; draw(); frame=requestAnimationFrame(tick);
+    }
+    function sync(){
+      cancelAnimationFrame(frame); frame=0; last=0; draw();
+      if(!document.hidden&&!reduced.matches) frame=requestAnimationFrame(tick);
+    }
+    window.addEventListener('resize',resize);
+    document.addEventListener('visibilitychange',sync);
+    if(reduced.addEventListener) reduced.addEventListener('change',sync);
+    resize(); sync();
+  })();
+</script>
+</div>
+
+</body>
+</html>

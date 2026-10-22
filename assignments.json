@@ -1,0 +1,149 @@
+{
+ "_about": "Demo crew per day. First names only, all fictional.",
+ "2026-11-16": [
+  {
+   "group": "Northwind",
+   "room": "Cypress AB",
+   "staff": [
+    {
+     "name": "Sam",
+     "pos": "CPT",
+     "duty": "Captain"
+    },
+    {
+     "name": "Luis",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Nina",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Omar",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Tess",
+     "pos": "SVR",
+     "duty": "Coffee breaks"
+    }
+   ]
+  },
+  {
+   "group": "Northwind",
+   "room": "Terrace",
+   "staff": [
+    {
+     "name": "Reggie",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Cole",
+     "pos": "BAR",
+     "duty": "Bartender"
+    }
+   ]
+  },
+  {
+   "group": "Brightline",
+   "room": "Juniper A",
+   "staff": [
+    {
+     "name": "Bea",
+     "pos": "SVR",
+     "duty": "Server"
+    }
+   ]
+  },
+  {
+   "group": "Solace",
+   "room": "Aspen",
+   "staff": [
+    {
+     "name": "Marco",
+     "pos": "SVR",
+     "duty": "Server"
+    }
+   ]
+  }
+ ],
+ "2026-11-17": [
+  {
+   "group": "Northwind",
+   "room": "Cypress AB",
+   "staff": [
+    {
+     "name": "Sam",
+     "pos": "CPT",
+     "duty": "Captain"
+    },
+    {
+     "name": "Luis",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Nina",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Tess",
+     "pos": "SVR",
+     "duty": "Server"
+    }
+   ]
+  },
+  {
+   "group": "City Bar",
+   "room": "Cypress CD",
+   "staff": [
+    {
+     "name": "Omar",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Reggie",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Bea",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Marco",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Ivy",
+     "pos": "SVR",
+     "duty": "Server"
+    },
+    {
+     "name": "Nina",
+     "pos": "SVR",
+     "duty": "Assist"
+    }
+   ]
+  },
+  {
+   "group": "Kestrel",
+   "room": "Birch A",
+   "staff": [
+    {
+     "name": "Ivy",
+     "pos": "SVR",
+     "duty": "Breaks + lunch"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="demo.js"></script>
+<title>Live Map — Banquet Bot</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#101820; --card:#162430; --line:#2a3d4c; --text:#eaf3fa; --muted:#8fa6b8; --sky:#8bd1ff; --amber:#ffc46b;
+          --ink:#1d2a33; --pmuted:#6b7a86; --grp:#1f8a55;
+          --bfast:#b8860b; --lunch:#d2691e; --dinner:#c2416b; --recep:#7b4fc9; --brk:#2b7bb9; --bev:#4f5d68; --nofb:#56636d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Manrope, -apple-system, "Segoe UI", sans-serif; }
+  .top { max-width:1500px; margin:0 auto; padding:16px 16px 10px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; }
+  .top a.back { color:var(--sky); text-decoration:none; font-weight:700; font-size:13px; }
+  .top h1 { margin:0; font:600 28px/1 'Barlow Condensed', sans-serif; letter-spacing:.06em; }
+  .top h1 span { color:var(--amber); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chips button { border:1px solid var(--line); background:var(--card); color:var(--muted); border-radius:20px; padding:6px 13px;
+                  font:800 12px Manrope, sans-serif; letter-spacing:.06em; cursor:pointer; }
+  .chips button.on { color:#0e1a26; background:var(--amber); border-color:var(--amber); }
+  .chips button .t { font-weight:700; opacity:.7; margin-left:4px; }
+  .print { margin-left:auto; border:1px solid var(--line); background:transparent; color:var(--sky); border-radius:8px; padding:6px 12px; font:700 12px Manrope, sans-serif; cursor:pointer; }
+  .hint { max-width:1500px; margin:0 auto; padding:0 16px 8px; color:var(--muted); font-size:12px; }
+  .stage { position:relative; max-width:1500px; margin:0 auto; padding:0 16px 40px; }
+  /* the map scrolls inside its own frame; pinch here zooms the map, not the page */
+  .scroll { overflow:auto; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y; border-radius:10px; max-height:calc(100vh - 150px); }
+  .zoom { position:absolute; right:26px; bottom:52px; z-index:5; display:flex; gap:4px; background:rgba(16,24,32,.85); border:1px solid var(--line); border-radius:10px; padding:4px; }
+  .zoom button { min-width:38px; height:34px; border:0; border-radius:7px; background:var(--card); color:var(--text); font:800 16px Manrope, sans-serif; cursor:pointer; }
+  .zoom button.fit { font-size:11px; letter-spacing:.06em; padding:0 8px; }
+  .zoom button:active { background:#24394a; }
+  .empty { max-width:1500px; margin:40px auto; padding:0 16px; color:var(--muted); }
+  /* site lattice background, full screen on phone and desktop */
+  body::before { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 100% 0,#2a4f6a59,transparent 46%),radial-gradient(ellipse at 0 100%,#5a4f9a24,transparent 52%),repeating-linear-gradient(60deg,transparent 0 33px,#84d3ff0c 33px 34px),repeating-linear-gradient(-60deg,transparent 0 33px,#b7a8ff0a 33px 34px),#101820; }
+  body > * { position:relative; z-index:1; }
+  html.bbd .top, html.bbd .hint, html.bbd .stage, html.bbd .empty { max-width:none; }
+
+  /* the printable sheet — same look as the paper floor maps */
+  .map { position:relative; width:100%; margin:0 auto; aspect-ratio:2000/1545; container-type:inline-size; background:#fff; color:var(--ink);
+         border-radius:10px; overflow:hidden; font-family:-apple-system, "Segoe UI", Inter, sans-serif; line-height:1.35;
+         -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .map img.plan { position:absolute; inset:0; width:100%; height:100%; opacity:.55; }
+  .ghostl { position:absolute; opacity:.6; pointer-events:none; }
+  .title { position:absolute; left:29.5%; top:1.2%; }
+  .title h2 { margin:0; font-size:1.6cqw; letter-spacing:.06em; color:var(--ink); }
+  .rm { position:absolute; padding:2.1cqw .7cqw .45cqw; border-radius:4px; overflow:hidden; }
+  .rm.on { background:rgba(31,138,85,.13); outline:2px solid rgba(31,138,85,.45); outline-offset:-2px; }
+  .rm.on > div { position:relative; opacity:.8; }
+  .nm { font-size:.85cqw; letter-spacing:.1em; text-transform:uppercase; color:var(--pmuted); font-weight:700; }
+  .g { color:var(--grp); font-weight:800; font-size:1.2cqw; margin:.05cqw 0; }
+  .ct { color:#3a4752; font-weight:600; font-size:.92cqw; margin-bottom:.25cqw; }
+  .ln { font-size:.98cqw; white-space:nowrap; }
+  .ln b { font-weight:700; font-variant-numeric:tabular-nums; }
+  .ln.bev, .ln.nofb { font-weight:600; }
+  .bfast { color:var(--bfast); } .lunch { color:var(--lunch); } .dinner { color:var(--dinner); } .recep { color:var(--recep); }
+  .brk { color:var(--brk); } .bev { color:var(--bev); } .nofb { color:var(--nofb); }
+  .meal b { padding:0 .2cqw; border-radius:2px; }
+  .bfast.meal b { background:#fbecb8; } .lunch.meal b { background:#fddcc2; } .brk.meal b { background:#d3e6f6; }
+  .dinner.meal b { background:#f7d2de; } .recep.meal b { background:#e5dbf7; }
+  .flag { color:#b23a3a; font-size:.92cqw; font-weight:600; }
+  .offmap { position:absolute; left:1%; top:72%; width:41%; }
+  .offmap h3, .legend h3 { font-size:.85cqw; letter-spacing:.1em; text-transform:uppercase; color:var(--pmuted); margin:0 0 .6cqw; }
+  #off { column-count:2; column-gap:1cqw; }
+  .card { break-inside:avoid; margin-bottom:1cqw; background:#fff; border:2px solid rgba(31,138,85,.45); border-radius:6px; padding:.7cqw .9cqw; }
+  .legend { position:absolute; left:44%; right:23%; bottom:1.5%; display:flex; flex-wrap:wrap; align-items:baseline; gap:.35cqw 1.6cqw; font-size:1cqw; }
+  .legend h3 { flex-basis:100%; margin:0; }
+  .legend .gc b { color:var(--grp); font-weight:800; } .legend .gc span { color:#3a4752; font-weight:600; }
+
+  @page { size:letter landscape; margin:0.25in; }
+  @media print {
+    body { background:#fff; } body::before { display:none; }
+    .top, .hint, #bb-gate, .bbd-side, .bbd-top { display:none !important; }
+    html.bbd body { padding:0 !important; }
+    .stage { padding:0; max-width:none; } .zoom { display:none !important; }
+    .scroll { overflow:visible; max-height:none; }
+    .map { width:10.2in !important; border-radius:0; }
+  }
+</style>
+
+</head>
+<body>
+<div class="top">
+  <a class="back" href="index.html">← Home</a>
+  <h1>LIVE <span>MAP</span></h1>
+  <div class="chips" id="chips"></div>
+  <button class="print" onclick="window.print()">Print</button>
+</div>
+<div class="hint" id="hint">Group, count and service times on the meeting-level plan, with each room's setup diagram underneath. Pinch to zoom; drag to move around.</div>
+<div class="stage" id="stage"><div class="scroll" id="scroll"><div class="map" id="map"></div></div></div>
+<div class="empty" id="empty" hidden>No floor maps for the coming days yet.</div>
+<script>
+(function () {
+  var DATA = {"days": {"2026-11-16": {"ev": {"Cypress AB": {"g": "Northwind Analytics", "ct": "GTD 110 · rounds of 10 · Maya", "s": [["7–8", "Breakfast Buffet", "bfast"], ["8–5", "General Session · No F&B", "nofb"], ["10–10:30", "Coffee Break", "brk"], ["12–1", "Lunch Buffet", "lunch"], ["3–3:30", "Coffee Break", "brk"]]}, "Juniper A": {"g": "Brightline Health", "ct": "GTD 14 · conference for 14 · Priya", "s": [["8–4", "Meeting · No F&B", "nofb"], ["8–9", "Continental Breakfast", "bfast"], ["12–1", "Plated Lunch", "lunch"]]}, "Aspen": {"g": "Solace Software", "ct": "EXP 40 · classroom for 40 · Priya", "s": [["7:30–8:30", "Grab & Go Breakfast", "bfast"], ["8:30–5", "Meeting · No F&B", "nofb"], ["12–1", "Boxed Lunch", "lunch"], ["2:30–3", "Coffee Break", "brk"]], "flag": "Diagram shows classroom for 36; event order says 40. Confirm with Priya"}}, "off": [{"room": "Terrace", "g": "Northwind Analytics", "ct": "EXP 150 · reception · Maya", "s": [["5:30–7:30 PM", "Reception", "recep"], ["5:30–7:30 PM", "Hosted Bar", "bev"]]}], "ghosts": [[585, 155, 1008, 805, "livemap/g_CYPRESSABfromNorthwindAnalytics_rounds12x10.png"], [135, 105, 485, 351, "livemap/g_JUNIPERAfromBrightlineHealth_conference14.png"], [988, 1095, 1449, 1352, "livemap/g_ASPENfromSolaceSoftware_classroom36.png"]], "contacts": [["Northwind Analytics", "Erin"], ["Brightline Health", "Paul"], ["Solace Software", "Dana"]]}, "2026-11-17": {"ev": {"Cypress AB": {"g": "Northwind Analytics", "ct": "GTD 105 · existing set (rounds of 10) · Maya", "s": [["7–8", "Breakfast Buffet", "bfast"], ["8–3", "General Session · No F&B", "nofb"], ["10–10:30", "Coffee Break", "brk"], ["12–1", "Plated Lunch", "lunch"]]}, "Birch A": {"g": "Kestrel Robotics", "ct": "GTD 24 · classroom for 24 · Maya", "s": [["8–5", "Training · No F&B", "nofb"], ["8–5", "Continuous Break", "brk"], ["12–1", "Conference Dining Lunch", "lunch"]]}, "Cypress CD": {"g": "City Bar Association", "ct": "GTD 175 · rounds of 10 · Priya", "s": [["11:30–1:30", "Plated Lunch", "lunch"]]}}, "off": [], "ghosts": [[585, 155, 1008, 805, "livemap/g_CYPRESSABfromNorthwindAnalytics_rounds12x10.png"], [1449, 1095, 1682, 1352, "livemap/g_BIRCHAfromKestrelRobotics_classroom24.png"], [1008, 155, 1915, 805, "livemap/g_CYPRESSCDfromCityBarAssociation_rounds18x10.png"]], "contacts": [["Northwind Analytics", "Erin"], ["Kestrel Robotics", "Victor"], ["City Bar Association", "Grace"]]}, "2026-11-18": {"ev": {"Cypress": {"g": "Riverbend Children's Fund", "ct": "GTD 300 · rounds of 10 for 300 · Maya", "s": [["7–10 PM", "Plated Dinner", "dinner"], ["7–11 PM", "Ballroom Bar", "bev"]], "flag": "Event order says 30 rounds; diagram shows 31. Confirm with Maya"}, "Birch A": {"g": "Kestrel Robotics", "ct": "GTD 24 · existing set · Maya", "s": [["8–5", "Training · No F&B", "nofb"], ["8–5", "Continuous Break", "brk"], ["12–1", "Lunch Buffet", "lunch"]]}, "Willow A": {"g": "Pinecrest Dental", "ct": "GTD 18 · u-shape for 18 · Priya", "s": [["7:30–12:30", "Meeting · No F&B", "nofb"], ["7:30–8:30", "Continental Breakfast", "bfast"], ["12–12:30", "Boxed Lunch To Go", "lunch"]]}}, "off": [{"room": "Pre-Function", "g": "Riverbend Children's Fund", "ct": "EXP 300 · rounds of 10 for 300 · Maya", "s": [["6–7 PM", "Cocktail Reception", "recep"], ["6–7 PM", "Hosted Bars", "bev"]]}], "ghosts": [[585, 155, 1915, 805, "livemap/g_CYPRESSfromRiverbendChildrensFund_rounds31x10.png"], [1449, 1095, 1682, 1352, "livemap/g_BIRCHAfromKestrelRobotics_classroom24.png"], [135, 597, 485, 843, "livemap/g_WILLOWAfromPinecrestDental_ushape18.png"]], "contacts": [["Riverbend Children's Fund", "Holly"], ["Kestrel Robotics", "Victor"], ["Pinecrest Dental", "Owen"]]}, "2026-11-19": {"ev": {"Birch A": {"g": "Kestrel Robotics", "ct": "GTD 24 · existing set · Maya", "s": [["8–2", "Training · No F&B", "nofb"], ["8–2", "Continuous Break", "brk"], ["12–1", "Conference Dining Lunch", "lunch"]]}, "Juniper": {"g": "Atlas Freight", "ct": "GTD 60 · theater for 60 · Priya", "s": [["7:30–8:30", "Breakfast Buffet", "bfast"], ["8:30–4:30", "Meeting · No F&B", "nofb"], ["12–1", "BBQ Lunch Buffet", "lunch"]]}, "Willow B": {"g": "Harbor Credit Union", "ct": "GTD 16 · conference for 16 · Priya", "s": [["6–9 PM", "Plated Dinner", "dinner"], ["6–9 PM", "Wine Service", "bev"]]}}, "off": [], "ghosts": [[1449, 1095, 1682, 1352, "livemap/g_BIRCHAfromKestrelRobotics_classroom24.png"], [135, 105, 485, 597, "livemap/g_JUNIPERfromAtlasFreight_theater60.png"], [135, 843, 485, 1090, "livemap/g_WILLOWBfromHarborCreditUnion_conference16.png"]], "contacts": [["Kestrel Robotics", "Victor"], ["Atlas Freight", "Nora"], ["Harbor Credit Union", "Sofia"]]}, "2026-11-20": {"ev": {"Aspen": {"g": "Solace Software", "ct": "EXP 40 · classroom for 40 · Priya", "s": [["7:30–8:30", "Grab & Go Breakfast", "bfast"], ["8:30–3", "Meeting · No F&B", "nofb"], ["12–1", "Lunch Buffet", "lunch"]]}, "Birch": {"g": "Harper & Lane Wedding", "ct": "GTD 40 · 5 rounds of 8 · Maya", "s": [["6:30–9:30 PM", "Family-Style Dinner", "dinner"], ["6:30–9:30 PM", "Hosted Bar", "bev"]]}}, "off": [], "ghosts": [[988, 1095, 1449, 1352, "livemap/g_ASPENfromSolaceSoftware_classroom40.png"], [1449, 1095, 1915, 1352, "livemap/g_BIRCHfromHarperLaneWedding_rounds5x8.png"]], "contacts": [["Solace Software", "Dana"], ["Harper & Lane Wedding", "Claire"]]}, "2026-11-21": {"ev": {"Cypress CD": {"g": "Harper & Lane Wedding", "ct": "GTD 180 · 18 rounds of 10 · Maya", "s": [["6:30–11 PM", "Dinner Buffet", "dinner"]]}}, "off": [{"room": "Terrace", "g": "Harper & Lane Wedding", "ct": "EXP 180 · theater for 180 with center aisle · Maya", "s": [["5–5:30 PM", "Ceremony · No F&B", "nofb"]]}, {"room": "Pre-Function", "g": "Harper & Lane Wedding", "ct": "EXP 180 · 18 rounds of 10 · Maya", "s": [["5:30–6:30 PM", "Cocktail Hour", "recep"], ["5:30–11 PM", "Hosted Bars", "bev"]]}], "ghosts": [[1008, 155, 1915, 805, "livemap/g_CYPRESSCDfromHarperLaneWedding_rounds18x10.png"]], "contacts": [["Harper & Lane Wedding", "Claire"]]}, "2026-11-22": {"ev": {"Juniper": {"g": "Harper & Lane Wedding", "ct": "GTD 60 · 8 rounds of 8 · Maya", "s": [["10–12", "Brunch Buffet", "bfast"]]}}, "off": [], "ghosts": [[135, 105, 485, 597, "livemap/g_JUNIPERfromHarperLaneWedding_rounds8x8.png"]], "contacts": [["Harper & Lane Wedding", "Claire"]]}}, "box": {"Juniper": [135, 105, 485, 597], "Juniper A": [135, 105, 485, 351], "Juniper B": [135, 351, 485, 597], "Willow": [135, 597, 485, 1090], "Willow A": [135, 597, 485, 843], "Willow B": [135, 843, 485, 1090], "Cypress": [585, 155, 1915, 805], "Cypress AB": [585, 155, 1008, 805], "Cypress A": [585, 155, 1008, 475], "Cypress B": [585, 475, 1008, 805], "Cypress C": [1008, 155, 1535, 805], "Cypress D": [1535, 155, 1915, 805], "Cypress CD": [1008, 155, 1915, 805], "Aspen": [988, 1095, 1449, 1352], "Aspen A": [988, 1095, 1221, 1352], "Aspen B": [1221, 1095, 1449, 1352], "Birch": [1449, 1095, 1915, 1352], "Birch A": [1449, 1095, 1682, 1352], "Birch B": [1682, 1095, 1915, 1352]}};
+  var BOX = DATA.box, MEAL = {bfast: 1, lunch: 1, dinner: 1, recep: 1, brk: 1};
+  var today = new Intl.DateTimeFormat("en-CA", {timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit"}).format(new Date());
+  // past days are removed, never shown
+  var dates = Object.keys(DATA.days).sort().filter(function (d) { return d >= today; });
+  var map = document.getElementById("map"), chips = document.getElementById("chips");
+  if (!dates.length) { document.getElementById("empty").hidden = false; document.getElementById("stage").hidden = true; document.getElementById("hint").hidden = true; return; }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function label(d, long) { var x = new Date(d + "T12:00:00"); return x.toLocaleDateString("en-US", long ? {weekday: "short", month: "numeric", day: "numeric"} : {weekday: "short"}).toUpperCase().replace(",", ""); }
+  function lines(s) { return s.map(function (l) { return '<div class="ln ' + l[2] + (MEAL[l[2]] ? " meal" : "") + '"><b>' + esc(l[0]) + "</b> " + esc(l[1]) + "</div>"; }).join(""); }
+  function body(e) { return '<div class="g">' + esc(e.g) + '</div><div class="ct">' + esc(e.ct) + "</div>" + lines(e.s) + (e.flag ? '<div class="flag">⚑ ' + esc(e.flag) + "</div>" : ""); }
+  function pct(b) { return "left:" + b[0] / 20 + "%;top:" + b[1] / 15.45 + "%;width:" + (b[2] - b[0]) / 20 + "%;height:" + (b[3] - b[1]) / 15.45 + "%"; }
+  function draw(d) {
+    var day = DATA.days[d];
+    chips.querySelectorAll("button").forEach(function (b) { b.classList.toggle("on", b.dataset.d == d); });
+    var h = '<img class="plan" src="livemap/floorplan.png" alt="Meeting level floor plan">';
+    day.ghosts.forEach(function (g) { h += '<img class="ghostl" src="' + g[4] + '" alt="" style="' + pct(g) + '">'; });
+    h += '<div class="title"><h2>' + label(d, true) + "</h2></div>";
+    Object.keys(BOX).forEach(function (r) {
+      var e = day.ev[r]; if (!e) return;
+      h += '<div class="rm on" style="' + pct(BOX[r]) + (/^$/.test(r) ? ";padding-left:3.8cqw" : "") + '">' + body(e) + "</div>";
+    });
+    if (day.off.length) h += '<div class="offmap"><h3>Off the map</h3><div id="off">' + day.off.map(function (e) { return '<div class="card"><div class="nm">' + esc(e.room) + "</div>" + body(e) + "</div>"; }).join("") + "</div></div>";
+    if (day.contacts.length) h += '<div class="legend"><h3>Contacts</h3>' + day.contacts.map(function (c) { return '<span class="gc"><b>' + esc(c[0]) + "</b> <span>" + esc(c[1]) + "</span></span>"; }).join("") + "</div>";
+    map.innerHTML = h;
+    if (typeof setZ == "function") setZ(1);
+    try { history.replaceState(null, "", "#" + d); } catch (e) {}
+  }
+  chips.innerHTML = dates.map(function (d) { return '<button data-d="' + d + '">' + label(d) + '<span class="t">' + (+d.slice(5, 7)) + "/" + (+d.slice(8)) + "</span></button>"; }).join("");
+  chips.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) draw(b.dataset.d); });
+  // ── zoom: z = 1 fits the whole floor in the frame; up to 4×. Text is sized in cqw, so it scales with the map.
+  var scroll = document.getElementById("scroll"), z = 1, ZMAX = 4;
+  function base() {   // width at z = 1: full frame width, but on a wide screen no taller than the frame
+    var w = scroll.clientWidth, h = scroll.clientHeight || window.innerHeight - 150;
+    return Math.min(w, h * 2000 / 1545);
+  }
+  function setZ(nz, cx, cy) {   // cx, cy: point in the frame (px) that should stay put
+    nz = Math.max(1, Math.min(ZMAX, nz));
+    if (cx == null) { cx = scroll.clientWidth / 2; cy = scroll.clientHeight / 2; }
+    var mx = (scroll.scrollLeft + cx) / (map.offsetWidth || 1), my = (scroll.scrollTop + cy) / (map.offsetHeight || 1);
+    z = nz; map.style.width = Math.round(base() * z) + "px";
+    scroll.scrollLeft = mx * map.offsetWidth - cx; scroll.scrollTop = my * map.offsetHeight - cy;
+  }
+  // two-finger pinch on the map
+  var pinch = null;
+  function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+  scroll.addEventListener("touchstart", function (e) {
+    if (e.touches.length == 2) { var r = scroll.getBoundingClientRect(); pinch = {d: dist(e.touches), z: z,
+      cx: (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left, cy: (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top}; }
+  }, {passive: true});
+  scroll.addEventListener("touchmove", function (e) {
+    if (!pinch || e.touches.length != 2) return;
+    e.preventDefault(); setZ(pinch.z * dist(e.touches) / pinch.d, pinch.cx, pinch.cy);
+  }, {passive: false});
+  scroll.addEventListener("touchend", function (e) { if (e.touches.length < 2) pinch = null; });
+  // ctrl/⌘ + wheel (trackpad pinch on a laptop) zooms the map too
+  scroll.addEventListener("wheel", function (e) {
+    if (!e.ctrlKey) return; e.preventDefault();
+    var r = scroll.getBoundingClientRect(); setZ(z * Math.exp(-e.deltaY / 200), e.clientX - r.left, e.clientY - r.top);
+  }, {passive: false});
+  window.addEventListener("resize", function () { setZ(z); });
+  var want = location.hash.slice(1);
+  draw(dates.indexOf(want) >= 0 ? want : (dates.indexOf(today) >= 0 ? today : dates[0]));
+})();
+</script>
+</body>
+</html>

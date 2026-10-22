@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="demo.js"></script>
+<title>Housemen — Banquet Bot</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#101820;--card:#162530;--card2:#1d3344;--line:rgba(139,209,255,.12);--line2:rgba(139,209,255,.26);
+  --t1:#eaf3fa;--t2:#b1c6d6;--t3:#8aa4b8;--t4:#6f8aa0;
+  --accent:#8bd1ff;--accent-d:rgba(139,209,255,.12);
+  --set:#8bd1ff;--set-d:rgba(139,209,255,.13);
+  --ref:#78d6ca;--ref-d:rgba(120,214,202,.13);
+  --clr:#e2b089;--clr-d:rgba(226,176,137,.14);
+  --amber:#ffc085;--amber-d:rgba(255,192,133,.13);
+  --red:#ff8f8f;--red-d:rgba(255,143,143,.13);
+  --done:#7fe0a0;--done-d:rgba(127,224,160,.13);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--t1);font-family:Manrope,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(ellipse at 100% 0,#2a4f6a59,transparent 46%),radial-gradient(ellipse at 0 100%,#5a4f9a24,transparent 52%),
+  repeating-linear-gradient(60deg,transparent 0 33px,#84d3ff0c 33px 34px),repeating-linear-gradient(-60deg,transparent 0 33px,#b7a8ff0a 33px 34px),var(--bg)}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 14px 90px}
+button{font:inherit;color:inherit;cursor:pointer}
+
+/* header */
+.top{position:sticky;top:0;z-index:30;margin:0 -14px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;background:rgba(16,24,32,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff0b}
+.brand{display:flex;align-items:center;gap:10px;font:700 11px Manrope;letter-spacing:1.7px;color:#eaf1f7;text-decoration:none}
+.mark{display:grid;place-items:center;width:28px;height:28px;border:1px solid #81ccff80;border-radius:8px;color:#81ccff;font:19px Georgia,serif;box-shadow:0 0 14px #81ccff18}
+.who{margin-left:auto;border:1px solid var(--line2);background:var(--card);border-radius:20px;padding:5px 10px;font:700 10.5px Manrope;letter-spacing:.3px;color:var(--t2)}
+.who.in{color:var(--done);border-color:#7fe0a055}
+.sync{width:7px;height:7px;border-radius:50%;background:var(--t4);flex:none}
+.sync.ok{background:var(--done);box-shadow:0 0 8px var(--done)} .sync.bad{background:var(--red);box-shadow:0 0 8px var(--red)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:10px;padding:4px;background:#0b151e;border:1px solid var(--line);border-radius:11px}
+.seg button{border:0;background:transparent;padding:9px 0;border-radius:8px;font-weight:700;font-size:13px;color:var(--t3)}
+.seg button.on{background:var(--card2);color:var(--t1);box-shadow:0 0 0 1px var(--line2)}
+.days{display:flex;gap:6px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.days button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 11px;text-align:center;min-width:54px}
+.days button b{display:block;font:600 17px 'Barlow Condensed';letter-spacing:.5px}
+.days button span{font-size:9px;letter-spacing:1px;color:var(--t3);font-weight:700}
+.days button.on{border-color:var(--accent);background:var(--accent-d)}
+.days button .pip{display:block;height:3px;border-radius:2px;margin-top:4px;background:#ffffff14;overflow:hidden}
+.days button .pip i{display:block;height:100%;background:var(--done)}
+
+/* hero */
+.hero{padding:16px 2px 10px}
+.eyebrow{font:700 9px Manrope;letter-spacing:1.8px;color:var(--accent);text-transform:uppercase}
+.eyebrow::before{content:'';display:inline-block;width:5px;height:5px;margin:0 7px 1px 0;background:#91dbff;box-shadow:0 0 9px #91dbff;border-radius:50%}
+h1{font:600 34px/1 'Barlow Condensed';text-transform:uppercase;letter-spacing:.5px;margin:7px 0 4px}
+.sub{font-size:12px;color:var(--t2)}
+.sub b{color:var(--t1)}
+.progress{margin:12px 0 4px;display:flex;align-items:center;gap:10px}
+.bar{flex:1;height:8px;border-radius:5px;background:#ffffff10;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#5fc98a,var(--done));border-radius:5px;transition:width .35s}
+.pct{font:600 20px 'Barlow Condensed';min-width:58px;text-align:right}
+
+/* room cards */
+.room{margin-top:9px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;overflow:hidden;transition:opacity .2s,border-color .2s}
+.room.set{--c:var(--set);--cd:var(--set-d)} .room.ref{--c:var(--ref);--cd:var(--ref-d)} .room.clr{--c:var(--clr);--cd:var(--clr-d)}
+.room.isdone{--c:var(--done);opacity:.62}
+.room.isprob{--c:var(--red)}
+.rhead{display:flex;align-items:center;gap:10px;padding:11px 12px;width:100%;border:0;background:transparent;text-align:left}
+.num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--cd);color:var(--c);font:700 17px 'Barlow Condensed';border:1px solid var(--c)}
+.room.isdone .num{background:var(--done);color:#0e2418;border-color:var(--done)}
+.rmain{flex:1;min-width:0}
+.type{font:800 8.5px Manrope;letter-spacing:1.2px;text-transform:uppercase;color:var(--c);background:var(--cd);padding:2px 6px;border-radius:4px}
+.rname{font:600 21px/1.05 'Barlow Condensed';text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.rfor{font-size:11.5px;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rend{flex:none;text-align:right;font-size:10px;color:var(--t3);font-weight:700}
+.rend b{display:block;font:600 15px 'Barlow Condensed';color:var(--t2);letter-spacing:.3px}
+.status{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:20px}
+.st-done{color:var(--done);background:var(--done-d)} .st-prog{color:var(--accent);background:var(--accent-d)} .st-prob{color:var(--red);background:var(--red-d)} .st-none{color:var(--t4);background:#ffffff08}
+.rbody{display:none;padding:0 12px 12px 52px}
+.room.open .rbody{display:block}
+.items{list-style:none;margin:0;padding:0}
+.items li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.3;cursor:pointer}
+.items li:first-child{border-top:0}
+.box{flex:none;width:22px;height:22px;border-radius:6px;border:1.6px solid var(--line2);display:grid;place-items:center;margin-top:-1px}
+.items li.ck .box{background:var(--done);border-color:var(--done)}
+.items li.ck .box::after{content:'';width:6px;height:11px;border:solid #0e2418;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.items li.ck span{color:var(--t3);text-decoration:line-through}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.tag{font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:6px;background:#ffffff0a;color:var(--t2);text-decoration:none;border:1px solid var(--line)}
+.tag.diag{color:var(--accent);border-color:#8bd1ff40}
+.tag.flag{color:var(--amber);background:var(--amber-d);border-color:#ffc08533}
+.tag.next{color:var(--clr);background:var(--clr-d);border-color:#e2b08933}
+.acts{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+.btn{border:0;border-radius:11px;padding:14px 12px;font-weight:800;font-size:14px;letter-spacing:.3px}
+.btn-done{background:var(--done);color:#0e2418;box-shadow:0 6px 18px #7fe0a025}
+.btn-undo{background:var(--card2);color:var(--t2);border:1px solid var(--line2)}
+.btn-prob{background:var(--red-d);color:var(--red);border:1px solid #ff8f8f40;padding:14px 16px}
+.diags{display:grid;gap:8px;margin-top:10px}
+.diag-prev{display:block;width:100%;padding:0;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff;text-align:left}
+.diag-prev img{display:block;width:100%;height:230px;object-fit:contain;background:#fff}
+.diag-prev span{display:flex;justify-content:space-between;padding:7px 10px;background:var(--card2);color:var(--accent);font-size:11.5px;font-weight:700}
+.viewer{position:fixed;inset:0;z-index:70;background:#05090df2;display:none;flex-direction:column}
+.viewer.on{display:flex}
+.vbar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;border-bottom:1px solid var(--line)}
+.vbar b{flex:1;font:600 20px 'Barlow Condensed';text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vbar a,.vbar button{border:1px solid var(--line2);background:var(--card);color:var(--t1);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;text-decoration:none}
+.vscroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px}
+.vscroll img{display:block;width:100%;background:#fff;border-radius:6px;transition:width .2s}
+.vscroll img.big{width:220%}
+.vhint{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 calc(env(safe-area-inset-bottom,0px) + 8px)}
+.doneline{font-size:12px;color:var(--done);margin-top:10px;font-weight:600}
+.probline{font-size:12px;color:var(--red);margin-top:10px;font-weight:600;background:var(--red-d);padding:8px 10px;border-radius:8px}
+.std{margin:2px 0 10px;font-size:11px;color:var(--t3)}
+
+/* captain */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 11px}
+.stat b{display:block;font:600 28px/1 'Barlow Condensed'}
+.stat span{font-size:9.5px;font-weight:700;letter-spacing:1.2px;color:var(--t3);text-transform:uppercase}
+.sec{font:700 9.5px Manrope;letter-spacing:1.6px;color:#89b4cf;text-transform:uppercase;margin:18px 2px 6px}
+.crow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:11px;margin-top:6px}
+.crow .num{width:26px;height:26px;font-size:15px}
+.crow .rname{font-size:18px;margin:0}
+.crow .meta{font-size:11px;color:var(--t3)}
+.crow .right{margin-left:auto;text-align:right}
+.flagrow{padding:10px 12px;border-radius:11px;background:var(--amber-d);border:1px solid #ffc08533;margin-top:6px;font-size:12.5px;color:var(--t1)}
+.flagrow b{color:var(--amber)}
+.flagrow.prob{background:var(--red-d);border-color:#ff8f8f40}
+.flagrow.prob b{color:var(--red)}
+.resolve{margin-top:8px;border:1px solid var(--line2);background:var(--card2);color:var(--t1);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700}
+.feed{border-left:2px solid var(--line2);margin:6px 0 0 8px;padding-left:14px}
+.ev{position:relative;padding:6px 0;font-size:12.5px;color:var(--t2)}
+.ev::before{content:'';position:absolute;left:-20px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--c,var(--accent));box-shadow:0 0 8px var(--c,var(--accent))}
+.ev time{color:var(--t4);font-size:11px;margin-right:6px}
+.empty{color:var(--t3);font-size:13px;padding:14px 4px}
+
+/* sheets */
+.sheet-bg{position:fixed;inset:0;z-index:50;background:#000a;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.on{display:flex}
+.sheet{width:100%;max-width:520px;background:#14212b;border:1px solid var(--line2);border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:0 0 4px;font:600 22px 'Barlow Condensed';text-transform:uppercase}
+.sheet p{margin:0 0 12px;font-size:12px;color:var(--t3)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips button{border:1px solid var(--line2);background:var(--card);border-radius:20px;padding:9px 13px;font-size:13px;font-weight:600}
+.chips button.on{background:var(--red-d);border-color:var(--red);color:var(--red)}
+.sheet.nr{max-height:92vh;overflow:auto}
+.sheet.nr label{display:block;margin:12px 0 5px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--t3)}
+.sheet.nr .prname{margin:0}
+.sheet.nr textarea{margin-top:0;min-height:110px}
+.sheet.nr .chips button.on{background:#123a2c;border-color:var(--done);color:var(--done)}
+.nrhint{font-size:11px;color:var(--t4);margin-top:4px}
+.nrdg{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nrdg img{height:64px;border-radius:6px;background:#fff;display:block}
+.addroom{display:block;width:100%;margin:10px 0 4px;padding:10px;border:1px dashed var(--line2);border-radius:12px;background:none;color:var(--t2);font-weight:700;font-size:13px;cursor:pointer}
+.addroom:hover{border-color:var(--done);color:var(--done)}
+.sheet textarea{width:100%;margin-top:12px;min-height:70px;border-radius:10px;border:1px solid var(--line2);background:#0b151e;color:var(--t1);font:16px Manrope;padding:10px}
+.sheet .acts{grid-template-columns:auto 1fr}
+.dots{display:flex;justify-content:center;gap:14px;margin:6px 0 14px}
+.dots i{width:14px;height:14px;border-radius:50%;border:1.6px solid var(--line2)}
+.dots i.f{background:var(--accent);border-color:var(--accent)}
+.dots.err i{border-color:var(--red)} .dots.err i.f{background:var(--red)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pad button{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:14px 0;font:600 24px 'Barlow Condensed'}
+.pad button:active{background:var(--card2)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);opacity:0;z-index:60;background:#0e2418;color:var(--done);border:1px solid var(--done);border-radius:30px;padding:10px 16px;font-size:13px;font-weight:700;transition:.3s;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{background:#2a0d0d;color:var(--red);border-color:var(--red)}
+.foot{margin-top:24px;font-size:10.5px;color:var(--t4);text-align:center;line-height:1.6}
+.foot a,.linkbtn{color:var(--t3);background:none;border:0;text-decoration:underline;font-size:10.5px}
+.idel{margin-left:auto;flex:none;border:0;background:transparent;color:var(--t4);font-size:13px;padding:2px 6px;border-radius:6px}
+.idel:hover{color:var(--red);background:var(--red-d)}
+.iadd{display:flex;gap:6px;margin:8px 0 2px}
+.iadd input{flex:1;min-width:0;border:1px solid var(--line2);background:#0b151e;color:var(--t1);border-radius:9px;padding:8px 10px;font:500 13px Manrope}
+.iadd button{border:1px solid var(--line2);background:var(--card2);border-radius:9px;padding:0 14px;font-weight:700;font-size:12px}
+.irestore{margin-top:6px;border:0;background:none;color:var(--t3);font-size:11px;text-decoration:underline;padding:0}
+.printbtn{display:block;margin:14px auto 0;width:auto;max-width:100%;padding-left:26px!important;padding-right:26px!important;border:1px solid var(--line);background:var(--card);color:inherit;border-radius:12px;padding:11px;font:700 14px 'Barlow Condensed',sans-serif;letter-spacing:.04em}
+
+/* operations (leads): replace diagrams, move builds between nights, desktop week board */
+.ops{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ops button,.mini{border:1px solid var(--line2);background:var(--card2);color:var(--t1);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700}
+.crow{flex-wrap:wrap}
+.crow .ops{flex-basis:100%;margin:2px 0 0 36px}
+.tag.mv{color:#c1baff;background:rgba(193,186,255,.12);border-color:#c1baff40}
+.gone{margin-top:6px;padding:8px 12px;border:1px dashed var(--line2);border-radius:11px;font-size:12px;color:var(--t3);display:flex;align-items:center;gap:8px}
+.gone button{margin-left:auto}
+.deskbtn{margin-left:6px}
+.dgcur{display:grid;gap:8px;max-height:46vh;overflow:auto}
+.dgcur img{display:block;width:100%;max-height:40vh;object-fit:contain;background:#fff;border-radius:8px}
+.dgcur .lbl{font-size:11px;color:var(--t3);font-weight:700}
+.dglink{display:block;margin-top:10px;border:0;background:none;color:var(--t3);text-decoration:underline;font-size:12px;padding:0}
+#prChips button.on{background:var(--accent-d);border-color:var(--accent);color:var(--accent)}
+.prname{width:100%;margin-top:12px;border-radius:10px;border:1px solid var(--line2);background:#0b151e;color:var(--t1);font:16px Manrope;padding:10px}
+#mvDays button.on{background:var(--accent-d);border-color:var(--accent);color:var(--accent)}
+body.desk .wrap{max-width:none;padding:0 22px 60px}
+body.desk .top{margin:0 -22px;padding-left:22px;padding-right:22px}
+body.desk .days{display:none}
+body.desk .seg{max-width:420px}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding:4px 0 14px;align-items:start}
+.col{background:#0b151ecc;border:1px solid var(--line);border-radius:14px;padding:10px;min-height:240px}
+.col.today{border-color:var(--accent)}
+.col.over{outline:2px dashed var(--accent);outline-offset:2px}
+.col header{display:flex;align-items:baseline;gap:8px;padding:2px 2px 8px;border-bottom:1px solid var(--line)}
+.col header b{font:600 20px 'Barlow Condensed';letter-spacing:.4px;white-space:nowrap}
+.col header span{font-size:11px;color:var(--t3)}
+.col header .cnt{margin-left:auto;font-weight:800;color:var(--t2)}
+.bcard{margin-top:8px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:11px;padding:9px 10px;cursor:grab}
+.bcard.set{--c:var(--set);--cd:var(--set-d)} .bcard.ref{--c:var(--ref);--cd:var(--ref-d)} .bcard.clr{--c:var(--clr);--cd:var(--clr-d)}
+.bcard.isdone{--c:var(--done);opacity:.65} .bcard.isprob{--c:var(--red)} .bcard.dragging{opacity:.4}
+.bcard .bh{display:flex;gap:8px;align-items:flex-start}
+.bcard .num{width:24px;height:24px;font-size:14px}
+.bcard .rname{font-size:17px}
+.bcard .thumb{display:block;width:100%;margin-top:8px;padding:0;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:#fff}
+.bcard .thumb img{display:block;width:100%;height:120px;object-fit:contain}
+
+/* lead editing: reword a line, switch Set / Refresh / Clear */
+.iedbtn{margin-left:auto;flex:none;border:0;background:transparent;color:var(--t4);font-size:13px;padding:2px 6px;border-radius:6px}
+.iedbtn:hover{color:var(--accent);background:var(--accent-d)}
+.iedbtn + .idel{margin-left:0}
+.items li.iedit{cursor:default;gap:6px;align-items:center}
+.iedit input{flex:1;min-width:0;border:1px solid var(--accent);background:#0b151e;color:var(--t1);border-radius:8px;padding:7px 9px;font:500 14px Manrope}
+.iedit [data-edsave]{border:0;background:var(--accent);color:#0c141b;border-radius:8px;padding:7px 12px;font-weight:800;font-size:12px}
+.tsw{display:flex;align-items:center;gap:4px;margin-top:10px;flex-wrap:wrap}
+.tsw button{border:1px solid var(--line2);background:var(--card2);color:var(--t2);border-radius:8px;padding:6px 12px;font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase}
+.tsw button.on{background:var(--c);border-color:var(--c);color:#0c141b}
+.tsw span{font-size:10.5px;color:var(--t4);margin-left:4px}
+
+/* cancel a room (leads) */
+.ops .xbtn{color:var(--red);border-color:#ff8f8f40;background:var(--red-d)}
+.ops .xbtn.armed{background:var(--red);color:#2a0d0d}
+.gone.cx{border-color:#ff8f8f40;color:var(--t3)}
+.gone.cx s{color:var(--red);font-weight:700;text-decoration-thickness:2px}
+
+.phone-note{margin:14px 0 2px;padding:10px 12px;border:1px dashed var(--line2);border-radius:11px;font-size:12px;color:var(--t3);line-height:1.45}
+
+/* drag to reorder (leads) */
+/* Drag handle = six drawn dots (no text glyph, so it can't render wide and run into the checkboxes). */
+.grip{flex:none;align-self:stretch;width:22px;margin:-11px 0 -11px -6px;font-size:0;color:transparent;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  background:radial-gradient(circle,var(--t4) 1.5px,transparent 1.8px) center/6px 6px no-repeat;background-size:6px 6px;background-repeat:repeat;
+  -webkit-mask:linear-gradient(#000,#000) center/12px 18px no-repeat;mask:linear-gradient(#000,#000) center/12px 18px no-repeat}
+.grip:hover,.sorting .grip{background-image:radial-gradient(circle,var(--accent) 1.5px,transparent 1.8px)}
+.crow .grip{margin:-10px 0 -10px -6px}
+.items[data-isort] li{position:relative}
+/* step handles sit in the empty left margin, fully clear of the checkbox */
+.items li .igrip{position:absolute;left:-30px;top:50%;width:22px;height:30px;margin:0;transform:translateY(-50%);align-self:auto}
+.sorting{position:relative;z-index:40;box-shadow:0 14px 34px #000b,0 0 0 2px var(--accent);transition:none!important;cursor:grabbing}
+.sorting .grip{cursor:grabbing}
+.items li.sorting{background:var(--card2);border-radius:8px}
+
+/* captain theme — only when the captain (Sam) is signed in */
+.capbadge{display:none;align-items:center;gap:5px;margin-left:8px;padding:3px 8px;border:1px solid #f2c87966;border-radius:20px;font:800 9px Manrope;letter-spacing:1.6px;color:#f2c879;background:linear-gradient(135deg,#f2c8791f,#f2c87905);box-shadow:0 0 12px #f2c8791c}
+body.cap{--accent:#f2c879;--accent-d:rgba(242,200,121,.13);--line:rgba(242,200,121,.13);--line2:rgba(242,200,121,.32)}
+body.cap::before{background:radial-gradient(ellipse at 100% 0,#7a5a1f55,transparent 46%),radial-gradient(ellipse at 0 100%,#5a3f1a2e,transparent 52%),
+  repeating-linear-gradient(60deg,transparent 0 33px,#f2c8790a 33px 34px),repeating-linear-gradient(-60deg,transparent 0 33px,#f2c87908 33px 34px),var(--bg)}
+body.cap .top{border-bottom:1px solid #f2c87933;box-shadow:inset 0 2px 0 #f2c879}
+body.cap .mark{border-color:#f2c87999;color:#f2c879;box-shadow:0 0 16px #f2c87930}
+body.cap .capbadge{display:inline-flex}
+body.cap .who.in{color:#f2c879;border-color:#f2c87966;background:#f2c8790f}
+body.cap .eyebrow::before{background:#f2c879;box-shadow:0 0 9px #f2c879}
+body.cap .seg button.on{box-shadow:0 0 0 1px #f2c87966;color:#f6dca6}
+body.cap .room .num{border-color:#f2c87955}
+body.cap .printbtn{border-color:#f2c87966;color:#f2c879}
+/* director theme — Andre (Director of Event Operations): same treatment in his mint, matching desktop mode */
+@media (max-width:480px){.who-ttl{display:none}}
+.dirbadge{display:none;align-items:center;gap:5px;margin-left:8px;padding:3px 8px;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);border-radius:20px;font:800 9px Manrope;letter-spacing:1.6px;color:var(--acc);background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 12%,transparent),color-mix(in srgb,var(--acc) 2%,transparent));box-shadow:0 0 12px color-mix(in srgb,var(--acc) 11%,transparent);white-space:nowrap}
+/* personal accent: Andre mint, Maya violet, Priya rose — set via --acc */
+body.dir{--acc:#5fe3c0;--accent:var(--acc);--accent-d:color-mix(in srgb,var(--acc) 13%,transparent);--line:color-mix(in srgb,var(--acc) 13%,transparent);--line2:color-mix(in srgb,var(--acc) 32%,transparent)}
+body.dir::before{background:radial-gradient(ellipse at 100% 0,color-mix(in srgb,var(--acc) 26%,transparent),transparent 46%),radial-gradient(ellipse at 0 100%,color-mix(in srgb,var(--acc) 12%,transparent),transparent 52%),
+  repeating-linear-gradient(60deg,transparent 0 33px,color-mix(in srgb,var(--acc) 4%,transparent) 33px 34px),repeating-linear-gradient(-60deg,transparent 0 33px,color-mix(in srgb,var(--acc) 3%,transparent) 33px 34px),var(--bg)}
+body.dir .top{border-bottom:1px solid color-mix(in srgb,var(--acc) 20%,transparent);box-shadow:inset 0 2px 0 var(--acc)}
+body.dir .mark{border-color:color-mix(in srgb,var(--acc) 60%,transparent);color:var(--acc);box-shadow:0 0 16px color-mix(in srgb,var(--acc) 19%,transparent)}
+body.dir .dirbadge{display:inline-flex}
+body.dir .who.in{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 40%,transparent);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+body.dir .eyebrow::before{background:var(--acc);box-shadow:0 0 9px var(--acc)}
+body.dir .seg button.on{box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 40%,transparent);color:color-mix(in srgb,var(--acc) 45%,#fff)}
+body.dir .room .num{border-color:color-mix(in srgb,var(--acc) 33%,transparent)}
+body.dir .printbtn{border-color:color-mix(in srgb,var(--acc) 40%,transparent);color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><a class="brand" href="index.html"><span class="mark">B</span>HOUSEMEN</a><span class="capbadge">★ CAPTAIN</span><span class="dirbadge">★ DIRECTOR</span><span class="sync" id="sync" title="Live sync"></span><button class="who" id="who">Sign in</button><button class="who deskbtn" id="desk" style="display:none">🖥 Desktop</button></div>
+    <div class="seg"><button id="vHsm" class="on">Houseman</button><button id="vCap">Captain</button></div>
+    <div class="days" id="days"></div>
+  </div>
+  <main id="main"></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<div class="sheet-bg" id="pinBg"><div class="sheet">
+  <h3>Enter your PIN</h3><p id="pinWhy">Your PIN puts your name on what you check off.</p>
+  <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="pad" id="pad"></div>
+  <div class="acts" style="grid-template-columns:1fr"><button class="btn btn-undo" id="pinCancel">Cancel</button></div>
+</div></div>
+
+<div class="sheet-bg" id="sheetBg"><div class="sheet">
+  <h3>Report a problem</h3><p id="sheetRoom"></p>
+  <div class="chips" id="chips"></div>
+  <textarea id="note" placeholder="Add a note (optional)"></textarea>
+  <div class="acts"><button class="btn btn-undo" id="cancel">Cancel</button><button class="btn btn-prob" id="send" style="background:var(--red);color:#2a0d0d">Send to captain</button></div>
+</div></div>
+<div class="sheet-bg" id="dgBg"><div class="sheet">
+  <h3>Diagram</h3><p id="dgRoom"></p>
+  <div class="dgcur" id="dgCur"></div>
+  <input type="file" id="dgFile" accept="image/*,application/pdf" hidden>
+  <div class="acts" id="dgActs"></div>
+  <div id="dgMore"></div>
+</div></div>
+<div class="sheet-bg" id="prBg"><div class="sheet">
+  <h3>Print checklist</h3><p id="prDay"></p>
+  <p style="margin:0 0 8px;color:var(--t2);font-weight:700">Houseman's name for the top of the list</p>
+  <div class="chips" id="prChips"></div>
+  <input id="prName" class="prname" maxlength="40" placeholder="Or type a name (leave blank for a write-in line)">
+  <div class="acts"><button class="btn btn-undo" id="prCancel">Cancel</button><button class="btn btn-done" id="prGo">🖨 Print</button></div>
+</div></div>
+<div class="sheet-bg" id="nrBg"><div class="sheet nr">
+  <h3>Create a room</h3><p id="nrDay"></p>
+  <label for="nrRoom">Room</label><input id="nrRoom" class="prname" list="nrRooms" maxlength="40" placeholder="e.g. Birch B"><datalist id="nrRooms"></datalist>
+  <label for="nrFor">For (group · function)</label><input id="nrFor" class="prname" maxlength="80" placeholder="e.g. Kestrel Robotics · Breakout">
+  <label>Type</label><div class="chips" id="nrType"><button data-nrt="set" class="on">Set</button><button data-nrt="ref">Refresh</button><button data-nrt="clr">Clear</button></div>
+  <label for="nrEnd">Room free by (optional)</label><input id="nrEnd" class="prname" maxlength="12" placeholder="e.g. 5:00 PM">
+  <label for="nrSteps">Setup steps · one per line</label>
+  <textarea id="nrSteps" placeholder="(10) rounds of 8, chairs per diagram&#10;Podium + wired mic at the front&#10;Pads, pens &amp; water at every seat"></textarea>
+  <div class="nrhint" id="nrHint">Leave blank to use the standard steps for this type.</div>
+  <label>Diagram (optional)</label>
+  <div class="nrdg"><button type="button" class="btn btn-undo" id="nrPick">⬆ Add a photo, image or PDF</button><div id="nrPrev"></div></div>
+  <input type="file" id="nrFile" accept="image/*,application/pdf" hidden>
+  <div class="acts"><button class="btn btn-undo" id="nrCancel">Cancel</button><button class="btn btn-done" id="nrSave">＋ Create room</button></div>
+</div></div>
+<div class="sheet-bg" id="mvBg"><div class="sheet">
+  <h3>Move build</h3><p id="mvRoom"></p>
+  <div class="chips" id="mvDays"></div>
+  <div class="acts" style="grid-template-columns:1fr"><button class="btn btn-undo" id="mvCancel">Cancel</button></div>
+</div></div>
+<div class="viewer" id="viewer"><div class="vbar"><b id="vTitle"></b><a id="vPdf" target="_blank" rel="noopener">PDF</a><button id="vClose">✕ Close</button></div>
+  <div class="vscroll"><img id="vImg" alt="Room diagram"></div><div class="vhint">Tap the diagram to zoom · pinch to zoom further</div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+
+// ── WEEKLY DATA — update each week from the BEOs + schedule. Rooms are in setup order.
+// end = time the room's booking ends that day ("" = empty when the houseman clocks in).
+// BEO end times are room holds; groups usually leave by 5–6 PM, so they're shown, never flagged.
+const DIAG = "diagrams/";
+const DAYS = [
+{ iso:"2026-11-15", target:"Monday 11/16", crew:"Theo", shift:"3P–11P", rooms:[
+   {"room": "Cypress AB", "for": "Northwind Analytics · Leadership Summit", "diag": "CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf", "t": "set", "items": ["(12) rounds of 10, chairs per diagram", "Stage with stairs + podium up front", "Linens + napkins per event order", "Vacuum", "Tray jack + clean tray"]},
+   {"room": "Aspen", "for": "Solace Software · Sales Kickoff", "diag": "ASPENfromSolaceSoftware_classroom36.pdf", "t": "set", "items": ["Classroom for 36 — (12) 6' tables, 3 chairs each", "Presenter table + podium up front", "Pads, pens & water at every seat", "Vacuum"], "flags": ["Diagram shows classroom for 36; event order says 40. Confirm with Priya"]},
+   {"room": "Terrace", "for": "Northwind Analytics · Welcome Reception", "t": "set", "items": ["(12) highboys with black spandex", "(1) bar with back bar", "Trash cans by the doors"]},
+   {"room": "Juniper A", "for": "Brightline Health · Board Meeting", "diag": "JUNIPERAfromBrightlineHealth_conference14.pdf", "t": "set", "items": ["Conference table for 14", "Pads, pens & water at every seat", "Vacuum"]}
+ ]},
+{ iso:"2026-11-16", target:"Tuesday 11/17", crew:"Ramon", shift:"3P–11P", rooms:[
+   {"room": "Cypress CD", "for": "City Bar Association · CLE Luncheon", "diag": "CYPRESSCDfromCityBarAssociation_rounds18x10.pdf", "t": "set", "items": ["(18) rounds of 10, chairs per diagram", "Stage with stairs + podium up front", "Linens + napkins per event order", "Vacuum", "Tray jack + clean tray"]},
+   {"room": "Birch A", "for": "Kestrel Robotics · Product Training", "diag": "BIRCHAfromKestrelRobotics_classroom24.pdf", "t": "set", "items": ["Classroom for 24 — (8) 6' tables, 3 chairs each", "Presenter table + podium up front", "Pads, pens & water at every seat", "Vacuum"]},
+   {"room": "Cypress AB", "for": "Northwind Analytics · Leadership Summit — Final Day (existing set)", "diag": "CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf", "t": "ref", "end": "5:00 PM"},
+   {"t": "clr", "room": "Terrace", "for": "Northwind Analytics finished", "end": "7:30 PM", "next": "Sat → Harper & Lane Wedding"},
+   {"t": "clr", "room": "Juniper A", "for": "Brightline Health finished", "end": "4:00 PM", "next": "No event on file this week", "diag": "JUNIPERAfromBrightlineHealth_conference14.pdf"},
+   {"t": "clr", "room": "Aspen", "for": "Solace Software finished", "end": "5:00 PM", "next": "Fri → Solace Software", "diag": "ASPENfromSolaceSoftware_classroom36.pdf"}
+ ]},
+{ iso:"2026-11-17", target:"Wednesday 11/18", crew:"Theo", shift:"3P–11P", rooms:[
+   {"room": "Cypress", "for": "Riverbend Children's Fund · Autumn Gala", "diag": "CYPRESSfromRiverbendChildrensFund_rounds31x10.pdf", "t": "set", "items": ["(31) rounds of 10, chairs per diagram", "Stage with stairs + podium up front", "Dance floor in front of the stage", "Linens + napkins per event order", "Vacuum", "Tray jack + clean tray"], "flags": ["Event order says 30 rounds; diagram shows 31. Confirm with Maya"]},
+   {"room": "Willow A", "for": "Pinecrest Dental · Study Club", "diag": "WILLOWAfromPinecrestDental_ushape18.pdf", "t": "set", "items": ["U-shape for 18", "Pads, pens & water at every seat", "Vacuum", "Tray jack + clean tray"]},
+   {"room": "Pre-Function", "for": "Riverbend Children's Fund · Autumn Gala", "t": "set", "items": ["(2) bars with back bars", "(15) highboys with linens", "Registration: (2) 6' tables, 4 chairs"]},
+   {"room": "Birch A", "for": "Kestrel Robotics · Product Training (existing set)", "diag": "BIRCHAfromKestrelRobotics_classroom24.pdf", "t": "ref", "end": "5:00 PM"},
+   {"t": "clr", "room": "Cypress AB", "for": "Northwind Analytics finished", "end": "3:00 PM", "next": "No event on file this week", "diag": "CYPRESSABfromNorthwindAnalytics_rounds12x10.pdf"},
+   {"t": "clr", "room": "Cypress CD", "for": "City Bar Association finished", "end": "1:30 PM", "next": "Sat → Harper & Lane Wedding", "diag": "CYPRESSCDfromCityBarAssociation_rounds18x10.pdf"}
+ ]},
+{ iso:"2026-11-18", target:"Thursday 11/19", crew:"Ramon", shift:"3P–11P", rooms:[
+   {"room": "Juniper", "for": "Atlas Freight · Quarterly Review", "diag": "JUNIPERfromAtlasFreight_theater60.pdf", "t": "set", "items": ["Theater for 60, center aisle", "Podium + screen up front", "Vacuum"]},
+   {"room": "Willow B", "for": "Harbor Credit Union · Board Dinner", "diag": "WILLOWBfromHarborCreditUnion_conference16.pdf", "t": "set", "items": ["Conference table for 16", "Pads, pens & water at every seat", "Vacuum"]},
+   {"room": "Birch A", "for": "Kestrel Robotics · Product Training — Final Day (existing set)", "diag": "BIRCHAfromKestrelRobotics_classroom24.pdf", "t": "ref", "end": "5:00 PM"},
+   {"t": "clr", "room": "Cypress", "for": "Riverbend Children's Fund finished", "end": "11:00 PM", "next": "No event on file this week", "diag": "CYPRESSfromRiverbendChildrensFund_rounds31x10.pdf"},
+   {"t": "clr", "room": "Pre-Function", "for": "Riverbend Children's Fund finished", "end": "7:00 PM", "next": "Sat → Harper & Lane Wedding"},
+   {"t": "clr", "room": "Willow A", "for": "Pinecrest Dental finished", "end": "12:30 PM", "next": "No event on file this week", "diag": "WILLOWAfromPinecrestDental_ushape18.pdf"}
+ ]},
+{ iso:"2026-11-19", target:"Friday 11/20", crew:"Theo", shift:"3P–11P", rooms:[
+   {"room": "Aspen", "for": "Solace Software · Sales Kickoff — Day 2", "diag": "ASPENfromSolaceSoftware_classroom40.pdf", "t": "set", "items": ["Classroom for 40 — (14) 6' tables, 3 chairs each", "Presenter table + podium up front", "Pads, pens & water at every seat", "Vacuum"]},
+   {"room": "Birch", "for": "Harper & Lane Wedding · Rehearsal Dinner", "diag": "BIRCHfromHarperLaneWedding_rounds5x8.pdf", "t": "set", "items": ["(5) rounds of 8, chairs per diagram", "Linens + napkins per event order", "Vacuum", "Tray jack + clean tray"]},
+   {"t": "clr", "room": "Birch A", "for": "Kestrel Robotics finished", "end": "2:00 PM", "next": "No event on file this week", "diag": "BIRCHAfromKestrelRobotics_classroom24.pdf"},
+   {"t": "clr", "room": "Juniper", "for": "Atlas Freight finished", "end": "4:30 PM", "next": "Sun → Harper & Lane Wedding", "diag": "JUNIPERfromAtlasFreight_theater60.pdf"},
+   {"t": "clr", "room": "Willow B", "for": "Harbor Credit Union finished", "end": "9:00 PM", "next": "No event on file this week", "diag": "WILLOWBfromHarborCreditUnion_conference16.pdf"}
+ ]},
+{ iso:"2026-11-20", target:"Saturday 11/21", crew:"Ramon", shift:"3P–11P", rooms:[
+   {"room": "Cypress CD", "for": "Harper & Lane Wedding · Reception", "diag": "CYPRESSCDfromHarperLaneWedding_rounds18x10.pdf", "t": "set", "items": ["(18) rounds of 10, chairs per diagram", "Stage with stairs + podium up front", "Linens + napkins per event order", "Vacuum", "Tray jack + clean tray"]},
+   {"room": "Pre-Function", "for": "Harper & Lane Wedding · Reception", "t": "set", "items": ["(2) bars with back bars", "(10) highboys with linens", "Gift + card table by the doors"]},
+   {"room": "Terrace", "for": "Harper & Lane Wedding · Ceremony", "t": "set", "items": ["Theater for 180 with a center aisle", "Arch + unity table per the planner"]},
+   {"t": "clr", "room": "Aspen", "for": "Solace Software finished", "end": "3:00 PM", "next": "No event on file this week", "diag": "ASPENfromSolaceSoftware_classroom40.pdf"},
+   {"t": "clr", "room": "Birch", "for": "Harper & Lane Wedding finished", "end": "9:30 PM", "next": "No event on file this week", "diag": "BIRCHfromHarperLaneWedding_rounds5x8.pdf"}
+ ]},
+{ iso:"2026-11-21", target:"Sunday 11/22", crew:"Theo", shift:"3P–11P", rooms:[
+   {"room": "Juniper", "for": "Harper & Lane Wedding · Farewell Brunch", "diag": "JUNIPERfromHarperLaneWedding_rounds8x8.pdf", "t": "set", "items": ["(8) rounds of 8, chairs per diagram", "Linens + napkins per event order", "Vacuum", "Tray jack + clean tray"]},
+   {"t": "clr", "room": "Terrace", "for": "Harper & Lane Wedding finished", "end": "5:30 PM", "next": "No event on file this week"},
+   {"t": "clr", "room": "Cypress CD", "for": "Harper & Lane Wedding finished", "end": "11:00 PM", "next": "No event on file this week", "diag": "CYPRESSCDfromHarperLaneWedding_rounds18x10.pdf"},
+   {"t": "clr", "room": "Pre-Function", "for": "Harper & Lane Wedding finished", "end": "11:00 PM", "next": "No event on file this week"}
+ ]},
+{ iso:"2026-11-22", target:"Monday 11/23", crew:"Ramon", shift:"3P–11P", rooms:[
+   {"t": "clr", "room": "Juniper", "for": "Harper & Lane Wedding finished", "end": "12:00 PM", "next": "No event on file this week", "diag": "JUNIPERfromHarperLaneWedding_rounds8x8.pdf"}
+ ]}
+];
+
+const REFRESH = ["Vacuum","Tray jack + clean tray in the room","Tray with pens, pads & candy on the credenza"];
+const CLEAR = ["Clear all tables & chairs per manager","Pull linens, trash & leftover materials","Vacuum"];
+const PROBLEMS = ["Room still occupied","Short on chairs","Short on tables","Missing linens","Doesn't match diagram","Equipment damaged","Other"];
+const TYPE = {set:"Set", ref:"Refresh", clr:"Clear"};
+// PINs are not stored here — only SHA-256("bb-hsm-v1:" + PIN). A speed bump against mistakes, not real security.
+const PEOPLE = [
+  {name:"Theo", role:"hsm", h:"e6c53cbb988c4fc068d199ea5d27bb7e4a1e4d696e7cb86cf25b153b80c95574"},
+  {name:"Ramon", role:"hsm", h:"18d3a0c6160c54f943b40ee72d9b83ecaf51aef5f565318d3fc4cd32a98052ca"},
+  {name:"Nina", role:"hsm", h:"978d6cf5fc99a83ca4f81cb8c1cbdca149cf07a78c181ce809315e43bc9bff8b"},
+  {name:"Sam", role:"captain", h:"391a624bf7b63616f9495298afb8af502aeae259a9ab6decbada2e61a6846b83"},
+  {name:"Andre", role:"director", h:"5e205632f12b798b54f9edc746981786d51a84c2f4b79db49f3507a198af92cf"},
+  {name:"Maya", role:"sem", h:"7d7e9d0099bc2749a0ca9ef952e61c84d1c900920812a99fa2eafe5116e0c663"},
+  {name:"Priya", role:"em", h:"900e32a5bd022fb55d8ea42ea791fefdb12cae8c3ef470a0b1b6683ff91e47cd"},
+];
+// Director = every captain ability, shown with the Director title.
+const LEAD = role => role == "captain" || role == "director";
+// Editing the list (reorder, reword, add/remove, Set/Refresh/Clear, cancel, move, diagrams, week board) is
+// desktop-only (Sam 2026-10-13: too problematic on phones). Desktop = a screen at least 1000px wide.
+const WIDE = () => window.matchMedia("(min-width: 1000px)").matches;
+const EDIT = () => !!(WHO && LEAD(WHO.role) && WIDE());
+const TITLE = {hsm:"Houseman", captain:"Captain", director:"Director of Event Operations", sem:"Senior Events Manager", em:"Events Manager"};
+// Event managers see the Status tab (read-only — no editing, no Mark resolved) and their own accent.
+const VIEWER = role => LEAD(role) || role == "sem" || role == "em";
+const SHOWN_TITLE = role => role == "director" || role == "sem" || role == "em" ? TITLE[role] : "";
+const ACCENT = {director:["#5fe3c0","★ DIRECTOR"], sem:["#cbb4ff","★ SENIOR EVENTS"], em:["#ff9ec7","★ EVENTS"]};
+const leadName = () => WHO && WHO.role == "director" ? "Director" : "Captain";
+
+// ── storage: live Firestore (the live database). localhost → test collection; ?mock → this device only.
+const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+const MOCK = true;   // demo: everything stays on this phone
+const COL = LOCAL ? "housemen_test" : "housemen";
+const TZ = "America/Chicago";
+const todayISO = () => new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+const dObj = iso => new Date(iso + "T12:00:00Z");
+const dow = iso => dObj(iso).toLocaleDateString("en-US",{timeZone:"UTC",weekday:"short"}).toUpperCase();
+const longDay = iso => dObj(iso).toLocaleDateString("en-US",{timeZone:"UTC",weekday:"long"});
+const md = iso => { const [,m,d] = iso.split("-"); return `${+m}/${+d}`; };
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const nowLabel = () => new Date().toLocaleTimeString("en-US",{timeZone:TZ,hour:"numeric",minute:"2-digit"});
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+
+// Show yesterday (no earlier), today, and the rest of the week; open on today (hotel time).
+const isoMinus1 = iso => { const t = dObj(iso); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); };
+const YESTERDAY = isoMinus1(todayISO());
+const VISIBLE = DAYS.filter(d => d.iso >= YESTERDAY);
+const STATE = {};
+let SORTING = false, renderPending = false, sortEnded = 0;   // drag-to-reorder in progress → hold renders until drop
+const ORDER = {};          // iso -> ["origIso|index", ...] — a lead's drag-and-drop build order for that night          // iso -> { slug -> {items, done, prob} }
+let db = null;
+const setSync = c => { document.getElementById("sync").className = "sync " + c; };
+
+if (MOCK) {
+  try { Object.assign(STATE, JSON.parse(localStorage.getItem("bb-hsm-mock") || "{}")); } catch(e) {}
+  try { Object.assign(ORDER, JSON.parse(localStorage.getItem("bb-hsm-mock-order") || "{}")); } catch(e) {}
+  setSync("ok");
+}
+
+// Write a patch for one room. Merge keeps everything else in the day's doc.
+async function save(iso, rslug, patch) {
+  const day = (STATE[iso] ||= {}), cur = (day[rslug] ||= {items:{}, done:null, prob:null});
+  const before = JSON.parse(JSON.stringify(cur));
+  if (patch.items) Object.assign(cur.items, patch.items);
+  for (const k of ["done","prob","extra","removed","moved","diag","cancelled","type","edits","iorder","def"]) if (k in patch) cur[k] = patch[k];
+  render();
+  if (MOCK) { try { localStorage.setItem("bb-hsm-mock", JSON.stringify(STATE)); } catch(e) {} return; }
+  try { await setDoc(doc(db, COL, iso), {rooms:{[rslug]:patch}, updated:Date.now()}, {merge:true}); }
+  catch (e) { console.error("[housemen] save failed", e); day[rslug] = before; render(); setSync("bad"); toast("Didn't save — check signal and try again", true); }
+}
+
+// Build order for one night (leads drag rooms into it). Saved as the day doc's top-level "order" list.
+async function saveOrder(iso, ids) {
+  const before = ORDER[iso] || null;
+  ORDER[iso] = ids; render();
+  if (MOCK) { try { localStorage.setItem("bb-hsm-mock-order", JSON.stringify(ORDER)); } catch(e) {} return; }
+  try { await setDoc(doc(db, COL, iso), {order: ids, updated: Date.now()}, {merge: true}); }
+  catch (e) { console.error("[housemen] order save failed", e); ORDER[iso] = before; render(); setSync("bad"); toast("Didn't save the new order — try again", true); }
+}
+
+// Uploaded diagrams live as their own docs in the same collection ("diag-<id>": a JPEG data URL under ~900 KB),
+// so a room's day doc only carries a small pointer: rooms.<slug>.diag = {id, by, at, ts} or {none:true, ...}.
+const UPL = {};            // id -> data URL ("" = missing, null = loading)
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
+const MOCK_DIAG = "bb-hsm-mock-diag";
+function ensureDiag(id) {
+  if (id in UPL) return;
+  UPL[id] = null;
+  if (MOCK) { try { UPL[id] = JSON.parse(localStorage.getItem(MOCK_DIAG) || "{}")[id] || ""; } catch(e) { UPL[id] = ""; } return; }
+  getDoc(doc(db, COL, "diag-" + id)).then(s => { UPL[id] = s.exists() ? s.data().data : ""; render(); }, e => { console.error("[housemen] diagram load", e); UPL[id] = ""; });
+}
+async function putDiag(id, data, room) {
+  UPL[id] = data;
+  if (MOCK) { const all = (() => { try { return JSON.parse(localStorage.getItem(MOCK_DIAG) || "{}"); } catch(e) { return {}; } })(); all[id] = data; localStorage.setItem(MOCK_DIAG, JSON.stringify(all)); return; }
+  await setDoc(doc(db, COL, "diag-" + id), {data, room, by: WHO.name, ts: Date.now()});
+}
+// Photo / image / PDF (first page) → white-backed JPEG small enough for one Firestore doc.
+async function fileToJpeg(file) {
+  let src;
+  if (file.type == "application/pdf" || /\.pdf$/i.test(file.name)) {
+    const pdfjs = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs");
+    pdfjs.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs";
+    const page = await (await pdfjs.getDocument({data: await file.arrayBuffer()}).promise).getPage(1);
+    const v1 = page.getViewport({scale: 1}), vp = page.getViewport({scale: 1800 / Math.max(v1.width, v1.height)});
+    src = document.createElement("canvas"); src.width = Math.round(vp.width); src.height = Math.round(vp.height);
+    const g = src.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, src.width, src.height);
+    await page.render({canvasContext: g, viewport: vp}).promise;
+  } else {
+    src = await createImageBitmap(file);
+  }
+  for (const [px, q] of [[1800,.82],[1800,.68],[1500,.62],[1200,.6],[1000,.55]]) {
+    const s = Math.min(1, px / Math.max(src.width, src.height)), c = document.createElement("canvas");
+    c.width = Math.round(src.width * s); c.height = Math.round(src.height * s);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(src, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/jpeg", q);
+    if (url.length < 900000) return url;
+  }
+  throw new Error("Diagram too large");
+}
+
+// ── who's signed in (this phone)
+let WHO = null;
+try { WHO = JSON.parse(localStorage.getItem("bb-hsm-who")); } catch(e) {}
+const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))).map(b=>b.toString(16).padStart(2,"0")).join("");
+let pinResolve = null, pinBuf = "";
+function askPin(why) {
+  return new Promise(res => {
+    pinResolve = res; pinBuf = ""; drawDots();
+    document.getElementById("pinWhy").textContent = why || "Your PIN puts your name on what you check off.";
+    document.getElementById("pinBg").classList.add("on");
+  });
+}
+function drawDots(err) { const d = document.getElementById("dots"); d.className = "dots" + (err ? " err" : ""); d.innerHTML = [0,1,2,3].map(i=>`<i class="${i<pinBuf.length?"f":""}"></i>`).join(""); }
+document.getElementById("pad").innerHTML = ["1","2","3","4","5","6","7","8","9","","0","⌫"].map(k=>k?`<button data-k="${k}">${k}</button>`:"<span></span>").join("");
+document.getElementById("pad").addEventListener("click", async e => {
+  const b = e.target.closest("[data-k]"); if (!b) return;
+  if (b.dataset.k == "⌫") pinBuf = pinBuf.slice(0,-1); else if (pinBuf.length < 4) pinBuf += b.dataset.k;
+  drawDots();
+  if (pinBuf.length == 4) {
+    const h = await sha("bb-hsm-v1:" + pinBuf), p = PEOPLE.find(x => x.h == h);
+    if (!p) { drawDots(true); pinBuf = ""; setTimeout(drawDots, 600); toast("PIN not recognized", true); return; }
+    WHO = {name:p.name, role:p.role};
+    try { localStorage.setItem("bb-hsm-who", JSON.stringify(WHO)); } catch(e) {}
+    window.bbTheme && window.bbTheme.signIn(p.name);
+    document.getElementById("pinBg").classList.remove("on"); toast(`Signed in as ${p.name}${SHOWN_TITLE(p.role)?" · "+SHOWN_TITLE(p.role):""}`); render();
+    const r = pinResolve; pinResolve = null; r && r(WHO);
+  }
+});
+document.getElementById("pinCancel").onclick = () => { document.getElementById("pinBg").classList.remove("on"); const r = pinResolve; pinResolve = null; r && r(null); };
+const needWho = async why => WHO || await askPin(why);
+document.getElementById("who").onclick = () => toast("Sign in or out from the Banquet Bot home page");
+// Pick up a sign-in / sign-out made on the home page (or another tab).
+window.addEventListener("storage", e => { if (e.key == "bb-hsm-who") { try { WHO = JSON.parse(e.newValue); } catch(err) { WHO = null; } render(); } });
+// Two taps to sign out (no browser dialogs).
+let soArmed = 0;
+function confirmSignOut() { if (Date.now() - soArmed < 3000) return true; soArmed = Date.now(); toast(`Tap again to sign out ${WHO.name}`); return false; }
+
+// ── state helpers
+let view = "hsm", dayISO = ((VISIBLE.find(d => d.iso >= todayISO()) || VISIBLE[VISIBLE.length - 1]) || {}).iso, openId = null, sheetFor = null, sheetPick = new Set();
+const dayOf = iso => DAYS.find(d => d.iso == iso);
+// A room's key in the night doc: posted rooms use slug(room); rooms a lead creates use their own "nr-<id>" key.
+const rk = r => r.key || slug(r.room);
+const rs = (iso, r) => ((STATE[iso] || {})[rk(r)]) || {items:{}, done:null, prob:null};
+// Posted rooms for a night plus rooms a lead created on desktop (stored as rooms["nr-<id>"].def in the same doc),
+// oldest first so their positions (o|i ids) stay put.
+function roomsOfDay(iso) {
+  const d = dayOf(iso), base = d ? d.rooms : [];
+  const made = Object.entries(STATE[iso] || {}).filter(([k, v]) => k.startsWith("nr-") && v && v.def)
+    .map(([k, v]) => ({...v.def, key: k, made: true})).sort((a, b) => a.ts - b.ts);
+  return base.concat(made);
+}
+const origDiags = r => r.diag ? [].concat(r.diag) : [];
+// A lead's override wins: an uploaded diagram ("up:<id>") or none at all. o = the room's own night (where its state lives).
+function diagsOf(r, o) {
+  const v = rs(o, r).diag;
+  if (v && v.none) return [];
+  if (v && v.id) { ensureDiag(v.id); return ["up:" + v.id]; }
+  return origDiags(r);
+}
+const isUp = f => f.startsWith("up:");
+const previewOf = f => isUp(f) ? (UPL[f.slice(3)] || BLANK) : DIAG + "previews/" + f.replace(/\.pdf$/i, ".png");
+// Rooms on a night after lead moves: its own rooms minus any moved away, plus rooms moved in from other nights.
+// Each entry keeps o (the night it was posted on) + i, so checkoffs keep saving to the original night's doc.
+// Cancelled rooms (a lead x'd them out) drop out of the numbering and progress but stay listed with Restore.
+const roomsOn = iso => allOn(iso).filter(x => !rs(x.o, x.r).cancelled);
+const cancelledOn = iso => allOn(iso).filter(x => rs(x.o, x.r).cancelled);
+function allOn(iso) {
+  const out = [], d = dayOf(iso);
+  if (d) roomsOfDay(iso).forEach((r,i) => { const m = rs(iso, r).moved; if (!(m && m.to && m.to != iso)) out.push({r, i, o:iso}); });
+  for (const od of VISIBLE) if (od.iso != iso) roomsOfDay(od.iso).forEach((r,i) => { const m = rs(od.iso, r).moved; if (m && m.to == iso) out.push({r, i, o:od.iso, from:od.iso}); });
+  const ord = ORDER[iso];
+  if (ord && ord.length) {
+    const pos = new Map(ord.map((id,k) => [id, k])), key = (x,k) => pos.has(x.o+"|"+x.i) ? pos.get(x.o+"|"+x.i) : 1e3 + k;
+    const keyed = out.map((x,k) => [key(x,k), x]); keyed.sort((a,b) => a[0] - b[0]);
+    return keyed.map(z => z[1]);
+  }
+  return out;
+}
+function movedOut(iso) {
+  const d = dayOf(iso); if (!d) return [];
+  return roomsOfDay(iso).map((r,i) => ({r, i, o:iso, to:(rs(iso, r).moved || {}).to})).filter(x => x.to && x.to != iso);
+}
+const dayLbl = iso => `${dow(iso).slice(0,1)}${dow(iso).slice(1).toLowerCase()} ${md(iso)}`;
+let desk = false; try { desk = localStorage.getItem("bb-hsm-desk") == "1"; } catch(e) {}
+// A lead can switch a room between Set / Refresh / Clear for the night (rooms.<slug>.type overrides the posted r.t).
+const tOf = (o, r) => rs(o, r).type || r.t;
+// Posted items belong to the posted type; a switched type uses that type's standard steps.
+function baseItems(o, r) {
+  const t = tOf(o, r);
+  if (t == r.t || t == "set") return r.items && r.items.length ? r.items : (t == "ref" ? REFRESH : t == "clr" ? CLEAR : ["Set per diagram / event order"]);
+  return t == "ref" ? REFRESH : CLEAR;
+}
+// Item keys get a type prefix once the type is switched, so checkoffs/edits don't leak between lists.
+const keyOf = (o, r, k) => (tOf(o, r) != r.t ? tOf(o, r) + ":" : "") + k;
+// Daily checklist = posted items (with a lead's wording edits) minus removed ones, plus lead-added ones.
+function listOf(iso, r) {
+  const s = rs(iso, r), gone = new Set(s.removed || []), ed = s.edits || {};
+  return baseItems(iso, r).map((text,k)=>({key:keyOf(iso, r, k), text, orig:text})).filter(x=>!gone.has(x.orig))
+    .map(x => ed[x.key] ? {...x, text: ed[x.key], edited: true} : x)
+    .concat((s.extra || []).map(x=>({key:"x"+x.id, text:x.text, added:true})))
+    .map((x,k) => [s.iorder && s.iorder.indexOf(x.key) >= 0 ? s.iorder.indexOf(x.key) : 1e3 + k, x])
+    .sort((a,b) => a[0] - b[0]).map(z => z[1]);
+}
+let EDITING = null;        // "id|key" of the checklist line a lead is rewording
+function roomState(iso, r) {
+  const s = rs(iso, r), list = listOf(iso, r), n = list.filter(x=>s.items && s.items[x.key]).length;
+  if (s.prob && !s.done) return {cls:"isprob", pill:`<span class="status st-prob">⚠ ${esc(s.prob.what)}</span>`, s, n, list};
+  if (s.done) return {cls:"isdone", pill:`<span class="status st-done">✓ Done · ${esc(s.done.by)} ${esc(s.done.at)}</span>`, s, n, list};
+  if (n) return {cls:"", pill:`<span class="status st-prog">${n} of ${list.length} items</span>`, s, n, list};
+  return {cls:"", pill:`<span class="status st-none">Not started</span>`, s, n, list};
+}
+const dayProgress = d => { const l = roomsOn(d.iso), done = l.filter(x=>rs(x.o,x.r).done).length; return [done, l.length]; };
+
+// ── render
+let daysSnapped = false;
+function snapDays() {
+  if (daysSnapped) return;
+  const on = document.querySelector("#days button.on");
+  if (on) { const strip = on.parentElement; strip.scrollLeft = on.offsetLeft - (strip.clientWidth - on.clientWidth) / 2; daysSnapped = true; }
+}
+function renderDays() {
+  document.getElementById("days").innerHTML = VISIBLE.map(d => {
+    const [a,b] = dayProgress(d);
+    return `<button data-day="${d.iso}" class="${d.iso==dayISO?"on":""}"><span>${dow(d.iso)}</span><b>${+d.iso.slice(8)}</b><span class="pip"><i style="width:${b?a/b*100:0}%"></i></span></button>`;
+  }).join("");
+}
+const cxRow = (x, lead) => `<div class="gone cx"><s>${esc(x.r.room)}</s>&nbsp;· ${esc(x.r.for)} — cancelled by ${esc(rs(x.o,x.r).cancelled.by)} ${esc(rs(x.o,x.r).cancelled.at)}${lead?`<button class="mini" data-uncancel="${x.o}|${x.i}">↺ Restore</button>`:""}</div>`;
+function renderHsm(d) {
+  const [a,b] = dayProgress(d), lead = EDIT(), rooms = roomsOn(d.iso);
+  let h = `<div class="hero"><div class="eyebrow">Tonight · setting for ${esc(d.target)}</div><h1>${longDay(d.iso)} ${md(d.iso)}</h1>
+    <div class="sub">${d.crew?`<b>${esc(d.crew)}</b> · ${esc(d.shift)} · `:""}${rooms.length} rooms in setup order</div>
+    <div class="progress"><div class="bar"><i style="width:${b?a/b*100:0}%"></i></div><div class="pct">${a}/${b}</div></div></div>`;
+  h += `<div class="sortlist" data-sortlist="${d.iso}">`;
+  rooms.forEach(({r, i, o, from}, k) => {
+    const id = o + "|" + i, R = roomState(o, r), open = openId == id, flags = r.flags || [], ds = diagsOf(r, o);
+    const T = tOf(o, r);
+    h += `<div class="room ${T} ${R.cls} ${open?"open":""}" data-sort="${id}">
+      <button class="rhead" data-open="${id}">${lead?`<span class="grip" data-grip aria-label="Drag to reorder">⠿</span>`:""}<span class="num">${R.s.done?"✓":k+1}</span>
+        <span class="rmain"><span class="type">${TYPE[T]}</span>${from?` <span class="type" style="color:#c1baff;background:rgba(193,186,255,.12)">⇄ from ${dayLbl(from)}</span>`:""}<div class="rname">${esc(r.room)}</div><div class="rfor">${esc(r.for)}</div>${R.pill}</span>
+        ${r.end?`<span class="rend">ENDS<b>${esc(r.end)}</b></span>`:""}</button>
+      <div class="rbody"><ul class="items"${lead?` data-isort="${id}"`:""}>${R.list.map(x=> lead && EDITING == id+"|"+x.key
+            ? `<li class="iedit"><input id="ed-${esc(id+"|"+x.key)}" maxlength="140" value="${esc(x.text)}"><button data-edsave="${id}" data-k="${x.key}">Save</button><button class="idel" data-edcancel="1" aria-label="Cancel edit">✕</button></li>`
+            : `<li data-item="${id}" data-k="${x.key}"${lead?` data-sort="${esc(x.key)}"`:""} class="${R.s.items&&R.s.items[x.key]?"ck":""}${x.added?" added":""}${x.edited?" edited":""}">${lead?`<span class="grip igrip" data-grip aria-label="Drag to reorder">⠿</span>`:""}<span class="box"></span><span>${esc(x.text)}</span>${lead?`<button class="iedbtn" data-edit="${id}" data-k="${x.key}" aria-label="Edit line">✎</button><button class="idel" data-del="${id}" data-k="${x.key}" aria-label="Remove item">✕</button>`:""}</li>`).join("")}</ul>
+        ${lead?`<div class="iadd"><input id="add-${id}" maxlength="120" placeholder="+ Add an item for tonight"><button data-addbtn="${id}">Add</button></div>
+          ${(R.s.removed||[]).length?`<button class="irestore" data-restore="${id}">↺ Restore ${R.s.removed.length} removed item${R.s.removed.length>1?"s":""}</button>`:""}`:""}
+        ${(flags.length||r.next)?`<div class="tags">${r.next?`<span class="tag next">Next: ${esc(r.next)}</span>`:""}${flags.map(f=>`<span class="tag flag">⚑ ${esc(f)}</span>`).join("")}</div>`:""}
+        ${lead?`<div class="tsw" role="group" aria-label="Room type">${["set","ref","clr"].map(v=>`<button data-type="${id}" data-v="${v}" class="${T==v?"on":""}">${TYPE[v]}</button>`).join("")}${T!=r.t?`<span>posted as ${TYPE[r.t]}</span>`:""}</div>`:""}
+        ${lead?`<div class="ops"><button data-dgm="${id}">🖼 Diagram</button><button data-move="${id}">⇄ Move to another night</button><button class="xbtn" data-cancel="${id}">✕ Cancel room</button></div>`:""}
+        ${open&&ds.length?`<div class="diags">${ds.map((f,j,a)=>`<button class="diag-prev" data-diag="${esc(f)}" data-room="${esc(r.room)}"><img src="${previewOf(f)}" alt="${esc(r.room)} diagram"><span>${a.length>1?`Diagram ${j+1} of ${a.length}`:"Diagram"}<em style="font-style:normal">Tap to enlarge ↗</em></span></button>`).join("")}</div>`:""}
+        ${R.s.prob&&!R.s.done?`<div class="probline">⚠ ${esc(R.s.prob.what)}${R.s.prob.note?` — ${esc(R.s.prob.note)}`:""} · ${esc(R.s.prob.by)} ${esc(R.s.prob.at)}</div>`:""}
+        ${R.s.done?`<div class="doneline">✓ Marked done by ${esc(R.s.done.by)} at ${esc(R.s.done.at)}</div>
+          <div class="acts" style="grid-template-columns:1fr"><button class="btn btn-undo" data-undo="${id}">Undo</button></div>`
+        :`<div class="acts"><button class="btn btn-done" data-done="${id}">Mark ${esc(r.room)} done</button><button class="btn btn-prob" data-prob="${id}">⚠ Issue</button></div>`}
+      </div></div>`;
+  });
+  h += `</div>`;
+  const cxs = cancelledOn(d.iso);
+  if (cxs.length) h += `<div class="sec">Cancelled — don't build</div>` + cxs.map(x => cxRow(x, lead)).join("");
+  h += movedOut(d.iso).map(x => `<div class="gone">→ ${esc(x.r.room)} (${esc(x.r.for)}) moved to ${dayLbl(x.to)}${lead?`<button class="mini" data-back="${x.o}|${x.i}">↩ Bring back</button>`:""}</div>`).join("");
+  return h;
+}
+function renderCap(d) {
+  const list = roomsOn(d.iso).map(x=>({...x, R:roomState(x.o,x.r)}));
+  const done = list.filter(x=>x.R.s.done).length, prob = list.filter(x=>x.R.s.prob&&!x.R.s.done).length;
+  let h = `<div class="hero"><div class="eyebrow">${WHO&&WHO.role=="director"?"Operations":WHO&&!LEAD(WHO.role)?"Events · status":"Captain view"} · ${longDay(d.iso)} ${md(d.iso)}</div><h1>Setup status</h1>
+    <div class="sub">${d.crew?`<b>${esc(d.crew)}</b> · ${esc(d.shift)} · `:""}setting for ${esc(d.target)}</div>
+    <div class="stats"><div class="stat"><b style="color:var(--done)">${done}</b><span>Done</span></div><div class="stat"><b>${list.length-done-prob}</b><span>Left</span></div><div class="stat"><b style="color:${prob?"var(--red)":"inherit"}">${prob}</b><span>Problems</span></div></div>
+    <div class="progress"><div class="bar"><i style="width:${list.length?done/list.length*100:0}%"></i></div><div class="pct">${list.length?Math.round(done/list.length*100):0}%</div></div>
+    <button class="printbtn" data-print="${d.iso}">🖨 Print checklist + diagrams</button></div>`;
+  const probs = list.filter(x=>x.R.s.prob&&!x.R.s.done);
+  if (probs.length) h += `<div class="sec">Needs you</div>` + probs.map(x=>`<div class="flagrow prob"><b>⚠ ${esc(x.r.room)}</b> — ${esc(x.R.s.prob.what)}${x.R.s.prob.note?`: “${esc(x.R.s.prob.note)}”`:""} <span style="color:var(--t3)">· ${esc(x.R.s.prob.by)} ${esc(x.R.s.prob.at)}</span>
+      ${WHO&&LEAD(WHO.role)?`<div><button class="resolve" data-resolve="${x.o}|${x.i}">Mark resolved</button></div>`:""}</div>`).join("");
+  const flags = list.filter(x=>(x.r.flags||[]).length);
+  if (flags.length) h += `<div class="sec">Check before the shift</div>` + flags.map(x=>`<div class="flagrow"><b>⚑ ${esc(x.r.room)}</b> — ${x.r.flags.map(esc).join(" · ")}</div>`).join("");
+  const lead = EDIT();
+  if (WHO && LEAD(WHO.role) && !lead) h += `<div class="phone-note">🖥 Editing the list is on desktop — open Banquet Bot on a computer to reorder, edit, switch Set/Refresh, cancel or move rooms.</div>`;
+  h += `<div class="sec">Rooms in setup order${lead?` <span style="text-transform:none;letter-spacing:0;color:var(--t4)">· drag ⠿ to reorder</span>`:""}</div><div class="sortlist" data-sortlist="${d.iso}">` + list.map((x,k)=>{ const id = x.o+"|"+x.i, dv = x.R.s.diag;
+    return `<div class="crow" data-sort="${id}">${lead?`<span class="grip" data-grip aria-label="Drag to reorder">⠿</span>`:""}<span class="num" style="${x.R.s.done?"background:var(--done);color:#0e2418;border-color:var(--done)":""}">${x.R.s.done?"✓":k+1}</span>
+      <div><div class="rname">${esc(x.r.room)}</div><div class="meta">${TYPE[tOf(x.o,x.r)]}${x.r.end?` · ends ${esc(x.r.end)}`:""}${diagsOf(x.r,x.o).length?(dv&&dv.id?" · new diagram":" · diagram"):(dv&&dv.none?" · diagram hidden":"")}${x.from?` · <span style="color:#c1baff">⇄ from ${dayLbl(x.from)}</span>`:""}</div></div><div class="right">${x.R.pill}</div>
+      ${lead?`<div class="ops"><button data-dgm="${id}">🖼 Diagram</button><button data-move="${id}">⇄ Move</button><button class="xbtn" data-cancel="${id}">✕ Cancel</button></div>`:""}</div>`; }).join("") + `</div>`;
+  if (lead) h += `<button class="addroom" data-newroom="${d.iso}">＋ Create a room</button>`;
+  const cxs = cancelledOn(d.iso);
+  if (cxs.length) h += `<div class="sec">Cancelled</div>` + cxs.map(x => cxRow(x, lead)).join("");
+  const out = movedOut(d.iso);
+  if (out.length) h += `<div class="sec">Moved to another night</div>` + out.map(x => `<div class="gone">→ ${esc(x.r.room)} · ${dayLbl(x.to)}${lead?`<button class="mini" data-back="${x.o}|${x.i}">↩ Bring back</button>`:""}</div>`).join("");
+  const feed = [];
+  list.forEach(x => { const s = x.R.s;
+    if (s.done) feed.push({ts:s.done.ts, c:"var(--done)", txt:`<b>${esc(s.done.by)}</b> finished ${esc(x.r.room)}`, at:s.done.at});
+    if (s.prob) feed.push({ts:s.prob.ts, c:"var(--red)", txt:`<b>${esc(s.prob.by)}</b> flagged ${esc(x.r.room)}: ${esc(s.prob.what)}`, at:s.prob.at}); });
+  feed.sort((a,b)=>b.ts-a.ts);
+  h += `<div class="sec">Activity</div>` + (feed.length ? `<div class="feed">${feed.map(e=>`<div class="ev" style="--c:${e.c}"><time>${esc(e.at)}</time>${e.txt}</div>`).join("")}</div>` : `<div class="empty">Nothing checked off yet tonight.</div>`);
+  return h;
+}
+// Desktop week board (leads): one column per night; drag a room card onto another night to move the build.
+function renderBoard() {
+  let h = `<div class="hero"><div class="eyebrow">${WHO.role=="director"?"Operations":"Captain view"} · week board</div><h1>Setup board</h1>
+    <div class="sub">Drag a room up or down to change the build order, or onto another night to move it · 🖼 to replace or hide a diagram · ⚠ cards need you</div></div><div class="board">`;
+  for (const d of VISIBLE) {
+    const list = roomsOn(d.iso), [a,b] = dayProgress(d);
+    h += `<section class="col ${d.iso==todayISO()?"today":""}" data-drop="${d.iso}"><header><b>${dayLbl(d.iso)}</b><span>for ${esc(d.target)}</span><span class="cnt">${a}/${b}</span><button class="mini" data-newroom="${d.iso}" title="Create a room">＋</button><button class="mini" data-print="${d.iso}" title="Print">🖨</button></header>`;
+    h += list.map((x,k) => {
+      const id = x.o+"|"+x.i, R = roomState(x.o, x.r), ds = diagsOf(x.r, x.o);
+      return `<div class="bcard ${tOf(x.o,x.r)} ${R.cls}" draggable="true" data-drag="${id}"><div class="bh"><span class="num">${R.s.done?"✓":k+1}</span>
+        <div style="min-width:0"><span class="type">${TYPE[tOf(x.o,x.r)]}</span>${x.r.end?` <span class="type" style="color:var(--t3);background:#ffffff0a">ends ${esc(x.r.end)}</span>`:""}<div class="rname">${esc(x.r.room)}</div><div class="rfor">${esc(x.r.for)}</div></div></div>
+        ${R.pill}${x.from?` <span class="status" style="color:#c1baff;background:rgba(193,186,255,.12)">⇄ from ${dayLbl(x.from)}</span>`:""}
+        ${R.s.prob&&!R.s.done?`<div class="probline">⚠ ${esc(R.s.prob.what)}${R.s.prob.note?` — ${esc(R.s.prob.note)}`:""} · ${esc(R.s.prob.by)}<div><button class="resolve" data-resolve="${id}">Mark resolved</button></div></div>`:""}
+        ${ds.length?`<button class="thumb" data-diag="${esc(ds[0])}" data-room="${esc(x.r.room)}"><img src="${previewOf(ds[0])}" alt="${esc(x.r.room)} diagram"></button>`:""}
+        <div class="ops"><button data-dgm="${id}">🖼 Diagram</button><button data-move="${id}">⇄ Move</button><button class="xbtn" data-cancel="${id}" title="Cancel room">✕</button></div></div>`;
+    }).join("") || `<div class="empty">No rooms</div>`;
+    h += `<button class="addroom" data-newroom="${d.iso}">＋ Create a room</button>`;
+    h += cancelledOn(d.iso).map(x => `<div class="gone cx"><s>${esc(x.r.room)}</s> cancelled<button class="mini" data-uncancel="${x.o}|${x.i}">↺</button></div>`).join("");
+    h += movedOut(d.iso).map(x => `<div class="gone">→ ${esc(x.r.room)} · ${dayLbl(x.to)}<button class="mini" data-back="${x.o}|${x.i}">↩</button></div>`).join("");
+    h += `</section>`;
+  }
+  return h + `</div>`;
+}
+function render() {
+  if (SORTING) { renderPending = true; return; }
+  const w = document.getElementById("who");
+  w.style.display = WHO ? "" : "none";   // signing in/out happens on the home page now
+  w.innerHTML = WHO ? `✓ ${esc(WHO.name)}${SHOWN_TITLE(WHO.role)?`<span class="who-ttl"> · ${esc(SHOWN_TITLE(WHO.role))}</span>`:""}` : "Sign in"; w.classList.toggle("in", !!WHO);
+  document.getElementById("vCap").textContent = WHO && WHO.role == "director" ? "Operations" : WHO && !LEAD(WHO.role) ? "Status" : "Captain";
+  document.body.classList.toggle("cap", !!(WHO && WHO.role == "captain"));
+  const acc = WHO && ACCENT[WHO.role];
+  document.body.classList.toggle("dir", !!acc);
+  if (acc) { document.body.style.setProperty("--acc", acc[0]); document.querySelector(".dirbadge").textContent = acc[1]; }
+  // The Captain/Operations/Status tab: leads + event managers; everyone else sees the houseman list only.
+  const lead = !!(WHO && LEAD(WHO.role)), viewer = !!(WHO && VIEWER(WHO.role));
+  document.querySelector(".seg").style.display = viewer ? "" : "none";
+  if (!viewer && view == "cap") view = "hsm";
+  const board = lead && desk && view == "cap" && WIDE();
+  const db_ = document.getElementById("desk");
+  db_.style.display = lead && view == "cap" && WIDE() ? "" : "none"; db_.textContent = desk ? "📱 Phone view" : "🖥 Desktop";
+  document.body.classList.toggle("desk", board);
+  if (board) { renderDays(); document.getElementById("main").innerHTML = renderBoard(); document.getElementById("vHsm").classList.remove("on"); document.getElementById("vCap").classList.add("on"); return; }
+  document.getElementById("vHsm").classList.toggle("on", view=="hsm");
+  document.getElementById("vCap").classList.toggle("on", view=="cap");
+  const d = dayOf(dayISO);
+  if (!d) { document.getElementById("days").innerHTML = ""; document.getElementById("main").innerHTML = `<div class="empty" style="padding-top:30px">No houseman lists posted for this week yet.</div>`; return; }
+  renderDays();
+  snapDays();
+  const ae = document.activeElement, keep = ae && ae.id && (ae.id.startsWith("add-") || ae.id.startsWith("ed-")) ? {id:ae.id, v:ae.value} : null;
+  const drafts = {}; document.querySelectorAll('.iadd input').forEach(i => { if (i.value) drafts[i.id] = i.value; });
+  document.getElementById("main").innerHTML = view=="hsm" ? renderHsm(d) : renderCap(d);
+  for (const k in drafts) { const i = document.getElementById(k); if (i) i.value = drafts[k]; }
+  if (keep) { const i = document.getElementById(keep.id); if (i) { if (keep.id.startsWith("ed-")) i.value = keep.v; i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+}
+let toastT;
+function toast(msg, bad) { const t = document.getElementById("toast"); t.textContent = msg; t.className = "toast on" + (bad ? " bad" : ""); clearTimeout(toastT); toastT = setTimeout(()=>t.className = "toast", 2200); }
+const parseId = id => { const [iso, i] = id.split("|"); return {iso, r: roomsOfDay(iso)[+i], i:+i}; };
+document.getElementById("desk").onclick = () => { desk = !desk; try { localStorage.setItem("bb-hsm-desk", desk ? "1" : "0"); } catch(e) {} render(); };
+
+// ── actions
+document.addEventListener("click", async e => {
+  if (e.target.closest("[data-grip]") || Date.now() - sortEnded < 350) { e.preventDefault(); return; }
+  const t = e.target.closest("[data-del],[data-addbtn],[data-restore],[data-day],[data-open],[data-item],[data-done],[data-undo],[data-prob],[data-resolve],[data-diag],[data-print],[data-dgm],[data-move],[data-back],[data-cancel],[data-uncancel],[data-edit],[data-edsave],[data-edcancel],[data-type],[data-newroom]");
+  if (!t) return;
+  if (t.dataset.print) { openPrintSheet(t.dataset.print); return; }
+  if (t.dataset.newroom) { if (!EDIT()) { toast(WHO && LEAD(WHO.role) ? "Editing is on desktop only" : "Only the captain or director can add rooms", true); return; } openNewRoom(t.dataset.newroom); return; }
+  if (t.dataset.dgm || t.dataset.move || t.dataset.back || t.dataset.cancel || t.dataset.uncancel) {
+    if (!EDIT()) { toast(WHO && LEAD(WHO.role) ? "Editing is on desktop only" : "Only the captain or director can change this", true); return; }
+    if (t.dataset.cancel || t.dataset.uncancel) { await cancelRoom(t.dataset.cancel || t.dataset.uncancel, !!t.dataset.cancel, t); return; }
+    if (t.dataset.dgm) openDiagSheet(t.dataset.dgm);
+    else if (t.dataset.move) openMoveSheet(t.dataset.move);
+    else await moveBuild(t.dataset.back, parseId(t.dataset.back).iso);
+    return;
+  }
+  if (t.dataset.del || t.dataset.addbtn || t.dataset.restore || t.dataset.edit || t.dataset.edsave || t.dataset.edcancel || t.dataset.type) { await editItems(t); return; }
+  if (t.dataset.diag) { openViewer(t.dataset.diag, t.dataset.room); return; }
+  if (t.dataset.day) { dayISO = t.dataset.day; openId = null; render(); return; }
+  if (t.dataset.open) { openId = openId == t.dataset.open ? null : t.dataset.open; render(); return; }
+  if (t.dataset.prob) { if (await needWho("Sign in to report a problem.")) openSheet(t.dataset.prob); return; }
+  const id = t.dataset.item || t.dataset.done || t.dataset.undo || t.dataset.resolve;
+  const who = await needWho("Sign in to check things off."); if (!who) return;
+  const {iso, r, i} = parseId(id), rsl = rk(r), cur = rs(iso, r);
+  if (t.dataset.item) { const k = t.dataset.k; await save(iso, rsl, {items:{[k]: !(cur.items && cur.items[k])}}); return; }
+  if (t.dataset.done) {
+    const all = {}; listOf(iso, r).forEach(x=>all[x.key]=true);
+    const nxt = roomsOn(dayISO).find(x => !(x.o == iso && x.i == i) && !rs(x.o, x.r).done);
+    openId = nxt ? nxt.o + "|" + nxt.i : null;
+    await save(iso, rsl, {items:all, done:{by:who.name, at:nowLabel(), ts:Date.now()}});
+    toast(`✓ ${r.room} done`); return;
+  }
+  if (t.dataset.undo) { await save(iso, rsl, {done:null}); toast(`${r.room} reopened`); return; }
+  if (t.dataset.resolve) { await save(iso, rsl, {prob:null}); toast(`Resolved ${r.room}`); return; }
+});
+// ── lead operations: drag ⠿ to reorder rooms (build order) or a room's steps (touch + mouse).
+// Smooth, phone-style: rows are measured once when the drag starts, the dragged row follows the finger,
+// the rows it passes slide aside with a short animation, and the DOM is reordered only on release —
+// so nothing jumps under the pointer and the row lands exactly where the gap is.
+document.addEventListener("pointerdown", e => {
+  const g = e.target.closest("[data-grip]"); if (!g || !EDIT()) return;
+  const item = g.closest("[data-sort]"), list = item && item.closest("[data-sortlist],[data-isort]"); if (!list) return;
+  e.preventDefault();
+  SORTING = true; if (!list.dataset.isort) openId = null;
+  const all = [...list.querySelectorAll(":scope > [data-sort]")], from = all.indexOf(item);
+  const y0 = scrollY, rect = all.map(x => { const b = x.getBoundingClientRect(); return {top: b.top + y0, h: b.height}; });
+  // distance a neighbour moves when the dragged row passes it = dragged row height + the gap between rows
+  const gapAfter = from < all.length - 1 ? rect[from + 1].top - (rect[from].top + rect[from].h) : from > 0 ? rect[from].top - (rect[from - 1].top + rect[from - 1].h) : 0;
+  const step = rect[from].h + Math.max(0, gapAfter);
+  const startDoc = e.clientY + y0;
+  let to = from, lastY = e.clientY, raf = 0, auto = 0;
+  item.classList.add("sorting");
+  all.forEach(x => { if (x != item) x.style.transition = "transform .16s ease"; });
+  try { g.setPointerCapture(e.pointerId); } catch (err) {}
+  const nums = all.map(x => x.querySelector(".num"));
+  const update = () => {
+    raf = 0;
+    const dy = lastY + scrollY - startDoc, center = rect[from].top + rect[from].h / 2 + dy;
+    to = from;
+    for (let i = 0; i < all.length; i++) {
+      if (i == from) continue;
+      const mid = rect[i].top + rect[i].h / 2;
+      if (i < from && center < mid) { to = Math.min(to, i); }
+      if (i > from && center > mid) { to = Math.max(to, i); }
+    }
+    item.style.transform = `translateY(${dy}px)`;
+    all.forEach((x, i) => {
+      if (i == from) return;
+      const shift = (from < i && i <= to) ? -step : (to <= i && i < from) ? step : 0;
+      x.style.transform = shift ? `translateY(${shift}px)` : "";
+    });
+    // live numbering in the new order (rooms only; ✓ stays ✓)
+    const order = all.map((x, i) => i).filter(i => i != from); order.splice(to, 0, from);
+    order.forEach((i, k) => { const n = nums[i]; if (n && n.textContent != "✓") n.textContent = k + 1; });
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(update); };
+  // edge auto-scroll while the finger rests near the top/bottom of the screen
+  auto = setInterval(() => {
+    if (lastY < 80) { scrollBy(0, -12); kick(); } else if (lastY > innerHeight - 80) { scrollBy(0, 12); kick(); }
+  }, 16);
+  const move = ev => { if (ev.pointerId != e.pointerId) return; lastY = ev.clientY; kick(); };
+  const finish = async ev => {
+    if (ev && ev.pointerId != null && ev.pointerId != e.pointerId) return;
+    window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", finish); window.removeEventListener("pointercancel", finish);
+    clearInterval(auto); if (raf) cancelAnimationFrame(raf);
+    update();
+    all.forEach(x => { x.style.transition = "none"; x.style.transform = ""; });
+    item.classList.remove("sorting");
+    if (to != from) { const rest = all.filter(x => x != item); list.insertBefore(item, rest[to] || (rest.length ? rest[rest.length - 1].nextSibling : null)); }
+    requestAnimationFrame(() => all.forEach(x => { x.style.transition = ""; }));
+    SORTING = false; sortEnded = Date.now();
+    const ids = [...list.querySelectorAll(":scope > [data-sort]")].map(x => x.dataset.sort);
+    if (list.dataset.isort) {
+      const {iso: o, r} = parseId(list.dataset.isort);
+      if (ids.join() != listOf(o, r).map(x => x.key).join()) { await save(o, rk(r), {iorder: ids}); toast(`Steps reordered in ${r.room}`); }
+      else if (renderPending) render();
+      renderPending = false; return;
+    }
+    const iso = list.dataset.sortlist;
+    const was = roomsOn(iso).map(x => x.o + "|" + x.i).join();
+    if (ids.join() != was) { await saveOrder(iso, ids); toast("Build order saved"); }
+    else if (renderPending) render();
+    renderPending = false;
+  };
+  window.addEventListener("pointermove", move); window.addEventListener("pointerup", finish); window.addEventListener("pointercancel", finish);
+});
+
+// ── lead operations: cancel (x out) a room for the night, or restore it. Two taps to cancel, no browser dialogs.
+let cxArmed = {id: null, t: 0};
+async function cancelRoom(id, on, btn) {
+  const {iso, r} = parseId(id);
+  if (on && !(cxArmed.id == id && Date.now() - cxArmed.t < 3000)) {
+    cxArmed = {id, t: Date.now()}; btn.textContent = "Tap again to cancel"; btn.classList.add("armed");
+    toast(`Tap again to cancel ${r.room}`); return;
+  }
+  cxArmed = {id: null, t: 0};
+  if (on && openId == id) openId = null;
+  await save(iso, rk(r), {cancelled: on ? {by: WHO.name, at: nowLabel(), ts: Date.now()} : null});
+  toast(on ? `✕ ${r.room} cancelled — Restore is at the bottom` : `↺ ${r.room} restored`);
+}
+
+// ── lead operations: create a room for a night (desktop leads). Its definition lives in the night doc as
+// rooms["nr-<id>"].def = {room, for, t, items, end, by, at, ts}; checkoffs, edits, moves and cancel work like any room.
+let nrFor = null, nrType = "set", nrData = null;
+function openNewRoom(iso) {
+  nrFor = iso; nrType = "set"; nrData = null;
+  const d = dayOf(iso);
+  document.getElementById("nrDay").textContent = `${dayLbl(iso)}${d && d.target ? " · setting for " + d.target : ""}`;
+  ["nrRoom","nrFor","nrEnd","nrSteps"].forEach(k => document.getElementById(k).value = "");
+  document.getElementById("nrPrev").innerHTML = "";
+  document.querySelectorAll("#nrType button").forEach(b => b.classList.toggle("on", b.dataset.nrt == "set"));
+  const known = [...new Set(DAYS.flatMap(x => x.rooms.map(r => r.room)))].sort();
+  document.getElementById("nrRooms").innerHTML = known.map(r => `<option value="${esc(r)}">`).join("");
+  nrHint();
+  document.getElementById("nrBg").classList.add("on");
+  setTimeout(() => document.getElementById("nrRoom").focus(), 50);
+}
+function nrHint() { document.getElementById("nrHint").textContent = nrType == "set" ? "Leave blank to say “Set per diagram / event order.”" : `Leave blank to use the standard ${TYPE[nrType]} steps.`; }
+document.getElementById("nrType").addEventListener("click", e => { const b = e.target.closest("[data-nrt]"); if (!b) return; nrType = b.dataset.nrt;
+  document.querySelectorAll("#nrType button").forEach(x => x.classList.toggle("on", x == b)); nrHint(); });
+document.getElementById("nrPick").onclick = () => document.getElementById("nrFile").click();
+document.getElementById("nrFile").onchange = async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
+  toast("Reading diagram…");
+  try { nrData = await fileToJpeg(f); document.getElementById("nrPrev").innerHTML = `<img src="${nrData}" alt="New diagram">`; }
+  catch (err) { console.error("[housemen] diagram read", err); nrData = null; toast(err.message == "Diagram too large" ? "That file is too large — try a smaller photo" : "Couldn't read that file", true); }
+};
+const nrClose = () => document.getElementById("nrBg").classList.remove("on");
+document.getElementById("nrCancel").onclick = nrClose;
+document.getElementById("nrBg").onclick = e => { if (e.target.id == "nrBg") nrClose(); };
+document.getElementById("nrSave").onclick = async () => {
+  if (!EDIT()) { toast("Editing is on desktop only", true); return; }
+  const room = document.getElementById("nrRoom").value.trim();
+  if (!room) { toast("Give the room a name", true); document.getElementById("nrRoom").focus(); return; }
+  const items = document.getElementById("nrSteps").value.split("\n").map(x => x.trim().replace(/^[-•*]\s*/, "")).filter(Boolean).slice(0, 40);
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 5), key = "nr-" + id, iso = nrFor;
+  const def = {room, for: document.getElementById("nrFor").value.trim() || "Added by " + WHO.name, t: nrType, items,
+    end: document.getElementById("nrEnd").value.trim(), by: WHO.name, at: nowLabel(), ts: Date.now()};
+  const btn = document.getElementById("nrSave"); btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    const patch = {def};
+    if (nrData) { const did = key + "-" + Date.now().toString(36); await putDiag(did, nrData, room); patch.diag = {id: did, by: WHO.name, at: nowLabel(), ts: Date.now()}; }
+    await save(iso, key, patch);
+    nrClose(); toast(`${room} added to ${dayLbl(iso)}`);
+  } catch (err) { console.error("[housemen] create room", err); toast("Couldn't save the room — try again", true); }
+  finally { btn.disabled = false; btn.textContent = "＋ Create room"; }
+};
+
+// ── lead operations: move a build to another night (state stays on its original night's doc)
+async function moveBuild(id, to) {
+  const {iso, r} = parseId(id);
+  await save(iso, rk(r), {moved: to == iso ? null : {to, by: WHO.name, at: nowLabel(), ts: Date.now()}});
+  toast(to == iso ? `${r.room} back on ${dayLbl(iso)}` : `${r.room} moved to ${dayLbl(to)}`);
+}
+let mvFor = null;
+function openMoveSheet(id) {
+  mvFor = id;
+  const {iso, r} = parseId(id), at = (rs(iso, r).moved || {}).to || iso;
+  document.getElementById("mvRoom").textContent = `${r.room} · ${r.for} — posted for ${dayLbl(iso)}. Pick the night to build it.`;
+  document.getElementById("mvDays").innerHTML = VISIBLE.map(d => `<button data-mvto="${d.iso}" class="${d.iso==at?"on":""}">${dayLbl(d.iso)}${d.iso==iso?" · original":""}</button>`).join("");
+  document.getElementById("mvBg").classList.add("on");
+}
+document.getElementById("mvDays").addEventListener("click", async e => {
+  const b = e.target.closest("[data-mvto]"); if (!b) return;
+  document.getElementById("mvBg").classList.remove("on");
+  await moveBuild(mvFor, b.dataset.mvto);
+});
+document.getElementById("mvCancel").onclick = () => document.getElementById("mvBg").classList.remove("on");
+document.getElementById("mvBg").onclick = e => { if (e.target.id == "mvBg") document.getElementById("mvBg").classList.remove("on"); };
+// Drag a board card onto another night's column.
+document.addEventListener("dragstart", e => { const c = e.target.closest && e.target.closest("[data-drag]"); if (!c) return; e.dataTransfer.setData("text/plain", c.dataset.drag); e.dataTransfer.effectAllowed = "move"; c.classList.add("dragging"); });
+document.addEventListener("dragend", e => { document.querySelectorAll(".dragging,.over").forEach(x => x.classList.remove("dragging","over")); });
+document.addEventListener("dragover", e => { const col = e.target.closest && e.target.closest("[data-drop]"); if (!col) return; e.preventDefault(); document.querySelectorAll(".col.over").forEach(x => x != col && x.classList.remove("over")); col.classList.add("over"); });
+document.addEventListener("drop", async e => {
+  const col = e.target.closest && e.target.closest("[data-drop]"); if (!col) return;
+  e.preventDefault(); col.classList.remove("over");
+  const id = e.dataTransfer.getData("text/plain"); if (!id || !EDIT()) return;
+  const {iso, r} = parseId(id), at = (rs(iso, r).moved || {}).to || iso, to = col.dataset.drop;
+  const cards = [...col.querySelectorAll("[data-drag]")].filter(c => c.dataset.drag != id);
+  let idx = cards.findIndex(c => { const b = c.getBoundingClientRect(); return e.clientY < b.top + b.height / 2; });
+  if (idx < 0) idx = cards.length;
+  const ids = cards.map(c => c.dataset.drag); ids.splice(idx, 0, id);
+  if (to != at) await moveBuild(id, to);
+  await saveOrder(to, ids);
+});
+
+// ── lead operations: replace a room's diagram (photo / image / PDF), hide it, or go back to the original
+let dgFor = null, dgNew = null;
+function openDiagSheet(id) { dgFor = id; dgNew = null; drawDiagSheet(); document.getElementById("dgBg").classList.add("on"); }
+function drawDiagSheet() {
+  const {iso, r} = parseId(dgFor), v = rs(iso, r).diag, cur = diagsOf(r, iso), orig = origDiags(r);
+  document.getElementById("dgRoom").textContent = `${r.room} · ${r.for}`;
+  const pics = dgNew ? [[dgNew, "New diagram — not saved yet"]]
+    : cur.map((f,j,a) => [previewOf(f), isUp(f) ? `Uploaded by ${v.by} · ${v.at}` : (a.length>1 ? `Current diagram ${j+1} of ${a.length}` : "Current diagram")]);
+  document.getElementById("dgCur").innerHTML = pics.length ? pics.map(([src, l]) => `<div><div class="lbl">${esc(l)}</div><img src="${src}" alt=""></div>`).join("")
+    : `<div class="empty">${v && v.none ? `Diagram hidden by ${esc(v.by)} · ${esc(v.at)}` : "No diagram on file."}</div>`;
+  document.getElementById("dgActs").innerHTML = dgNew
+    ? `<button class="btn btn-undo" data-dg="cancel">Cancel</button><button class="btn btn-done" data-dg="save">✓ Replace diagram</button>`
+    : `<button class="btn btn-undo" data-dg="close">Close</button><button class="btn btn-done" data-dg="pick">⬆ Upload new diagram</button>`;
+  document.getElementById("dgMore").innerHTML = dgNew ? "" :
+    (v && (v.id || v.none) ? `<button class="dglink" data-dg="orig">↺ Go back to the original diagram${orig.length?"":" (none on file)"}</button>` : "") +
+    (cur.length ? `<button class="dglink" data-dg="hide">✕ Hide the current diagram (no diagram for this room)</button>` : "");
+}
+document.getElementById("dgBg").addEventListener("click", async e => {
+  if (e.target.id == "dgBg") { document.getElementById("dgBg").classList.remove("on"); return; }
+  const b = e.target.closest("[data-dg]"); if (!b) return;
+  const act = b.dataset.dg, {iso, r} = parseId(dgFor), rsl = rk(r);
+  if (act == "close") { document.getElementById("dgBg").classList.remove("on"); return; }
+  if (act == "cancel") { dgNew = null; drawDiagSheet(); return; }
+  if (act == "pick") { document.getElementById("dgFile").click(); return; }
+  if (act == "orig") { await save(iso, rsl, {diag: null}); toast(`${r.room}: original diagram back`); drawDiagSheet(); return; }
+  if (act == "hide") { await save(iso, rsl, {diag: {none: true, by: WHO.name, at: nowLabel(), ts: Date.now()}}); toast(`${r.room}: diagram hidden`); drawDiagSheet(); return; }
+  if (act == "save") {
+    b.disabled = true; b.textContent = "Saving…";
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    try { await putDiag(id, dgNew, r.room); }
+    catch (err) { console.error("[housemen] diagram upload", err); b.disabled = false; b.textContent = "✓ Replace diagram"; toast("Upload failed — try again", true); return; }
+    await save(iso, rsl, {diag: {id, by: WHO.name, at: nowLabel(), ts: Date.now()}});
+    dgNew = null; document.getElementById("dgBg").classList.remove("on"); toast(`${r.room}: new diagram is live`);
+  }
+});
+document.getElementById("dgFile").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
+  toast("Reading diagram…");
+  try { dgNew = await fileToJpeg(f); drawDiagSheet(); }
+  catch (err) { console.error("[housemen] diagram read", err); toast(err.message == "Diagram too large" ? "That file is too large — try a smaller photo" : "Couldn't read that file", true); }
+});
+
+// ── lead editing: add / remove / restore checklist items for one room on one day
+async function editItems(t) {
+  if (!EDIT()) { toast(WHO && LEAD(WHO.role) ? "Editing is on desktop only" : "Only the captain or director can edit the list", true); return; }
+  if (t.dataset.edcancel) { EDITING = null; render(); return; }
+  const id = t.dataset.del || t.dataset.addbtn || t.dataset.restore || t.dataset.edit || t.dataset.edsave || t.dataset.type;
+  const {iso, r} = parseId(id), rsl = rk(r), cur = rs(iso, r);
+  if (t.dataset.type) {
+    const v = t.dataset.v; if (v == tOf(iso, r)) return;
+    await save(iso, rsl, {type: v == r.t ? null : v}); toast(`${r.room} is now ${TYPE[v]}`); return;
+  }
+  if (t.dataset.edit) {
+    EDITING = id + "|" + t.dataset.k; render();
+    const box = document.getElementById("ed-" + EDITING); if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+    return;
+  }
+  if (t.dataset.edsave) {
+    const k = t.dataset.k, box = document.getElementById("ed-" + id + "|" + k), text = (box && box.value || "").trim().slice(0, 140);
+    if (!text) { toast("Type the line first — or ✕ to remove it", true); return; }
+    EDITING = null;
+    if (k.startsWith("x")) await save(iso, rsl, {extra: (cur.extra || []).map(x => "x" + x.id == k ? {...x, text} : x)});
+    else {
+      const orig = (listOf(iso, r).find(x => x.key == k) || {}).orig, ed = {...(cur.edits || {})};
+      if (text == orig) delete ed[k]; else ed[k] = text;
+      await save(iso, rsl, {edits: ed});
+    }
+    toast(`Line updated in ${r.room}`); return;
+  }
+  if (t.dataset.restore) { await save(iso, rsl, {removed:[]}); toast("Items restored"); return; }
+  if (t.dataset.addbtn) {
+    const box = document.getElementById("add-" + id), text = (box && box.value || "").trim().slice(0, 120);
+    if (!text) { toast("Type the item first", true); return; }
+    const extra = (cur.extra || []).concat({id: Date.now().toString(36), text, by: WHO.name});
+    box.value = ""; await save(iso, rsl, {extra}); toast(`Added to ${r.room}`); return;
+  }
+  const k = t.dataset.k;
+  if (k.startsWith("x")) await save(iso, rsl, {extra:(cur.extra||[]).filter(x=>"x"+x.id != k)});
+  else { const text = (listOf(iso, r).find(x => x.key == k) || {}).orig; if (text) await save(iso, rsl, {removed:[...new Set((cur.removed||[]).concat(text))]}); }
+  toast(`Removed from ${r.room}`);
+}
+document.addEventListener("keydown", e => {
+  if (e.target.id && e.target.id.startsWith("ed-")) {
+    if (e.key == "Enter") { const b = e.target.parentElement.querySelector("[data-edsave]"); b && b.click(); }
+    else if (e.key == "Escape") { EDITING = null; render(); }
+    return;
+  }
+  if (e.key == "Enter" && e.target.id && e.target.id.startsWith("add-")) { const b = document.querySelector(`[data-addbtn="${e.target.id.slice(4)}"]`); b && b.click(); } });
+// ── print: Word-style checklist (room | setup) + one diagram per page. Save as PDF from the print dialog.
+// Print sheet: whose list is this? The name goes big at the top of the printout.
+let prFor = null;
+function openPrintSheet(iso) {
+  prFor = iso;
+  const d = dayOf(iso), crew = (d && d.crew ? d.crew.split(/[,&/]| and /) : []).map(x => x.trim()).filter(Boolean);
+  const names = [...new Set(crew.concat(PEOPLE.filter(p => p.role == "hsm").map(p => p.name)))];
+  document.getElementById("prDay").textContent = `${longDay(iso)} ${md(iso)} · setting for ${d ? d.target : ""}`;
+  document.getElementById("prChips").innerHTML = names.map(n => `<button data-prname="${esc(n)}" class="${crew.indexOf(n) >= 0 ? "on" : ""}">${esc(n)}</button>`).join("");
+  document.getElementById("prName").value = crew.length == 1 ? crew[0] : "";
+  document.getElementById("prBg").classList.add("on");
+}
+document.getElementById("prChips").addEventListener("click", e => {
+  const b = e.target.closest("[data-prname]"); if (!b) return;
+  document.querySelectorAll("#prChips button").forEach(x => x.classList.toggle("on", x == b));
+  document.getElementById("prName").value = b.dataset.prname;
+});
+document.getElementById("prName").addEventListener("input", () => document.querySelectorAll("#prChips button").forEach(x => x.classList.toggle("on", x.dataset.prname == document.getElementById("prName").value.trim())));
+document.getElementById("prCancel").onclick = () => document.getElementById("prBg").classList.remove("on");
+document.getElementById("prBg").onclick = e => { if (e.target.id == "prBg") document.getElementById("prBg").classList.remove("on"); };
+document.getElementById("prGo").onclick = () => {
+  const name = document.getElementById("prName").value.trim().slice(0, 40);
+  document.getElementById("prBg").classList.remove("on");
+  printDay(prFor, name);
+};
+function printDay(iso, who) {
+  const d = dayOf(iso); if (!d) return;
+  const abs = f => isUp(f) ? previewOf(f) : new URL(previewOf(f), location.href).href;
+  const diags = [], rooms = roomsOn(iso);
+  rooms.forEach(({r, o}, i) => diagsOf(r, o).forEach((f,j,a) => diags.push({r, i, f, label: a.length>1 ? `Diagram ${j+1} of ${a.length}` : "Diagram"})));
+  const rows = rooms.map(({r, o, from}, i) => {
+    return `<tr><td class="n">${i+1}</td>
+      <td class="room"><div class="tyb ty-${tOf(o, r)}">${TYPE[tOf(o, r)].toUpperCase()}</div><b>${esc(r.room)}</b><div class="ty">${r.end?`ends ${esc(r.end)}`:""}${from?`${r.end?" · ":""}moved from ${dayLbl(from)}`:""}</div><div class="for">${esc(r.for)}</div></td>
+      <td class="set"><ul>${listOf(o, r).map(x=>`<li>☐ ${esc(x.text)}</li>`).join("")}</ul>
+        ${r.next?`<div class="nx">Next: ${esc(r.next)}</div>`:""}${(r.flags||[]).map(f=>`<div class="fl">⚑ ${esc(f)}</div>`).join("")}
+        </td></tr>`;
+  }).join("");
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Housemen ${md(iso)}${who ? " — " + esc(who) : ""} — ${esc(d.target)}</title><style>
+    @page{size:letter;margin:0.6in}
+    body{font:11pt Calibri,"Segoe UI",Arial,sans-serif;color:#111;margin:0;background:#fff}
+    .bar{position:sticky;top:0;background:#f3f3f3;border-bottom:1px solid #ccc;padding:10px 16px;display:flex;gap:10px;align-items:center;font-size:13px}
+    .bar button{font:600 13px Arial;padding:7px 14px;border:1px solid #888;border-radius:6px;background:#fff;cursor:pointer}
+    .doc{max-width:7.3in;margin:0 auto;padding:24px 16px}
+    h1{font:700 18pt Calibri,Arial;margin:0 0 2px} .meta{color:#444;margin:0 0 14px}
+    .hsm{font:700 15pt Calibri,Arial;margin:0 0 10px;padding:8px 12px;border:2.5px solid #000;border-radius:6px;display:inline-block}
+    .hsm b{font:900 20pt Arial Black,Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;margin-left:4px}
+    .hsm .blank{display:inline-block;width:2.6in;border-bottom:2px solid #000;margin-left:6px;vertical-align:-4px}
+    table{width:100%;border-collapse:collapse} th,td{border:1px solid #777;padding:6px 8px;vertical-align:top;text-align:left}
+    th{background:#e7e6e6;font-weight:700} td.n{width:24px;text-align:center;font-weight:700}
+    td.room{width:34%} .ty{font-size:9.5pt;color:#444;text-transform:uppercase;letter-spacing:.03em;margin-top:2px} .for{font-size:10pt;margin-top:3px}
+    td.room b{font-size:12.5pt}
+    .tyb{display:table;margin:0 0 5px;padding:3px 12px;font:900 17pt/1.1 Arial Black,Arial,sans-serif;letter-spacing:.08em;border:3px solid #000;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .tyb.ty-set{background:#000;color:#fff} .tyb.ty-ref{background:#fff;color:#000} .tyb.ty-clr{background:#fff;color:#000;border-style:dashed}
+    ul{margin:0;padding:0;list-style:none} li{margin:1px 0}
+    .nx{margin-top:5px;font-style:italic} .fl{margin-top:4px;color:#8a1c1c}
+    .sign{margin-top:18px;font-size:10pt;color:#333} .sign span{display:inline-block;border-bottom:1px solid #555;min-width:2.2in;margin-right:24px}
+    .dpage{page-break-before:always;break-before:page;text-align:center} .dpage h2{font:700 13pt Calibri,Arial;margin:0 0 8px;text-align:left}
+    .dpage img{max-width:100%;max-height:9in;border:1px solid #ccc}
+    .foot{margin-top:14px;font-size:8.5pt;color:#777}
+    @media print{.bar{display:none}.doc{padding:0;max-width:none}}
+  </style></head><body>
+  <div class="bar"><button onclick="print()">Print / Save as PDF</button><span>Tip: choose “Save as PDF” as the printer.</span></div>
+  <div class="doc">
+    <div class="hsm">Houseman: ${who ? `<b>${esc(who)}</b>` : `<span class="blank"></span>`}</div>
+    <h1>Housemen Checklist — ${longDay(iso)} ${md(iso)}</h1>
+    <p class="meta">Setting for <b>${esc(d.target)}</b>${d.crew?` · ${esc(d.crew)} · ${esc(d.shift)}`:""} · ${rooms.length} rooms in setup order</p>
+    <table><thead><tr><th>#</th><th>Room</th><th>Setup</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="sign"><span>&nbsp;</span><span>&nbsp;</span><br>Completed by &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checked by</div>
+    <div class="foot">Printed from Banquet Bot · ${new Date().toLocaleString("en-US",{timeZone:TZ})}</div>
+    ${diags.map((x,k)=>`<div class="dpage"><h2>${esc(x.r.room)} — ${esc(x.r.for)} · ${x.label}</h2><img src="${abs(x.f)}" alt="${esc(x.r.room)} diagram"></div>`).join("")}
+  </div></body></html>`;
+  const w = window.open("", "_blank");
+  if (!w) { toast("Allow pop-ups to print", true); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  const imgs = [...w.document.images];
+  Promise.all(imgs.map(im => im.complete ? 1 : new Promise(r => { im.onload = im.onerror = r; }))).then(() => setTimeout(() => w.print(), 300));
+}
+function openViewer(f, room) {
+  const img = document.getElementById("vImg");
+  img.classList.remove("big"); img.src = previewOf(f);
+  document.getElementById("vTitle").textContent = (room || "") + " — diagram";
+  const pdf = document.getElementById("vPdf");
+  pdf.style.display = isUp(f) ? "none" : ""; if (!isUp(f)) pdf.href = DIAG + f;
+  document.getElementById("viewer").classList.add("on");
+}
+document.getElementById("vClose").onclick = () => document.getElementById("viewer").classList.remove("on");
+document.getElementById("vImg").onclick = e => e.target.classList.toggle("big");
+function openSheet(id) {
+  sheetFor = id; sheetPick = new Set();
+  document.getElementById("sheetRoom").textContent = parseId(id).r.room + " · goes straight to the captain";
+  document.getElementById("chips").innerHTML = PROBLEMS.map(p=>`<button data-chip="${esc(p)}">${esc(p)}</button>`).join("");
+  document.getElementById("note").value = "";
+  document.getElementById("sheetBg").classList.add("on");
+}
+document.getElementById("chips").addEventListener("click", e => { const b = e.target.closest("[data-chip]"); if (!b) return;
+  const v = b.dataset.chip; sheetPick.has(v) ? sheetPick.delete(v) : sheetPick.add(v); b.classList.toggle("on"); });
+document.getElementById("cancel").onclick = () => document.getElementById("sheetBg").classList.remove("on");
+document.getElementById("sheetBg").onclick = e => { if (e.target.id == "sheetBg") document.getElementById("sheetBg").classList.remove("on"); };
+document.getElementById("send").onclick = async () => {
+  const note = document.getElementById("note").value.trim().slice(0, 300);
+  if (!sheetPick.size && !note) { toast("Pick a problem or add a note", true); return; }
+  const {iso, r} = parseId(sheetFor);
+  document.getElementById("sheetBg").classList.remove("on");
+  await save(iso, rk(r), {prob:{what:[...sheetPick].join(", ") || "Problem", note, by:WHO.name, at:nowLabel(), ts:Date.now()}});
+  toast("⚠ Sent to captain");
+};
+document.getElementById("vHsm").onclick = () => { view = "hsm"; render(); };
+window.matchMedia("(min-width: 1000px)").addEventListener("change", () => { EDITING = null; render(); });
+document.getElementById("vCap").onclick = () => { if (WHO && VIEWER(WHO.role)) { view = "cap"; render(); } };
+document.getElementById("foot").innerHTML = `${MOCK ? "Practice mode — saves on this phone only" : LOCAL ? "Test copy — writes to the test list" : "Live — updates show on every phone"}<br><a href="index.html">← Banquet Bot</a>`;
+if (MOCK) setSync("ok");
+render();
+</script>
+</body></html>
