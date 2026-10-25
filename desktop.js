@@ -255,7 +255,14 @@
       "background:rgba(9,15,21,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff10;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--bbd-acc) 25%,transparent);font-family:Manrope,Arial,sans-serif}" +
     ".bbd-title{font:600 24px 'Barlow Condensed',Arial;letter-spacing:.8px;text-transform:uppercase;color:#eaf3fa;white-space:nowrap}" +
     ".bbd-title small{font:800 9px Manrope,Arial;letter-spacing:2px;color:var(--bbd-acc);margin-left:10px;vertical-align:middle}" +
-    ".bbd-tiles{display:flex;gap:8px;margin-left:auto}" +
+    ".bbd-tiles{display:flex;gap:8px}" +
+    ".bbd-find{position:relative;margin-left:auto;width:min(380px,32vw)}" +
+    ".bbd-find input{width:100%;height:38px;box-sizing:border-box;border-radius:10px;border:1px solid #ffffff1f;background:#ffffff08;color:#eaf3fa;font:500 13px Manrope,Arial,sans-serif;padding:0 12px 0 34px;outline:0;" +
+      "background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fcfff' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:11px center;background-size:15px}" +
+    ".bbd-find input:focus{border-color:var(--bbd-acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--bbd-acc) 18%,transparent)}" +
+    ".bbd-find input::placeholder{color:#6f8aa0}" +
+    ".bbd-fstat{display:none}" +
+    ".bbd-fres{position:absolute;right:0;top:46px;width:min(520px,44vw);max-height:72vh;overflow:auto;background:#0d1720f7;border:1px solid #ffffff1a;border-radius:14px;padding:4px 12px 10px;box-shadow:0 24px 60px #000c}" +
     ".bbd-tile{border:1px solid #ffffff14;background:#ffffff06;border-radius:10px;padding:5px 11px;text-align:right;line-height:1.1}" +
     ".bbd-tile b{display:block;font:600 19px 'Barlow Condensed',Arial;color:#eaf3fa;letter-spacing:.6px;font-variant-numeric:tabular-nums}" +
     ".bbd-tile span{font:800 8.5px Manrope,Arial;letter-spacing:1.6px;color:#6f8aa0;text-transform:uppercase}" +
@@ -388,8 +395,23 @@
     var top = document.createElement("header");
     top.className = "bbd-top";
     top.innerHTML = '<div class="bbd-title">' + esc(title) + "<small>DESKTOP</small></div>" +
+      '<div class="bbd-find"><input id="bbd-q" type="search" placeholder="Search events, menus, docs…" autocomplete="off"><p class="bbd-fstat"></p><div class="bbd-fres" hidden></div></div>' +
       '<div class="bbd-tiles"><div class="bbd-tile"><b id="bbd-date"></b><span>Hotel date</span></div><div class="bbd-tile live"><b id="bbd-clock"></b><span><i class="bbd-dot"></i>Hotel time</span></div></div>';
     document.body.appendChild(side); document.body.appendChild(top);
+    // site search, top right (search.js is loaded by theme.js): results drop down under the box
+    (function () {
+      var q = top.querySelector("#bbd-q"), res = top.querySelector(".bbd-fres"), st = top.querySelector(".bbd-fstat");
+      function hook() { window.bbSearch.attach(q, res, st); }
+      if (window.bbSearch) hook(); else window.addEventListener("bb-search-ready", hook, {once: true});
+      res.addEventListener("bbs-results", function () { res.hidden = false; });
+      res.addEventListener("bbs-empty", function () { res.hidden = true; });
+      q.addEventListener("focus", function () { if (q.value.trim() && res.childNodes.length) res.hidden = false; });
+      document.addEventListener("click", function (e) { if (!top.querySelector(".bbd-find").contains(e.target)) res.hidden = true; });
+      q.addEventListener("keydown", function (e) {
+        if (e.key == "Escape") { res.hidden = true; q.blur(); }
+        if (e.key == "Enter") { var first = res.querySelector("a"); if (first) location.href = first.href; }
+      });
+    })();
     window.addEventListener("hashchange", function () {
       var now = here(), pg = PAGES.filter(function (p) { return p[0] == now; })[0];
       side.querySelectorAll(".bbd-nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") == now); });
@@ -417,6 +439,8 @@
       }
       if (b.dataset.bbd == "phone") set(DESK, "0");
       if (b.dataset.bbd == "out") { set(DESK, "0"); set(WHO, null); window.bbTheme && window.bbTheme.off && window.bbTheme.off(); }
+      // Pages the phone home page doesn't link to (for leads) go back to Home in phone view (Sam 2026-10-25).
+      if (b.dataset.bbd == "phone" && ["today.html", "usage.html", "playbook.html", "bar.html", "scheduler.html"].indexOf(here()) > -1) { location.href = "index.html"; return; }
       location.reload();
     });
 
@@ -439,10 +463,23 @@
     document.body.appendChild(b);
   }
 
+  // Phone view on a laptop still gets the site's navy look on these pages (colors and fonts only; the wide layout stays desktop-only).
+  var PHONE_SKINS = {
+    "today.html": SKIN_BASE +
+      "html.bbd-skin:root{--bg:#101820;--surface:#162530;--card:#162530;--border:rgba(139,209,255,.14);--border-light:rgba(139,209,255,.26);" +
+        "--gold:#8bd1ff;--gold-dim:rgba(139,209,255,.45);--gold-glow:rgba(139,209,255,.10);--cream:#eaf3fa;--muted:#8aa4b8;--muted2:#6f8aa0;--white:#eaf3fa}" +
+      "html.bbd-skin .event-card{border-radius:12px!important;border-left:4px solid #8bd1ff!important}" + ""
+  };
+  function phoneSkin() {
+    var cur = here();
+    if (!PHONE_SKINS[cur] || document.getElementById("bbd-skin")) return;
+    document.documentElement.classList.add("bbd-skin");
+    var sk = document.createElement("style"); sk.id = "bbd-skin"; sk.textContent = PHONE_SKINS[cur]; document.head.appendChild(sk);
+  }
   function start() {
     var w = who();
     if (get(DESK) == "1" && isLead(w) && wide()) build(w);
-    else entry();
+    else { phoneSkin(); entry(); }
   }
   if (document.readyState == "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();

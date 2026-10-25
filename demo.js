@@ -57,4 +57,6 @@
   }
   // 5. Desktop mode for leads (captain / director) on a wide screen, same as the real site.
   var dk = document.createElement("script"); dk.src = "desktop.js"; dk.defer = true; document.head.appendChild(dk);
+  // 6. Site search (events, the Plated Service guide) — same search.js as the real site.
+  var sr = document.createElement("script"); sr.src = "search.js"; sr.defer = true; document.head.appendChild(sr);
 })();

@@ -2318,7 +2318,9 @@ body{font-family:Manrope,Arial,sans-serif}
     document.addEventListener('visibilitychange',function(){
       if(!document.hidden&&todayISO()!==TODAY) location.reload();
     });
-    renderDay(TODAY);
+    // ?date=YYYY-MM-DD (from site search) opens that day; past days never open.
+    const qDate=new URLSearchParams(location.search).get('date');
+    renderDay(qDate&&/^\d{4}-\d\d-\d\d$/.test(qDate)&&qDate>=TODAY?qDate:TODAY);
     window.addEventListener('bb-hsm-diagrams',function(){ if(mode==='day') renderDay(selected); });
     fetch('assignments.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{}).then(function(j){
       ASSIGN=j||{};
